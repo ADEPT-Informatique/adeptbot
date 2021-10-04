@@ -9,7 +9,6 @@ from bot.interactions.welcome import ConfirmationInteraction, StudentInteraction
 
 import configs
 from bot import util, tasks
-from bot.botcommands import moderation
 
 bot_prefix = "!"
 
@@ -21,7 +20,7 @@ class AdeptClient(commands.Bot):
         super().__init__(prefix, loop=loop, intents=intents)
         self.loop = loop
         
-        self.add_cog(moderation.Moderation(self))
+        # self.add_cog(moderation.Moderation(self))
 
     async def on_message(self, message):
         if isinstance(message.channel, discord.abc.PrivateChannel):
