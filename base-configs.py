@@ -20,3 +20,10 @@ MUTED_ROLE = 363031112664219648
 MORON_ROLE = 559825539993698316
 
 WELCOME_MESSAGE = "Bonjour et bienvenue à l'ADEPT! Pour commencez, nous allez devoir vous posez quelques questions afin de mieux vous connaitre.\n\n{content}"
+WELCOME_SERVER ="""
+Bienvenue {name} dans le serveur de l'ADEPT Informatique,
+
+veuillez suivre les étapes en message privé pour avoir accès au serveur!
+
+Assurez-vous également de regardez les réglements dans <#471133862442041355> après avoir complété les étapes
+"""
