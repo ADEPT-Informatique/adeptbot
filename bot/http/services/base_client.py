@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
 
-from models import BaseRequest
+from ..models import BaseRequest
 
 DEFAULT_TIMEOUT = 120
 
@@ -18,13 +18,13 @@ class BaseClient:
             'content_type': "application/json"
         }
 
-    async def _get_api_url(self, relative_path: str):
+    def _get_api_url(self, relative_path: str):
         if not relative_path.startswith("/"):
             raise ValueError(f"Relative url must start by a '/', got {relative_path}")
 
         return self.BASE_URL + relative_path
 
-    async def __merge_params(self, url: str, **params) -> str:
+    def __merge_params(self, url: str, **params) -> str:
         url += "?"
         for key, value in params:
             url += f"{key}={value}&"

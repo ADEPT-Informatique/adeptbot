@@ -54,7 +54,6 @@ class CustomTime(commands.Converter):
         }.get(time_parse, parse_secs(int_value))
 
 
-@cog.Cog.cog_check()
 class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.mute_service = MuteService(bot.loop)
