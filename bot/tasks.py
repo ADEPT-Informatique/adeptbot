@@ -1,14 +1,10 @@
-import asyncio
-import json
-import jsonpickle
-from bot.http.services.mute import MuteService
 from bot.task import Task
 from bot.strikes import Strike
 import datetime
 from datetime import datetime as date
 from discord.ext import tasks
 
-from bot import dbconn, util
+from bot import util
 
 task_list = []
 
@@ -33,7 +29,7 @@ async def create_mute_task(member, duration=None):
 
 async def delete_task(member, strike_type:Strike, reason="Automatic moderation"):
     if strike_type == Strike.MUTE:
-        dbconn.get('Mutes').delete_one({'member': member.id})
+        # dbconn.get('Mutes').delete_one({'member': member.id})
         await util.unmute(member, reason)
     elif strike_type == Strike.BAN:
         # TODO: Remove ban
@@ -59,7 +55,7 @@ async def process_mutes():
 
 
 def _load_tasks(client):
-    to_process = dbconn.get('ActiveMutes').find({}, {'_id': False})
+    to_process = [] # dbconn.get('ActiveMutes').find({}, {'_id': False})
 
     to_process = list(to_process)
 

@@ -2,7 +2,7 @@ import logging
 import discord
 from discord.ext import tasks
 
-from . import dbconn, strikes
+from . import strikes
 import configs
 
 client = None
@@ -16,10 +16,12 @@ def get_member(guild, member):
 
 
 def get_case_number():
+    pass
     return dbconn.get("Strikes").find().count() + 1
 
 
 async def strike(id, t:str, reason):
+    pass
     dbconn.strike(id, str(t), reason)
 
 
@@ -51,6 +53,10 @@ async def unmute(member, reason):
 
 async def has_role(member, role):
     return role in member.roles
+
+
+def get_welcome_instruction(instruction: str):
+    return configs.WELCOME_MESSAGE.format(content=instruction)
 
 
 def _load(c):

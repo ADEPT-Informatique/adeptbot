@@ -1,9 +1,11 @@
 import traceback
 import discord
 from discord.ext import commands
+from bot.interactions import WelcomeInteraction
 import sys
 import asyncio
 import re
+from bot.interactions.welcome import ConfirmationInteraction, StudentInteraction, TeacherInteraction
 
 import configs
 from bot import util, tasks
@@ -12,7 +14,7 @@ from bot.botcommands import moderation
 bot_prefix = "!"
 
 class AdeptClient(commands.Bot):
-    def __init__(self, token, prefix):
+    def __init__(self, prefix):
         intents = discord.Intents.default()
         intents.members = True
         loop = asyncio.get_event_loop()
@@ -20,8 +22,6 @@ class AdeptClient(commands.Bot):
         self.loop = loop
         
         self.add_cog(moderation.Moderation(self))
-
-        self.run(token)
 
     async def on_message(self, message):
         if isinstance(message.channel, discord.abc.PrivateChannel):
@@ -36,25 +36,65 @@ class AdeptClient(commands.Bot):
 
     async def on_ready(self):
         util._load(self)
-
-        # Bot logs
-        channel_id, server_id = configs.bot_logs.split("/")
-        configs.bot_logs = self.get_guild(int(server_id)).get_channel(int(channel_id))
-        
-        # Moderation Logs
-        channel_id, server_id = configs.mod_logs.split("/")
-        configs.mod_logs = self.get_guild(int(server_id)).get_channel(int(channel_id))
-
-        await self.say(configs.bot_logs, "Bot started!")
         util.logger.info("\nLogged in with account @%s ID:%s \n-------",
                         self.user.name, self.user.id)
 
         await self.change_presence(activity=discord.Activity(name="for bad boys!", type=discord.ActivityType.watching))
         tasks._load_tasks(self)
 
+    async def walk_through_welcome(self, member: discord.Member):
+        welcome_view = WelcomeInteraction()
+        original_message: discord.Message = await member.send(content=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"), view=welcome_view)
+        is_student = await welcome_view.start()
+
+        if is_student is None:
+            return await member.send("Nous avons pas reçu de réponse! Utilisez `!setup` pour revenir dans ces étapes.")
+
+        await original_message.edit(content=util.get_welcome_instruction("Quel est votre nom?"), view=None)
+        student_name = await self.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
+
+        confirmation_embed = discord.Embed(title="Est-ce que ces informations sont tous exactes?")
+        confirmation_embed.add_field(name="Nom:", value=student_name.content, inline=False)
+
+        if is_student:
+            student_view = StudentInteraction()
+            await original_message.edit(content=util.get_welcome_instruction("Quel est votre programme?"), view=student_view)
+            program = await student_view.start()
+
+            if program == "prog":
+                program = "Programmation"
+            elif program == "network":
+                program == "Réseautique"
+            elif program == "decbac":
+                program = "DEC-BAC"
+
+            await original_message.edit(content=util.get_welcome_instruction("Quel est votre numéro étudiant?"), view=None)
+            student_number = await self.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
+
+            confirmation_embed.add_field(name="Numéro étudiant:", value=student_number.content, inline=False)
+            confirmation_embed.add_field(name="Programme:", value=program, inline=False)
+        else:
+            teacher_view = TeacherInteraction()
+            await original_message.edit(content=util.get_welcome_instruction("Êtes-vous un professeur?"), view=teacher_view)
+            is_teacher = await teacher_view.start()
+            
+            confirmation_embed.add_field(name="Professeur:", value="Oui" if is_teacher else "Non", inline=False)
+
+        confirmation_view = ConfirmationInteraction()
+        confirmation_message = await member.send(embed=confirmation_embed, view=confirmation_view)
+        confirmed = await confirmation_view.start()
+
+        if confirmed:
+            await member.send("Parfait, tout est beau!")
+            await confirmation_message.edit(view=None)
+        else:
+            await member.send("D'accord, recommencons!")
+            await self.walk_through_welcome(member)
+
+
     async def on_member_join(self, member: discord.Member):
-        await member.create_dm()
-        await member.send
+        await self.say(configs.WELCOME_CHANNEL, configs.WELCOME_SERVER.format(name=member.mention))
+        await self.walk_through_welcome(member)
 
     async def on_error(self, event, *args,  **kwargs):
         traceback.print_exc()
@@ -72,4 +112,5 @@ class AdeptClient(commands.Bot):
 
 if __name__ == "__main__":
     util.logger.info("Starting the bot!")
-    client = AdeptClient(configs.bot_token, prefix=bot_prefix)
+    client = AdeptClient(prefix=configs.PREFIX)
+    client.run(configs.TOKEN)

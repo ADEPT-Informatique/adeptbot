@@ -1,9 +1,7 @@
-from data import BaseRequest
+from . import BaseRequest
 
 class BanRequest(BaseRequest):
-    def __init__(self, member_id: int, guild_id: int, reason: str, duration: int) -> None:
-        self.member_id = member_id
-        self.guild_id = guild_id
+    def __init__(self, reason: str, duration: int) -> None:
         self.reason = reason
         self.duration = duration
 
