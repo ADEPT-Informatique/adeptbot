@@ -1,10 +1,8 @@
 import traceback
 import discord
 from discord.ext import commands
-from discord.ext.commands.errors import NoEntryPointError
 from bot.http.models.user import WelcomeUser
 from bot.interactions import WelcomeInteraction
-import sys
 import asyncio
 import re
 from bot.interactions.welcome import ConfirmationInteraction, StudentInteraction, TeacherInteraction
