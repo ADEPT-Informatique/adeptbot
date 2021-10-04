@@ -1,8 +1,8 @@
 import traceback
 import discord
 from discord.ext import commands
+from bot.http.models.user import WelcomeUser
 from bot.interactions import WelcomeInteraction
-import sys
 import asyncio
 import re
 from bot.interactions.welcome import ConfirmationInteraction, StudentInteraction, TeacherInteraction
@@ -48,13 +48,15 @@ class AdeptClient(commands.Bot):
         is_student = await welcome_view.start()
 
         if is_student is None:
-            return await member.send("Nous avons pas reçu de réponse! Utilisez `!setup` pour revenir dans ces étapes.")
+            return await member.send("Nous avons pas reçu de réponse! Utilisez `!setup` pour recommencer.")
 
         await original_message.edit(content=util.get_welcome_instruction("Quel est votre nom?"), view=None)
-        student_name = await self.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
-
+        student_name_msg = await self.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
+        
+        # TODO: Make a None check
+        student_name = student_name_msg.content
         confirmation_embed = discord.Embed(title="Est-ce que ces informations sont tous exactes?")
-        confirmation_embed.add_field(name="Nom:", value=student_name.content, inline=False)
+        confirmation_embed.add_field(name="Nom:", value=student_name, inline=False)
 
         if is_student:
             student_view = StudentInteraction()
@@ -69,14 +71,20 @@ class AdeptClient(commands.Bot):
                 program = "DEC-BAC"
 
             await original_message.edit(content=util.get_welcome_instruction("Quel est votre numéro étudiant?"), view=None)
-            student_number = await self.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
+            student_number_msg = await self.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
 
-            confirmation_embed.add_field(name="Numéro étudiant:", value=student_number.content, inline=False)
+            # TODO: Make a None check
+            student_number = student_number_msg.content
+            confirmation_embed.add_field(name="Numéro étudiant:", value=student_number, inline=False)
             confirmation_embed.add_field(name="Programme:", value=program, inline=False)
         else:
             teacher_view = TeacherInteraction()
             await original_message.edit(content=util.get_welcome_instruction("Êtes-vous un professeur?"), view=teacher_view)
             is_teacher = await teacher_view.start()
+
+            if not is_teacher:
+                await member.send("Entrée invalide, veuillez recommencer!")
+                return await self.walk_through_welcome(member)
             
             confirmation_embed.add_field(name="Professeur:", value="Oui" if is_teacher else "Non", inline=False)
 
@@ -89,12 +97,37 @@ class AdeptClient(commands.Bot):
             await confirmation_message.edit(view=None)
         else:
             await member.send("D'accord, recommencons!")
-            await self.walk_through_welcome(member)
+            return await self.walk_through_welcome(member)
+
+        return WelcomeUser(student_name, is_student, student_number, program)
 
 
     async def on_member_join(self, member: discord.Member):
         await self.say(configs.WELCOME_CHANNEL, configs.WELCOME_SERVER.format(name=member.mention))
-        await self.walk_through_welcome(member)
+        result = await self.walk_through_welcome(member)
+
+        if isinstance(result, WelcomeUser):
+            guild = member.guild
+            name = result.name
+            student_id = result.student_id
+
+            role = None
+            if result.is_student:
+                if result.program == "Programmation":
+                    role = guild.get_role(configs.PROG_ROLE)
+                elif result.program == "Réseautique":
+                    role = guild.get_role(configs.NETWORK_ROLE)
+                elif result.program == "DEC-BAC":
+                    role = guild.get_role(configs.DECBAC_ROLE)
+            else:
+                role = guild.get_role(configs.TEACHER_ROLE)
+
+            await member.edit(nick=name, roles=[role], reason="Inital setup")
+
+            # TODO: Post to API the new partial student setup
+        else:
+            util.logger.warning(f"Failed to complete setup for {member.name} ({member.id})")
+            
 
     async def on_error(self, event, *args,  **kwargs):
         traceback.print_exc()
