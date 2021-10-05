@@ -1,10 +1,10 @@
-from bot.task import Task
-from bot.strikes import Strike
 import datetime
 from datetime import datetime as date
 from discord.ext import tasks
 
 from bot import util
+from bot.strikes import Strike
+from bot.task import Task
 
 task_list = []
 
@@ -14,11 +14,11 @@ async def create_mute_task(member, duration=None):
 
     end_date = date.now() + datetime.timedelta(seconds=duration)
     task = Task(member, end_date, Strike.MUTE)
-    
+
     exists = any(task for task in task_list if task.member.id == member.id)
     if exists:
         task_list.remove(task for task in task_list if task.member.id == member.id)
-    
+
     task_list.append(task)
 
     if not process_mutes.is_running():
@@ -34,7 +34,7 @@ async def delete_task(member, strike_type:Strike, reason="Automatic moderation")
     elif strike_type == Strike.BAN:
         # TODO: Remove ban
         pass
-    
+
     task = [task for task in task_list if task.member.id == member.id and task.type == strike_type]
     if len(task) > 0:
         task = task[0]

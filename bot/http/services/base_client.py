@@ -1,5 +1,5 @@
-import asyncio
 import aiohttp
+import asyncio
 
 from ..models import BaseRequest
 
@@ -11,7 +11,7 @@ class BaseClient:
     def __init__(self, loop=None) -> None:
         if loop is None:
             loop = asyncio.get_event_loop()
-        
+
         self.__loop = loop
         self.__headers = {
             'Authorization': "",
@@ -45,7 +45,7 @@ class BaseClient:
     async def post(self, url: str, data: BaseRequest, timeout=DEFAULT_TIMEOUT, **params):
         if len(params.keys()) > 0:
             url = self.__merge_params(url, params)
-        
+
         async with aiohttp.ClientSession(loop=self.__loop, timeout=timeout, ) as session:
             async with session.post(url, data=data) as response:
                 response.raise_for_status()
@@ -55,7 +55,7 @@ class BaseClient:
     async def put(self, url: str, data: BaseRequest, timeout=DEFAULT_TIMEOUT, **params):
         if len(params.keys()) > 0:
             url = self.__merge_params(url, params)
-        
+
         async with aiohttp.ClientSession(loop=self.__loop, timeout=timeout) as session:
             async with session.put(url, data=data) as response:
                 response.raise_for_status()
@@ -65,7 +65,7 @@ class BaseClient:
     async def delete(self, url: str, timeout=DEFAULT_TIMEOUT, **params):
         if len(params.keys()) > 0:
             url = self.__merge_params(url, params)
-        
+
         async with aiohttp.ClientSession(loop=self.__loop, timeout=timeout) as session:
             async with session.delete(url) as response:
                 response.raise_for_status()

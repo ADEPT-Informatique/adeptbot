@@ -1,9 +1,8 @@
-import logging
 import discord
-from discord.ext import tasks
+import logging
 
-from . import strikes
 import configs
+from bot.http.models.user import WelcomeUser
 
 client = None
 
@@ -16,13 +15,11 @@ def get_member(guild, member):
 
 
 def get_case_number():
-    pass
-    return dbconn.get("Strikes").find().count() + 1
+    raise NotImplementedError()
 
 
-async def strike(id, t:str, reason):
-    pass
-    dbconn.strike(id, str(t), reason)
+async def strike(id, t: str, reason: str):
+    raise NotImplementedError()
 
 
 async def react_to(message, reaction):
@@ -40,14 +37,14 @@ async def exception(channel, message, **kwargs):
 async def mute(member):
     guild = member.guild
     mute_role = guild.get_role(configs.muted_role)
-    
+
     await member.add_roles(mute_role)
 
 
 async def unmute(member, reason):
     guild = member.guild
     mute_role = guild.get_role(configs.muted_role)
-    
+
     await member.remove_roles(mute_role, reason=reason)
 
 
@@ -57,6 +54,30 @@ async def has_role(member, role):
 
 def get_welcome_instruction(instruction: str):
     return configs.WELCOME_MESSAGE.format(content=instruction)
+
+
+async def process_welcome_result(member: discord.Member, result):
+    if isinstance(result, WelcomeUser):
+        guild = member.guild
+        name = result.name
+        student_id = result.student_id
+
+        role = None
+        if result.is_student:
+            if result.program == "Programmation":
+                role = guild.get_role(configs.PROG_ROLE)
+            elif result.program == "Réseautique":
+                role = guild.get_role(configs.NETWORK_ROLE)
+            elif result.program == "DEC-BAC":
+                role = guild.get_role(configs.DECBAC_ROLE)
+        else:
+            role = guild.get_role(configs.TEACHER_ROLE)
+
+        await member.edit(nick=name, roles=[role], reason="Inital setup")
+
+        # TODO: Post to API the new partial student setup
+    else:
+        logger.warning(f"Failed to complete setup for {member.name} ({member.id})")
 
 
 def _load(c):

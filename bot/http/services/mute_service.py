@@ -1,6 +1,8 @@
-from ..models import MuteRequest
-from . import BaseClient
 import discord
+
+from . import BaseClient
+from ..models import MuteRequest
+
 
 class MuteService(BaseClient):
     MUTE_URL = "/discord/mute"
@@ -8,7 +10,7 @@ class MuteService(BaseClient):
     def __init__(self, loop=None) -> None:
         super().__init__(loop=loop)
         self.MUTE_URL = self._get_api_url(self.MUTE_URL)
-    
+
     async def mute(self, member: discord.Member, reason: str, duration: int):
         mute_request = MuteRequest(reason, duration)
 
