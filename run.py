@@ -22,13 +22,12 @@ class AdeptClient(commands.Bot):
         
         # self.add_cog(moderation.Moderation(self))
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         if isinstance(message.channel, discord.abc.PrivateChannel):
             return
 
-        mentions_self_regex = f"<@.?{self.user.id}>"
-        if re.match("^"+mentions_self_regex, message.content):
-            message.content = re.sub(mentions_self_regex + "\s*", bot_prefix, message.content)
+        message.content = message.content.replace(f"<@!{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
+        message.content = message.content.replace(f"<@{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
         
         if message.content.startswith(bot_prefix):
             await self.process_commands(message)
@@ -65,7 +64,7 @@ class AdeptClient(commands.Bot):
             if program == "prog":
                 program = "Programmation"
             elif program == "network":
-                program == "Réseautique"
+                program = "Réseautique"
             elif program == "decbac":
                 program = "DEC-BAC"
 
@@ -105,27 +104,7 @@ class AdeptClient(commands.Bot):
         await self.say(configs.WELCOME_CHANNEL, configs.WELCOME_SERVER.format(name=member.mention))
         result = await self.walk_through_welcome(member)
 
-        if isinstance(result, WelcomeUser):
-            guild = member.guild
-            name = result.name
-            student_id = result.student_id
-
-            role = None
-            if result.is_student:
-                if result.program == "Programmation":
-                    role = guild.get_role(configs.PROG_ROLE)
-                elif result.program == "Réseautique":
-                    role = guild.get_role(configs.NETWORK_ROLE)
-                elif result.program == "DEC-BAC":
-                    role = guild.get_role(configs.DECBAC_ROLE)
-            else:
-                role = guild.get_role(configs.TEACHER_ROLE)
-
-            await member.edit(nick=name, roles=[role], reason="Inital setup")
-
-            # TODO: Post to API the new partial student setup
-        else:
-            util.logger.warning(f"Failed to complete setup for {member.name} ({member.id})")
+        await util.process_welcome_result(member, result)
             
 
     async def on_error(self, event, *args,  **kwargs):
