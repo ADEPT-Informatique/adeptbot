@@ -5,6 +5,7 @@ from discord.ext import commands
 
 import configs
 from bot import util, tasks
+from bot.botcommands import member
 from bot.http.models.user import WelcomeUser
 from bot.interactions import WelcomeInteraction
 from bot.interactions.welcome import ConfirmationInteraction, StudentInteraction, TeacherInteraction
@@ -19,6 +20,7 @@ class AdeptClient(commands.Bot):
         super().__init__(prefix, loop=loop, intents=intents)
         self.loop = loop
 
+        self.add_cog(member.MemberCog(self))
         # self.add_cog(moderation.Moderation(self))
 
     async def on_message(self, message: discord.Message):
