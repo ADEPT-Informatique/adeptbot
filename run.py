@@ -1,14 +1,13 @@
-import traceback
-import discord
-from discord.ext import commands
-from bot.http.models.user import WelcomeUser
-from bot.interactions import WelcomeInteraction
 import asyncio
-import re
-from bot.interactions.welcome import ConfirmationInteraction, StudentInteraction, TeacherInteraction
+import discord
+import traceback
+from discord.ext import commands
 
 import configs
 from bot import util, tasks
+from bot.http.models.user import WelcomeUser
+from bot.interactions import WelcomeInteraction
+from bot.interactions.welcome import ConfirmationInteraction, StudentInteraction, TeacherInteraction
 
 bot_prefix = "!"
 
@@ -19,7 +18,7 @@ class AdeptClient(commands.Bot):
         loop = asyncio.get_event_loop()
         super().__init__(prefix, loop=loop, intents=intents)
         self.loop = loop
-        
+
         # self.add_cog(moderation.Moderation(self))
 
     async def on_message(self, message: discord.Message):
@@ -28,7 +27,7 @@ class AdeptClient(commands.Bot):
 
         message.content = message.content.replace(f"<@!{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
         message.content = message.content.replace(f"<@{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
-        
+
         if message.content.startswith(bot_prefix):
             await self.process_commands(message)
 
@@ -50,7 +49,7 @@ class AdeptClient(commands.Bot):
 
         await original_message.edit(content=util.get_welcome_instruction("Quel est votre nom?"), view=None)
         student_name_msg = await self.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
-        
+
         # TODO: Make a None check
         student_name = student_name_msg.content
         confirmation_embed = discord.Embed(title="Est-ce que ces informations sont tous exactes?")
@@ -83,7 +82,7 @@ class AdeptClient(commands.Bot):
             if not is_teacher:
                 await member.send("Entrée invalide, veuillez recommencer!")
                 return await self.walk_through_welcome(member)
-            
+
             confirmation_embed.add_field(name="Professeur:", value="Oui" if is_teacher else "Non", inline=False)
 
         confirmation_view = ConfirmationInteraction()
@@ -105,7 +104,7 @@ class AdeptClient(commands.Bot):
         result = await self.walk_through_welcome(member)
 
         await util.process_welcome_result(member, result)
-            
+
 
     async def on_error(self, event, *args,  **kwargs):
         traceback.print_exc()

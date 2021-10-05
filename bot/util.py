@@ -1,9 +1,8 @@
-import logging
 import discord
-from discord.ext import tasks
+import logging
 
-from . import strikes
 import configs
+from bot.http.models.user import WelcomeUser
 
 client = None
 
@@ -38,14 +37,14 @@ async def exception(channel, message, **kwargs):
 async def mute(member):
     guild = member.guild
     mute_role = guild.get_role(configs.muted_role)
-    
+
     await member.add_roles(mute_role)
 
 
 async def unmute(member, reason):
     guild = member.guild
     mute_role = guild.get_role(configs.muted_role)
-    
+
     await member.remove_roles(mute_role, reason=reason)
 
 

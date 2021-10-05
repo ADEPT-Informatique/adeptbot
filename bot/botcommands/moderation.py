@@ -1,14 +1,11 @@
 import discord
-from discord.ext import commands
 import typing
-
-from discord.ext.commands import cog
+from discord.ext import commands
 from discord.ext.commands.context import Context
-from ..http.services import MuteService, BanService
 
 import configs
-
 from .. import util, tasks
+from ..http.services import MuteService, BanService
 from ..strikes import Strike
 
 NO_REASON = "No reason specified"
@@ -58,7 +55,7 @@ class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.mute_service = MuteService(bot.loop)
         self.ban_service = BanService(bot.loop)
-    
+
     async def cog_check(self, ctx: Context) -> bool:
         return any([role in (configs.ADMIN_ROLE, configs.TRUST_ROLE) for role in ctx.author.roles])
 
@@ -83,7 +80,7 @@ class Moderation(commands.Cog):
         await util.strike(member.id, str(Strike.WARN), reason)
         await util.say(configs.LOGS, embed=warn_embed)
         await util.react_to(ctx.message, u"\u2705")
-    
+
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
     async def mute(self, ctx: Context, member: discord.Member, length:typing.Optional[CustomTime]=-1, *, reason:str=NO_REASON):
@@ -136,17 +133,17 @@ class Moderation(commands.Cog):
         """
         if not await util.has_role(member, ctx.guild.get_role(configs.MUTED_ROLE)):
             return await util.exception(ctx.channel, "This user is not muted!")
-            
+
         mute_embed = discord.Embed(title=f"New case | Unmute | {member}", color=15066368)
         mute_embed.add_field(name="User", value=member.mention)
         mute_embed.add_field(name="Reason", value=reason, inline=False)
-        
+
         await util.unmute(member)
         await tasks.delete_task(member, Strike.MUTE, reason)
         await util.strike(member.id, Strike.UNMUTE, reason)
         await util.say(configs.LOGS, embed=mute_embed)
         await util.react_to(ctx.message, u"\u2705")
-    
+
     @commands.command()
     @commands.has_guild_permissions(kick_members=True)
     async def kick(self, ctx: Context, member: discord.Member, *, reason:str=NO_REASON):
@@ -168,7 +165,7 @@ class Moderation(commands.Cog):
         await util.strike(member.id, Strike.KICK, reason)
         await util.say(configs.LOGS, embed=kick_embed)
         await util.react_to(ctx.message, u"\u2705")
-    
+
     @commands.command()
     @commands.has_guild_permissions(ban_members=True)
     async def ban(self, ctx: Context, user: discord.User, *, reason:str=NO_REASON):
@@ -178,7 +175,7 @@ class Moderation(commands.Cog):
         !ban @DeveloperAnonymous Is a noob
         """
         guild:discord.Guild = ctx.guild
-        
+
         if user in [entry.user for entry in await guild.bans()]:
             return await util.exception(ctx.channel, "This user is already banned!")
 
@@ -190,12 +187,12 @@ class Moderation(commands.Cog):
             await user.send("You have been banned in %s: %s" % (ctx.guild.name, reason))
         except (discord.errors.HTTPException, discord.errors.Forbidden):
             util.logger.warn("Failed to notify ban")
-        
+
         await ctx.guild.ban(user, reason=reason)
         await util.strike(user.id, Strike.BAN, reason)
         await util.say(configs.LOGS, embed=ban_embed)
         await util.react_to(ctx.message, u"\u2705")
-    
+
     @commands.command()
     @commands.has_guild_permissions(ban_members=True)
     async def unban(self, ctx: Context, user: discord.User, *, reason:str=NO_REASON):
@@ -205,14 +202,14 @@ class Moderation(commands.Cog):
         !unban @DeveloperAnonymous Is not a noob anymore
         """
         guild:discord.Guild = ctx.guild
-        
+
         if user not in [entry.user for entry in await guild.bans()]:
             return await util.exception(ctx.channel, "This user is not banned!")
 
         unban_embed = discord.Embed(title=f"New case | Unban | {user}", color=993326)
         unban_embed.add_field(name="User", value=user.mention)
         unban_embed.add_field(name="Reason", value=reason, inline=False)
-        
+
         await guild.unban(user, reason=reason)
         await util.strike(user.id, Strike.UNBAN, reason)
         await util.say(configs.LOGS, embed=unban_embed)

@@ -1,6 +1,8 @@
-from ..models import BanRequest
-from . import BaseClient
 import discord
+
+from . import BaseClient
+from ..models import BanRequest
+
 
 class BanService(BaseClient):
     BAN_URL = "/discord/ban"
@@ -8,7 +10,7 @@ class BanService(BaseClient):
     def __init__(self, loop=None) -> None:
         super().__init__(loop=loop)
         self.BAN_URL = self._get_api_url(self.BAN_URL)
-    
+
     async def ban(self, member: discord.Member, reason: str, duration: int):
         ban_request = BanRequest(reason, duration)
 
