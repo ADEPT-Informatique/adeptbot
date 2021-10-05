@@ -1,4 +1,4 @@
-import util
+from bot import util
 from discord.ext import commands
 
 from run import AdeptClient
