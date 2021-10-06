@@ -34,16 +34,16 @@ async def exception(channel, message, **kwargs):
     await say(channel, ":bangbang: **%s**" %message, **kwargs)
 
 
-async def mute(member):
+async def mute(member: discord.Member):
     guild = member.guild
-    mute_role = guild.get_role(configs.muted_role)
+    mute_role = guild.get_role(configs.MUTED_ROLE)
 
     await member.add_roles(mute_role)
 
 
 async def unmute(member, reason):
     guild = member.guild
-    mute_role = guild.get_role(configs.muted_role)
+    mute_role = guild.get_role(configs.MUTED_ROLE)
 
     await member.remove_roles(mute_role, reason=reason)
 
@@ -78,6 +78,16 @@ async def process_welcome_result(member: discord.Member, result):
         # TODO: Post to API the new partial student setup
     else:
         logger.warning(f"Failed to complete setup for {member.name} ({member.id})")
+
+
+def get_plural(value: int, word: str):
+    if word.endswith("s"):
+        return word
+    
+    if value > 1:
+        return word + "s"
+    
+    return word
 
 
 def _load(c):

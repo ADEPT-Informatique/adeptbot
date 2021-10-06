@@ -5,7 +5,7 @@ from discord.ext import commands
 
 import configs
 from bot import util, tasks
-from bot.botcommands import member
+from bot.botcommands import member, moderation
 from bot.http.models.user import WelcomeUser
 from bot.interactions import WelcomeInteraction
 from bot.interactions.welcome import ConfirmationInteraction, StudentInteraction, TeacherInteraction
@@ -21,7 +21,7 @@ class AdeptClient(commands.Bot):
         self.loop = loop
 
         self.add_cog(member.MemberCog(self))
-        # self.add_cog(moderation.Moderation(self))
+        self.add_cog(moderation.ModerationCog(self))
 
     async def on_message(self, message: discord.Message):
         if isinstance(message.channel, discord.abc.PrivateChannel):
