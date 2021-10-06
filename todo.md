@@ -25,14 +25,16 @@
 ## Discord
 
 1. GET /discord/mute
-2. POST /discord/mute
-3. DELETE /discord/mute/{userId}?reason=
-4. GET /discord/ban
-5. POST /discord/ban
-6. DELETE /discord/ban/{userId}?reason=
-7. GET /discord/user/{userId}
-8. POST /discord/user
-9. PUT /discord/user/{userId}
+2. GET /discord/mute/{userId}
+3. POST /discord/mute/{userId}
+4. DELETE /discord/mute/{userId}?reason=
+5. GET /discord/ban
+6. GET /discord/ban/{userId}
+7. POST /discord/ban/{userId}
+8. DELETE /discord/ban/{userId}?reason=
+9. GET /discord/user/{userId}
+10. POST /discord/user
+11. PUT /discord/user/{userId}
 
 ## Membre de confiance
 
