@@ -1,4 +1,5 @@
 import discord
+import typing
 from discord.ext import commands
 from discord.ext.commands.context import Context
 from typing import Union
@@ -8,7 +9,7 @@ from .. import util, tasks
 from ..http.services import MuteService, BanService
 from ..strikes import Strike
 
-NO_REASON = "No reason specified"
+NO_REASON = "Pas de raison spécifié"
 
 class ParsedTime:
     def __init__(self, label, seconds) -> None:
@@ -87,7 +88,7 @@ class ModerationCog(commands.Cog):
         moderation_embed.add_field(name="Moderateur", value=author.mention, inline=False)
         moderation_embed.add_field(name="Raison", value=reason, inline=False)
 
-        if parsed_time is not None:
+        if parsed_time:
             moderation_embed.add_field(name="Durée", value=parsed_time.seconds)
 
         return moderation_embed
@@ -101,7 +102,7 @@ class ModerationCog(commands.Cog):
         """
 
         try:
-            await member.send("Vous avez été averti(e) %s: %s" % (ctx.guild.name, reason))
+            await member.send("Vous avez été averti(e) %s.\n\nRaison: %s" % (ctx.guild.name, reason))
         except(discord.errors.HTTPException, discord.errors.Forbidden):
             util.logger.warn("Failed to notify warn")
 
@@ -113,7 +114,7 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
-    async def mute(self, ctx: Context, member: discord.Member, length: CustomTime = None, *, reason: str = NO_REASON):
+    async def mute(self, ctx: Context, member: discord.Member, length: typing.Optional[CustomTime] = None, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
         !mute @DeveloperAnonymous Is a noob
@@ -132,10 +133,10 @@ class ModerationCog(commands.Cog):
         w = week(s)
         """
         if await util.has_role(member, ctx.guild.get_role(configs.MUTED_ROLE)):
-            return await util.exception(ctx.channel, "Ce membre est déjà muet! :no_mouth: ")
+            return await util.exception(ctx.channel, "Ce membre est déjà muet!")
 
         try:
-            await member.send("Vous êtes désormais muet sur %s: %s" % (ctx.guild.name, reason))
+            await member.send("Vous êtes désormais muet sur %s.\n\nRaison: %s" % (ctx.guild.name, reason))
         except (discord.errors.HTTPException, discord.errors.Forbidden):
             util.logger.warn("Failed to notify mute")
 
@@ -144,7 +145,8 @@ class ModerationCog(commands.Cog):
         await util.say(configs.LOGS, embed=mute_embed)
         await util.react_to(ctx.message, u"\u2705")
 
-        await tasks.create_mute_task(member, length.seconds)
+        if length is not None:
+            await tasks.create_mute_task(member, length.seconds)
 
         # TODO: Create the task
         # TODO: Do API Calls in the background
@@ -178,7 +180,7 @@ class ModerationCog(commands.Cog):
         """
         
         try:
-            await member.send("Vous avez été retiré de %s: %s" % (ctx.guild.name, reason))
+            await member.send("Vous avez été retiré de %s.\n\nRaison: %s" % (ctx.guild.name, reason))
         except (discord.errors.HTTPException, discord.errors.Forbidden):
             util.logger.warn("Failed to notify kick")
 
@@ -204,7 +206,7 @@ class ModerationCog(commands.Cog):
 
 
         try:
-            await user.send("Vous avez été banni dans %s: %s" % (guild.name, reason))
+            await user.send("Vous avez été banni dans %s.\n\nRaison: %s" % (guild.name, reason))
         except (discord.errors.HTTPException, discord.errors.Forbidden):
             util.logger.warn("Failed to notify ban")
 
