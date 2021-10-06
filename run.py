@@ -1,16 +1,17 @@
 import asyncio
-import discord
 import traceback
+from typing import Union
+
+import discord
 from discord.ext import commands
 
 import configs
-from bot import util, tasks
+from bot import tasks, util
 from bot.botcommands import member, moderation
 from bot.http.models.user import WelcomeUser
 from bot.interactions import WelcomeInteraction
 from bot.interactions.welcome import ConfirmationInteraction, StudentInteraction, TeacherInteraction
 
-bot_prefix = "!"
 
 class AdeptClient(commands.Bot):
     def __init__(self, prefix):
@@ -30,7 +31,7 @@ class AdeptClient(commands.Bot):
         message.content = message.content.replace(f"<@!{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
         message.content = message.content.replace(f"<@{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
 
-        if message.content.startswith(bot_prefix):
+        if message.content.startswith(configs.PREFIX):
             await self.process_commands(message)
 
     async def on_ready(self):
@@ -111,7 +112,7 @@ class AdeptClient(commands.Bot):
     async def on_error(self, event, *args,  **kwargs):
         traceback.print_exc()
 
-    async def say(self, channel, *args, **kwargs):
+    async def say(self, channel: Union[discord.TextChannel, str], *args, **kwargs):
         if type(channel) is str:
             # channel_id/server_id
             channel_id, server_id = channel.split("/")
