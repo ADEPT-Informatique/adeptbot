@@ -80,8 +80,8 @@ class ModerationCog(commands.Cog):
             color = 15066368
         elif strike == Strike.KICK:
             color = 16758079
-        elif strike == Strike.BAN:
-            color = 16758079
+        elif strike in (Strike.BAN, Strike.UNBAN):
+            color = 993326
 
         moderation_embed = discord.Embed(title=f"Nouveau cas | {strike} | {target.name}", color=color)
         moderation_embed.add_field(name="Utilisateur", value=target.mention, inline=False)
@@ -107,7 +107,7 @@ class ModerationCog(commands.Cog):
             util.logger.warn("Failed to notify warn")
 
         warn_embed = self.__create_moderation_embed(Strike.WARN, member, ctx.author, reason)
-        await util.say(configs.LOGS, embed=warn_embed)
+        await util.say(configs.LOGS_CHANNEL, embed=warn_embed)
         await util.react_to(ctx.message, u"\u2705")
 
         # TODO: Do API Calls in the background
@@ -142,7 +142,7 @@ class ModerationCog(commands.Cog):
 
         mute_embed = await self.__create_moderation_embed(Strike.MUTE, member, ctx.author, reason, length)
         await util.mute(member)
-        await util.say(configs.LOGS, embed=mute_embed)
+        await util.say(configs.LOGS_CHANNEL, embed=mute_embed)
         await util.react_to(ctx.message, u"\u2705")
 
         if length is not None:
@@ -164,7 +164,7 @@ class ModerationCog(commands.Cog):
 
         mute_embed = await self.__create_moderation_embed(Strike.UNMUTE, member, ctx.author, reason)
         await util.unmute(member)
-        await util.say(configs.LOGS, embed=mute_embed)
+        await util.say(configs.LOGS_CHANNEL, embed=mute_embed)
         await util.react_to(ctx.message, u"\u2705")
 
         # TODO: Remove the task, if any
@@ -186,7 +186,7 @@ class ModerationCog(commands.Cog):
 
         kick_embed = await self.__create_moderation_embed(Strike.KICK, member, ctx.author, reason)
         await member.kick(reason=reason)
-        await util.say(configs.LOGS, embed=kick_embed)
+        await util.say(configs.LOGS_CHANNEL, embed=kick_embed)
         await util.react_to(ctx.message, u"\u2705")
 
         # TODO: Do API Calls in the background
@@ -212,7 +212,7 @@ class ModerationCog(commands.Cog):
 
         ban_embed = await self.__create_moderation_embed(Strike.BAN, user, ctx.author, reason)
         await guild.ban(user, reason=reason)
-        await util.say(configs.LOGS, embed=ban_embed)
+        await util.say(configs.LOGS_CHANNEL, embed=ban_embed)
         await util.react_to(ctx.message, u"\u2705")
 
         # TODO: Create the task
@@ -233,7 +233,7 @@ class ModerationCog(commands.Cog):
 
         unban_embed = await self.__create_moderation_embed(Strike.UNBAN, user, ctx.author, reason)
         await guild.unban(user, reason=reason)
-        await util.say(configs.LOGS, embed=unban_embed)
+        await util.say(configs.LOGS_CHANNEL, embed=unban_embed)
         await util.react_to(ctx.message, u"\u2705")
 
         # TODO: Remove the task, if any
