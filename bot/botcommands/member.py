@@ -1,7 +1,7 @@
 from discord.ext import commands
 from discord.ext.commands.context import Context
 
-from bot import util, welcome
+from bot import welcome
 
 
 class MemberCog(commands.Cog):
