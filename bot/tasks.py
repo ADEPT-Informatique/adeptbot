@@ -1,7 +1,6 @@
 import datetime
-from datetime import datetime as date
-
 import discord
+from datetime import datetime as date
 from discord.ext import tasks
 
 from bot import util

@@ -1,12 +1,11 @@
+import discord
 import logging
 from typing import Union
 
 import configs
-import discord
+from run import AdeptClient
 
-from bot.http.models.user import WelcomeUser
-
-client = None
+client: AdeptClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('ADEPT-INFO')
@@ -36,7 +35,7 @@ async def say(*args, **kwargs):
     await client.say(*args, **kwargs)
 
 
-async def exception(channel: discord.TextChannel, message: discord.Message, **kwargs):
+async def exception(channel: discord.abc.Messageable, message: discord.Message, **kwargs):
     await say(channel, ":bangbang: **%s**" %message, **kwargs)
 
 
@@ -60,30 +59,6 @@ async def has_role(member: discord.Member, role: discord.Role):
 
 def get_welcome_instruction(instruction: str):
     return configs.WELCOME_MESSAGE.format(content=instruction)
-
-
-async def process_welcome_result(member: discord.Member, result):
-    if isinstance(result, WelcomeUser):
-        guild = member.guild
-        name = result.name
-        student_id = result.student_id
-
-        role = None
-        if result.is_student:
-            if result.program == "Programmation":
-                role = guild.get_role(configs.PROG_ROLE)
-            elif result.program == "Réseautique":
-                role = guild.get_role(configs.NETWORK_ROLE)
-            elif result.program == "DEC-BAC":
-                role = guild.get_role(configs.DECBAC_ROLE)
-        else:
-            role = guild.get_role(configs.TEACHER_ROLE)
-
-        await member.edit(nick=name, roles=[role], reason="Inital setup")
-
-        # TODO: Post to API the new partial student setup
-    else:
-        logger.warning(f"Failed to complete setup for {member.name} ({member.id})")
 
 
 def get_plural(value: int, word: str):

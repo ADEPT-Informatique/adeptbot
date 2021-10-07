@@ -1,15 +1,15 @@
-from bot import util
 from discord.ext import commands
+from discord.ext.commands.context import Context
 
-from run import AdeptClient
+from bot import util, welcome
 
 
 class MemberCog(commands.Cog):
-    def __init__(self, client: AdeptClient) -> None:
-        super().__init__()
-        self.client = client
-
     @commands.command()
-    async def setup(self, ctx):
-        result = await self.client.walk_through_welcome(ctx.author)
-        await util.process_welcome_result(ctx.author, result)
+    async def setup(self, ctx: Context):
+        await ctx.reply("Nous vous avons envoyé un message en privé avec les instructions!")
+        result = await welcome.walk_through_welcome(ctx.author)
+        await welcome.process_welcome_result(ctx.author, result)
+
+    async def cog_command_error(self, ctx: Context, error):
+        raise error

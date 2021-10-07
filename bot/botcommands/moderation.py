@@ -5,8 +5,8 @@ from discord.ext.commands.context import Context
 from typing import Union
 
 import configs
-from .. import util, tasks
-from ..http.services import MuteService, BanService
+from .. import tasks, util
+from ..http.services import BanService, MuteService
 from ..strikes import Strike
 
 NO_REASON = "Pas de raison spécifié"

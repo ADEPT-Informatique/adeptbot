@@ -5,6 +5,10 @@ from discord.interactions import Interaction
 class WelcomeInteraction(ui.View):
     async def start(self):
         timed_out = await self.wait()
+
+        for button in self.children:
+            button.disabled = True
+
         if timed_out:
             return None
         return self.is_student
@@ -23,6 +27,10 @@ class WelcomeInteraction(ui.View):
 class StudentInteraction(ui.View):
     async def start(self):
         timed_out = await self.wait()
+
+        for button in self.children:
+            button.disabled = True
+
         if timed_out:
             return None
         return self.program
@@ -46,6 +54,10 @@ class StudentInteraction(ui.View):
 class TeacherInteraction(ui.View):
     async def start(self):
         timed_out = await self.wait()
+
+        for button in self.children:
+            button.disabled = True
+
         if timed_out:
             return None
         return self.is_teacher
@@ -64,6 +76,10 @@ class TeacherInteraction(ui.View):
 class ConfirmationInteraction(ui.View):
     async def start(self):
         timed_out = await self.wait()
+
+        for button in self.children:
+            button.disabled = True
+
         if timed_out:
             return None
         return self.confirmed
