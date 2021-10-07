@@ -5,7 +5,7 @@ from discord.ext import commands
 from typing import Union
 
 import configs
-from bot import tasks, util
+from bot import tasks, util, welcome
 from bot.botcommands import member, moderation
 from bot.welcome import NoReplyException
 
@@ -41,9 +41,9 @@ class AdeptClient(commands.Bot):
 
     async def on_member_join(self, member: discord.Member):
         await self.say(configs.WELCOME_CHANNEL, configs.WELCOME_SERVER.format(name=member.mention))
-        result = await util.walk_through_welcome(member)
+        result = await welcome.walk_through_welcome(member)
 
-        await util.process_welcome_result(member, result)
+        await welcome.process_welcome_result(member, result)
 
 
     async def on_error(self, event, *args):
