@@ -4,9 +4,10 @@ import traceback
 from discord.ext import commands
 
 import configs
-from bot import tasks, util, welcome
+from bot import tasks, users, util, welcome
 from bot.botcommands import member, moderation
 from bot.welcome import NoReplyException
+from discord.ext.commands.context import Context
 
 
 class AdeptClient(commands.Bot):
@@ -22,6 +23,24 @@ class AdeptClient(commands.Bot):
     async def on_message(self, message: discord.Message):
         if isinstance(message.channel, discord.abc.PrivateChannel):
             return
+
+        member = message.author
+        user: users.User = await users.get_user(member)
+        if user is None:
+            user = await users.create_user(member)
+
+        if (message.created_at.timestamp() - user.last_message_timestamp) < 0.5:
+            user.strikes += 1
+            
+            if user.strikes >= 0:
+                if member.get_role(configs.ADMIN_ROLE) is None or member.get_role(configs.TRUST_ROLE) is None:
+                    await util.mute(member)
+                    await message.channel.send(f"Nous avons rendu {member.mention} muet en raison du spam!")
+                user.strikes = 0
+        else:
+            user.strikes = 0
+
+        user.last_message_timestamp = message.created_at.timestamp()
 
         message.content = message.content.replace(f"<@!{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
         message.content = message.content.replace(f"<@{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
