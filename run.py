@@ -7,7 +7,6 @@ import configs
 from bot import tasks, users, util, welcome
 from bot.botcommands import member, moderation
 from bot.welcome import NoReplyException
-from discord.ext.commands.context import Context
 
 
 class AdeptClient(commands.Bot):
