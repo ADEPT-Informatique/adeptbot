@@ -2,7 +2,6 @@ import discord
 import typing
 from discord.ext import commands
 from discord.ext.commands.context import Context
-from typing import Union
 
 import configs
 from .. import tasks, util
@@ -74,7 +73,7 @@ class ModerationCog(commands.Cog):
         self.mute_service = MuteService(bot.loop)
         self.ban_service = BanService(bot.loop)
 
-    async def __create_moderation_embed(self, strike: Strike, target: Union[discord.User, discord.Member], author: discord.Member, reason: str, parsed_time: ParsedTime = None):
+    async def __create_moderation_embed(self, strike: Strike, target: discord.User| discord.Member, author: discord.Member, reason: str, parsed_time: ParsedTime = None):
         color = None
         if strike in (Strike.WARN, Strike.MUTE, Strike.UNMUTE):
             color = 15066368

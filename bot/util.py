@@ -1,6 +1,5 @@
 import discord
 import logging
-from typing import Union
 
 import configs
 from run import AdeptClient
@@ -27,7 +26,7 @@ async def strike(id: int, t: str, reason: str):
     raise NotImplementedError()
 
 
-async def react_to(message: discord.Message, reaction: Union[discord.Emoji, discord.Reaction, discord.PartialEmoji, str]):
+async def react_to(message: discord.Message, reaction: discord.Emoji | discord.Reaction | discord.PartialEmoji | str):
     await message.add_reaction(reaction)
 
 

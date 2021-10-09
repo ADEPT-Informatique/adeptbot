@@ -2,7 +2,6 @@ import asyncio
 import discord
 import traceback
 from discord.ext import commands
-from typing import Union
 
 import configs
 from bot import tasks, util, welcome
@@ -14,9 +13,8 @@ class AdeptClient(commands.Bot):
     def __init__(self, prefix):
         intents = discord.Intents.default()
         intents.members = True
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_event_loop_policy().new_event_loop()
         super().__init__(prefix, loop=loop, intents=intents)
-        self.loop = loop
 
         self.add_cog(member.MemberCog())
         self.add_cog(moderation.ModerationCog(self))
@@ -45,7 +43,6 @@ class AdeptClient(commands.Bot):
 
         await welcome.process_welcome_result(member, result)
 
-
     async def on_error(self, event, *args):
         if isinstance(event, NoReplyException):
             await util.exception(event.channel, event.message)
@@ -53,7 +50,7 @@ class AdeptClient(commands.Bot):
         
         traceback.print_exc()
 
-    async def say(self, channel: Union[discord.TextChannel, str], *args, **kwargs):
+    async def say(self, channel: discord.TextChannel | str, *args, **kwargs):
         if type(channel) is str:
             # channel_id/server_id
             channel_id, server_id = channel.split("/")
