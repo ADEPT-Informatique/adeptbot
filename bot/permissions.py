@@ -1,6 +1,6 @@
+import discord
 from enum import Enum
 from functools import total_ordering
-import discord
 
 import configs
 

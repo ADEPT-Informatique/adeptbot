@@ -1,6 +1,6 @@
-﻿from enum import Enum
+﻿from discord.errors import InvalidArgument
+from enum import Enum
 
-from discord.errors import InvalidArgument
 
 class Strike(Enum):
     def __str__(self):
