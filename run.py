@@ -4,7 +4,7 @@ import traceback
 from discord.ext import commands
 
 import configs
-from bot import tasks, users, util, welcome
+from bot import tasks, users, util, welcome, permissions
 from bot.botcommands import member, moderation
 from bot.welcome import NoReplyException
 

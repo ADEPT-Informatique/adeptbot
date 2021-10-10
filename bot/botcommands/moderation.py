@@ -1,14 +1,18 @@
 import discord
 import typing
 from discord.ext import commands
+from discord.ext.commands.errors import CommandInvokeError
+from discord.ext.commands import cog
 from discord.ext.commands.context import Context
+import traceback
 
 import configs
-from .. import tasks, util
+from .. import tasks, util, permissions
 from ..http.services import BanService, MuteService
 from ..strikes import Strike
 
 NO_REASON = "Pas de raison spécifié"
+
 
 class ParsedTime:
     def __init__(self, label, seconds) -> None:
@@ -99,7 +103,6 @@ class ModerationCog(commands.Cog):
         USAGE EXAMPLES:
         !warn @DeveloperAnonymous Is a noob
         """
-
         try:
             await member.send("Vous avez été averti(e) %s.\n\nRaison: %s" % (ctx.guild.name, reason))
         except(discord.errors.HTTPException, discord.errors.Forbidden):
@@ -131,6 +134,10 @@ class ModerationCog(commands.Cog):
         d = day(s)
         w = week(s)
         """
+        target_perm = permissions.determine_permission(member)
+        if not permissions.has_permission(ctx.author, target_perm):
+            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas rendre muet {member.mention} puisqu'il dispose de permissions plus élevé!")
+        
         if await util.has_role(member, ctx.guild.get_role(configs.MUTED_ROLE)):
             return await util.exception(ctx.channel, "Ce membre est déjà muet!")
 
@@ -177,6 +184,9 @@ class ModerationCog(commands.Cog):
         !kick @DeveloperAnonymous
         !kick @DeveloperAnonymous Is a noob
         """
+        target_perm = permissions.determine_permission(member)
+        if not permissions.has_permission(ctx.author, target_perm):
+            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas retiré {member.mention} du serveur puisqu'il dispose de permissions plus élevé!")
         
         try:
             await member.send("Vous avez été retiré de %s.\n\nRaison: %s" % (ctx.guild.name, reason))
@@ -198,11 +208,17 @@ class ModerationCog(commands.Cog):
         !ban @DeveloperAnonymous
         !ban @DeveloperAnonymous Is a noob
         """
-
         guild: discord.Guild = ctx.guild
+        member = guild.get_member(user.id)
+        if member is None:
+            return await util.exception(ctx.channel, "Ce membre n'existe pas!")
+
+        target_perm = permissions.determine_permission(member)
+        if not permissions.has_permission(ctx.author, target_perm):
+            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas bannir {member.mention} puisqu'il dispose de permissions plus élevé!")
+        
         if user in [entry.user for entry in await guild.bans()]:
             return await util.exception(ctx.channel, "Ce membre est déjà banni!")
-
 
         try:
             await user.send("Vous avez été banni dans %s.\n\nRaison: %s" % (guild.name, reason))
@@ -225,7 +241,7 @@ class ModerationCog(commands.Cog):
         !unban @DeveloperAnonymous
         !unban @DeveloperAnonymous Is not a noob anymore
         """
-        guild:discord.Guild = ctx.guild
+        guild: discord.Guild = ctx.guild
 
         if user not in [entry.user for entry in await guild.bans()]:
             return await util.exception(ctx.channel, "Ce membre n'est pas banni!")
@@ -238,5 +254,12 @@ class ModerationCog(commands.Cog):
         # TODO: Remove the task, if any
         # TODO: Do API Calls in the background
 
-    async def cog_command_error(self, ctx: Context, error):
+    async def cog_command_error(self, ctx: Context, error: CommandInvokeError):
+        event = error.original
+        if isinstance(event, permissions.InsufficientPermissionsError):
+            await util.exception(event.channel, event.message)
+            return # We don't want to print the traceback
+        
         await util.say(ctx.channel, error)
+
+        traceback.print_exc()
