@@ -1,4 +1,5 @@
 import datetime
+import discord
 from datetime import datetime as date
 from discord.ext import tasks
 
@@ -8,7 +9,7 @@ from bot.task import Task
 
 task_list = []
 
-async def create_mute_task(member, duration=None):
+async def create_mute_task(member: discord.Member, duration: int = None):
     if duration is None:
         return await util.mute(member)
 
@@ -27,11 +28,12 @@ async def create_mute_task(member, duration=None):
     await util.mute(member)
 
 
-async def delete_task(member, strike_type:Strike, reason="Automatic moderation"):
+async def delete_task(member: discord.Member, strike_type: Strike, reason = "Automatic moderation"):
     if strike_type == Strike.MUTE:
-        # dbconn.get('Mutes').delete_one({'member': member.id})
+        # TODO: Api call
         await util.unmute(member, reason)
     elif strike_type == Strike.BAN:
+        # TODO: Api call
         # TODO: Remove ban
         pass
 
@@ -43,21 +45,18 @@ async def delete_task(member, strike_type:Strike, reason="Automatic moderation")
 
 @tasks.loop(seconds=1)
 async def process_mutes():
-    print("is this working?")
     now = date.now()
     for task in task_list:
         if task.end_date <= now:
             await delete_task(task.member, task.type)
 
     if len(task_list) == 0:
-        print("ok we done")
         process_mutes.stop()
 
 
 def _load_tasks(client):
-    to_process = [] # dbconn.get('ActiveMutes').find({}, {'_id': False})
-
-    to_process = list(to_process)
+    # TODO: Fetch from API
+    to_process = []
 
     global task_list
     for task in to_process:

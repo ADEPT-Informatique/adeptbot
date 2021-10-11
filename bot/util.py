@@ -2,27 +2,31 @@ import discord
 import logging
 
 import configs
-from bot.http.models.user import WelcomeUser
+from run import AdeptClient
 
-client = None
+client: AdeptClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('ADEPT-INFO')
 
 
-def get_member(guild, member):
-    return client.get_guild(guild).get_member(member)
+def get_member(guild_id: int, member_id: int):
+    return client.get_guild(guild_id).get_member(member_id)
+
+
+def get_guild(guild_id: int):
+    return client.get_guild(guild_id)
 
 
 def get_case_number():
     raise NotImplementedError()
 
 
-async def strike(id, t: str, reason: str):
+async def strike(id: int, t: str, reason: str):
     raise NotImplementedError()
 
 
-async def react_to(message, reaction):
+async def react_to(message: discord.Message, reaction: discord.Emoji | discord.Reaction | discord.PartialEmoji | str):
     await message.add_reaction(reaction)
 
 
@@ -30,25 +34,25 @@ async def say(*args, **kwargs):
     await client.say(*args, **kwargs)
 
 
-async def exception(channel, message, **kwargs):
+async def exception(channel: discord.abc.Messageable, message: discord.Message, **kwargs):
     await say(channel, ":bangbang: **%s**" %message, **kwargs)
 
 
-async def mute(member):
+async def mute(member: discord.Member):
     guild = member.guild
-    mute_role = guild.get_role(configs.muted_role)
+    mute_role = guild.get_role(configs.MUTED_ROLE)
 
     await member.add_roles(mute_role)
 
 
-async def unmute(member, reason):
+async def unmute(member: discord.Member, reason: str):
     guild = member.guild
-    mute_role = guild.get_role(configs.muted_role)
+    mute_role = guild.get_role(configs.MUTED_ROLE)
 
     await member.remove_roles(mute_role, reason=reason)
 
 
-async def has_role(member, role):
+async def has_role(member: discord.Member, role: discord.Role):
     return role in member.roles
 
 
@@ -56,28 +60,14 @@ def get_welcome_instruction(instruction: str):
     return configs.WELCOME_MESSAGE.format(content=instruction)
 
 
-async def process_welcome_result(member: discord.Member, result):
-    if isinstance(result, WelcomeUser):
-        guild = member.guild
-        name = result.name
-        student_id = result.student_id
-
-        role = None
-        if result.is_student:
-            if result.program == "Programmation":
-                role = guild.get_role(configs.PROG_ROLE)
-            elif result.program == "Réseautique":
-                role = guild.get_role(configs.NETWORK_ROLE)
-            elif result.program == "DEC-BAC":
-                role = guild.get_role(configs.DECBAC_ROLE)
-        else:
-            role = guild.get_role(configs.TEACHER_ROLE)
-
-        await member.edit(nick=name, roles=[role], reason="Inital setup")
-
-        # TODO: Post to API the new partial student setup
-    else:
-        logger.warning(f"Failed to complete setup for {member.name} ({member.id})")
+def get_plural(value: int, word: str):
+    if word.endswith("s"):
+        return word
+    
+    if value > 1:
+        return word + "s"
+    
+    return word
 
 
 def _load(c):

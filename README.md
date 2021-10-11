@@ -6,7 +6,7 @@ A discord bot for managing your server
 
 ### Requirements
 
-- Python 3.8+
+- Python 3.10+
 - Dependencies (`pip install -r requirements.txt`)
 - [ADEPT-API](https://github.com/ADEPT-Informatique/ADEPT-API)
 
