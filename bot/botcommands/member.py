@@ -1,7 +1,9 @@
+import traceback
 from discord.ext import commands
 from discord.ext.commands.context import Context
+from discord.ext.commands.errors import CommandInvokeError
 
-from bot import welcome
+from bot import welcome, util
 
 
 class MemberCog(commands.Cog):
@@ -12,4 +14,15 @@ class MemberCog(commands.Cog):
         await welcome.process_welcome_result(ctx.author, result)
 
     async def cog_command_error(self, ctx: Context, error):
-        raise error
+        if isinstance(error, CommandInvokeError):
+            error = error.original
+        
+        if isinstance(error, welcome.NoReplyException):
+            await util.exception(error.channel, error.message)
+            return # We don't want to print the traceback
+        
+        if ctx is not None:
+            await util.exception(ctx.channel, error)
+            return
+        
+        traceback.print_exc()
