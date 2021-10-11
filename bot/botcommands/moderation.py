@@ -135,7 +135,7 @@ class ModerationCog(commands.Cog):
         """
         target_perm = permissions.determine_permission(member)
         if not permissions.has_permission(ctx.author, target_perm):
-            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas rendre muet {member.mention} puisqu'il dispose de permissions plus élevé!")
+            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas rendre muet {member.mention} puisqu'il dispose de permissions plus élevées!")
         
         if await util.has_role(member, ctx.guild.get_role(configs.MUTED_ROLE)):
             return await util.exception(ctx.channel, "Ce membre est déjà muet!")
@@ -185,7 +185,7 @@ class ModerationCog(commands.Cog):
         """
         target_perm = permissions.determine_permission(member)
         if not permissions.has_permission(ctx.author, target_perm):
-            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas retiré {member.mention} du serveur puisqu'il dispose de permissions plus élevé!")
+            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas retiré {member.mention} du serveur puisqu'il dispose de permissions plus élevées!")
         
         try:
             await member.send("Vous avez été retiré de %s.\n\nRaison: %s" % (ctx.guild.name, reason))
@@ -214,7 +214,7 @@ class ModerationCog(commands.Cog):
 
         target_perm = permissions.determine_permission(member)
         if not permissions.has_permission(ctx.author, target_perm):
-            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas bannir {member.mention} puisqu'il dispose de permissions plus élevé!")
+            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas bannir {member.mention} puisqu'il dispose de permissions plus élevées!")
         
         if user in [entry.user for entry in await guild.bans()]:
             return await util.exception(ctx.channel, "Ce membre est déjà banni!")
