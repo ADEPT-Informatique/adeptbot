@@ -3,7 +3,7 @@ import asyncio
 
 from ..models import BaseRequest
 
-DEFAULT_TIMEOUT = 120
+DEFAULT_TIMEOUT = 10
 
 class BaseClient:
     BASE_URL = "https://api.localhost"
