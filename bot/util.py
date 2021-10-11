@@ -57,7 +57,13 @@ async def has_role(member: discord.Member, role: discord.Role):
 
 
 def get_welcome_instruction(instruction: str):
-    return configs.WELCOME_MESSAGE.format(content=instruction)
+    welcome_embed = discord.Embed(title = configs.WELCOME_TITLE,
+                                description=configs.WELCOME_MESSAGE.format(content=instruction),
+                                color=0x1de203)
+    welcome_embed.set_thumbnail(url="https://www.adeptinfo.ca/img/badge.png")
+    welcome_embed.set_footer(text=configs.WELCOME_FOOTER)
+
+    return welcome_embed
 
 
 def get_plural(value: int, word: str):

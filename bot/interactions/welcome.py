@@ -2,7 +2,12 @@ from discord import ui
 from discord.enums import ButtonStyle
 from discord.interactions import Interaction
 
-class WelcomeInteraction(ui.View):
+
+class Interaction(ui.View):
+    def __init__(self, *, timeout: int = 60):
+        super().__init__(timeout=timeout)
+
+class WelcomeInteraction(Interaction):
     async def start(self):
         timed_out = await self.wait()
 
@@ -24,7 +29,7 @@ class WelcomeInteraction(ui.View):
         self.stop()
 
 
-class StudentInteraction(ui.View):
+class StudentInteraction(Interaction):
     async def start(self):
         timed_out = await self.wait()
 
@@ -51,7 +56,7 @@ class StudentInteraction(ui.View):
         self.stop()
 
 
-class TeacherInteraction(ui.View):
+class TeacherInteraction(Interaction):
     async def start(self):
         timed_out = await self.wait()
 
@@ -73,7 +78,7 @@ class TeacherInteraction(ui.View):
         self.stop()
 
 
-class ConfirmationInteraction(ui.View):
+class ConfirmationInteraction(Interaction):
     async def start(self):
         timed_out = await self.wait()
 

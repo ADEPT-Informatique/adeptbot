@@ -19,7 +19,11 @@ ADMIN_ROLE = 363015309562478593
 MUTED_ROLE = 363031112664219648
 MORON_ROLE = 559825539993698316
 
-WELCOME_MESSAGE = "Bonjour et bienvenue à l'ADEPT! Pour commencez, nous allez devoir vous posez quelques questions afin de mieux vous connaitre.\n\n{content}"
+
+WELCOME_TITLE = "Bonjour et bienvenue à l'ADEPT!"
+WELCOME_MESSAGE = "Pour commencer, nous allons devoir vous posez quelques questions afin de mieux vous connaitre.\n\n**{content}**"
+WELCOME_FOOTER = "* Le masculin est uniquement utilisé afin d'alléger les questions."
+
 WELCOME_SERVER ="""
 Bienvenue {name} sur le serveur de l'ADEPT Informatique,
 

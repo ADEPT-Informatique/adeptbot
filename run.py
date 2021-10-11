@@ -4,7 +4,7 @@ import traceback
 from discord.ext import commands
 
 import configs
-from bot import tasks, users, util, welcome, permissions
+from bot import tasks, users, util, welcome
 from bot.botcommands import member, moderation
 from bot.welcome import NoReplyException
 
@@ -20,7 +20,7 @@ class AdeptClient(commands.Bot):
         self.add_cog(moderation.ModerationCog(self))
 
     async def on_message(self, message: discord.Message):
-        if isinstance(message.channel, discord.abc.PrivateChannel):
+        if (message.author.bot):
             return
 
         member = message.author
@@ -31,8 +31,8 @@ class AdeptClient(commands.Bot):
         if (message.created_at.timestamp() - user.last_message_timestamp) < 0.5:
             user.strikes += 1
             
-            if user.strikes >= 0:
-                if member.get_role(configs.ADMIN_ROLE) is None or member.get_role(configs.TRUST_ROLE) is None:
+            if user.strikes >= 3:
+                if member.get_role(configs.ADMIN_ROLE) is None and member.get_role(configs.TRUST_ROLE) is None:
                     await util.mute(member)
                     await message.channel.send(f"Nous avons rendu {member.mention} muet en raison du spam!")
                 user.strikes = 0

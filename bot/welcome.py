@@ -18,13 +18,13 @@ class NoReplyException(TimeoutError):
 
 async def walk_through_welcome(member: discord.Member):
     current_view = WelcomeInteraction()
-    original_message: discord.Message = await member.send(content=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"), view=current_view)
+    original_message: discord.Message = await member.send(embed=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"), view=current_view)
     is_student = await current_view.start()
 
     if is_student is None:
         raise NoReplyException(member)
 
-    await original_message.edit(content=util.get_welcome_instruction("Quel est votre nom?"), view=current_view)
+    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre nom?"), view=current_view)
     student_name_msg = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
 
     if student_name_msg is None:
@@ -79,7 +79,7 @@ async def __process_confirmation(member: discord.Member, original_message: disco
 
 async def __process_teacher(member: discord.Member, original_message: discord.Message):
     current_view = TeacherInteraction()
-    await original_message.edit(content=util.get_welcome_instruction("Êtes-vous un professeur?"), view=current_view)
+    await original_message.edit(embed=util.get_welcome_instruction("Êtes-vous un professeur?"), view=current_view)
     is_teacher = await current_view.start()
 
     if is_teacher is None:
@@ -92,7 +92,7 @@ async def __process_teacher(member: discord.Member, original_message: discord.Me
 
 async def __process_student(member: discord.Member, original_message: discord.Message):
     current_view = StudentInteraction()
-    await original_message.edit(content=util.get_welcome_instruction("Quel est votre programme?"), view=current_view)
+    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre programme?"), view=current_view)
     program = await current_view.start()
 
     if program is None:
@@ -106,7 +106,7 @@ async def __process_student(member: discord.Member, original_message: discord.Me
     elif program == "decbac":
         program = "DEC-BAC"
 
-    await original_message.edit(content=util.get_welcome_instruction("Quel est votre numéro étudiant?"), view=current_view)
+    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre numéro étudiant?"), view=current_view)
     student_number_msg = await util.client.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
 
     if student_number_msg is None:

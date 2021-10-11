@@ -253,12 +253,16 @@ class ModerationCog(commands.Cog):
         # TODO: Remove the task, if any
         # TODO: Do API Calls in the background
 
-    async def cog_command_error(self, ctx: Context, error: CommandInvokeError):
-        event = error.original
-        if isinstance(event, permissions.InsufficientPermissionsError):
-            await util.exception(event.channel, event.message)
+    async def cog_command_error(self, ctx: Context, error):
+        if isinstance(error, CommandInvokeError):
+            error = error.original
+        
+        if isinstance(error, permissions.InsufficientPermissionsError):
+            await util.exception(error.channel, error.message)
             return # We don't want to print the traceback
         
-        await util.say(ctx.channel, error)
+        if ctx is not None:
+            await util.exception(ctx.channel, error)
+            return
 
         traceback.print_exc()
