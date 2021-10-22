@@ -6,6 +6,7 @@ from discord.ext import commands
 import configs
 from bot import tasks, users, util, welcome
 from bot.botcommands import member, moderation
+from bot.interactions import TicketOpeningInteraction
 from bot.welcome import NoReplyException
 
 
@@ -18,6 +19,7 @@ class AdeptClient(commands.Bot):
 
         self.add_cog(member.MemberCog())
         self.add_cog(moderation.ModerationCog(self))
+        self.persistent_ticket_view_loaded = False
 
     async def on_message(self, message: discord.Message):
         if (message.author.bot):
@@ -52,6 +54,10 @@ class AdeptClient(commands.Bot):
         util._load(self)
         util.logger.info("\nLogged in with account @%s ID:%s \n-------",
                         self.user.name, self.user.id)
+        
+        if not self.persistent_ticket_view_loaded:
+            self.add_view(TicketOpeningInteraction())
+            self.persistent_ticket_view_loaded = True
 
         await self.change_presence(activity=discord.Activity(name="for bad boys!", type=discord.ActivityType.watching))
         tasks._load_tasks(self)
