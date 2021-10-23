@@ -2,9 +2,9 @@ import discord
 import logging
 
 import configs
-from run import AdeptClient
+from bot.tickets import TicketType
 
-client: AdeptClient
+client = None
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('ADEPT-INFO')
@@ -54,6 +54,19 @@ async def unmute(member: discord.Member, reason: str):
 
 async def has_role(member: discord.Member, role: discord.Role):
     return role in member.roles
+
+
+async def create_ticket(member: discord.Member, ticket: TicketType):
+    guild = member.guild
+    category: discord.CategoryChannel = guild.get_channel(configs.TICKET_CATEGORY)
+    overwrites = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, read_message_history=True)
+    channel = await category.create_text_channel(f"{member.display_name}")
+    await channel.set_permissions(member, overwrite=overwrites)
+
+    admin = guild.get_role(configs.ADMIN_ROLE)
+    await channel.send(configs.TICKET_MESSAGE.format(plaintive=member.mention, admins=admin.mention, ticket_type=ticket))
+
+    return channel
 
 
 def get_welcome_instruction(instruction: str):
