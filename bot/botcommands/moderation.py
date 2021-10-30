@@ -1,8 +1,7 @@
 import discord
+import re
 import traceback
 import typing
-
-import re
 from discord.ext import commands
 from discord.ext.commands.context import Context
 from discord.ext.commands.errors import CommandInvokeError

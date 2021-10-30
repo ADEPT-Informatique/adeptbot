@@ -36,7 +36,7 @@ class MemberCog(commands.Cog):
         if category is None or category.id != configs.TICKET_CATEGORY:
             return await ctx.message.add_reaction(configs.CROSS_REACT)
         
-        await ctx.channel.delete()
+        await util.archive_ticket(ctx.author, ctx.channel)
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE)

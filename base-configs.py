@@ -8,8 +8,7 @@ LOGS_CHANNEL = f"547896873776578563/{ADEPT}"
 WELCOME_CHANNEL = f"470775922069471252/{ADEPT}"
 
 TICKET_CATEGORY = 899725071504015421
-TICKET_COMPLAINT_ID = "ticket_view_1.0:Complaint"
-TICKET_MORON_ID = "ticket_view_1.0:Moron"
+TICKET_ARCHIVE_CATEGORY = 903831890866372658
 
 # Roles
 PROG_ROLE = 363042185295167490
@@ -45,9 +44,16 @@ Nous voulons vous informez que le respect de votre confidentialité est notre pr
 Votre identité ne sera **JAMAIS** dévoilée à qui que ce soit sans votre consentement.
 Les seuls connaisant votre identité sont les membres du CA de l'ADEPT-Informatique (Admins).
 
+Vous pouvez utiliser `{prefix}close` pour fermer ce ticket.
+
 Sincèrement,
 {admins}
 """
+
+# Custom IDs
+TICKET_COMPLAINT_ID = "ticket_view_1.0:Complaint"
+TICKET_MORON_ID = "ticket_view_1.0:Moron"
+TICKET_CLOSE_ID = "ticket_view_1.0:Close"
 
 # Emojis
 CHECK_REACT = u"\u2705"
