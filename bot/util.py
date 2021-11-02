@@ -2,6 +2,7 @@ import discord
 import logging
 
 import configs
+from bot.interactions.ticket import TicketCloseInteraction
 from bot.tickets import TicketType
 
 client = None
@@ -64,9 +65,23 @@ async def create_ticket(member: discord.Member, ticket: TicketType):
     await channel.set_permissions(member, overwrite=overwrites)
 
     admin = guild.get_role(configs.ADMIN_ROLE)
-    await channel.send(configs.TICKET_MESSAGE.format(plaintive=member.mention, admins=admin.mention, ticket_type=ticket))
+    close_button = TicketCloseInteraction()
+    await channel.send(configs.TICKET_MESSAGE.format(plaintive=member.mention, admins=admin.mention, 
+                                                    ticket_type=ticket, prefix=configs.PREFIX), 
+                                                    view=close_button)
 
     return channel
+
+
+async def archive_ticket(member: discord.Member, channel: discord.TextChannel):
+    guild = channel.guild
+    category = guild.get_channel(configs.TICKET_ARCHIVE_CATEGORY)
+
+    overwrites = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=False, read_message_history=True)
+
+    await channel.set_permissions(member, overwrite=overwrites)
+    await channel.send(f'Ticket fermé par {member.mention}.')
+    await channel.edit(category=category)
 
 
 def get_welcome_instruction(instruction: str):

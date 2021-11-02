@@ -1,4 +1,5 @@
 import discord
+import re
 import traceback
 import typing
 from discord.ext import commands
@@ -17,6 +18,13 @@ class ParsedTime:
     def __init__(self, label, seconds) -> None:
         self.label = label
         self.seconds = seconds
+
+
+def parse_values(value: str):
+    pattern = r"(\d+)([A-Za-z]+)"
+    matches = re.match(pattern, value)
+
+    return matches.groups(None)
 
 
 def parse_secs(value: int):
@@ -54,21 +62,24 @@ def parse_week(value: int):
 
 
 class CustomTime(commands.Converter):
-    async def convert(self, _, value) -> ParsedTime:
-        time_parse = value[-1].lower()
-        
-        try:
-            int_value = int(value)
-        except ValueError:
-            int_value = int(value[:-1])
+    async def convert(self, _, value: str) -> ParsedTime:
+        matches = parse_values(value)
 
-        return {
+        if matches is None:
+            raise commands.BadArgument(f"{value} n'est pas une unité de temps valide.")
+
+        int_value = matches[0]
+        time_parse = matches[1]
+
+        parsed_time = {
             's': parse_secs(int_value),
             'm': parse_mins(int_value),
             'h': parse_hours(int_value),
             'd': parse_days(int_value),
             'w': parse_week(int_value)
-        }.get(time_parse, parse_secs(int_value))
+        }.get(time_parse, None)
+        
+        return parsed_time
 
 
 class ModerationCog(commands.Cog):
