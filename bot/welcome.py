@@ -44,7 +44,7 @@ async def walk_through_welcome(member: discord.Member):
 
         confirmation_embed.add_field(name="Professeur:", value="Oui" if is_teacher else "Non", inline=False)
 
-    confirmed = await __process_confirmation(member, original_message, confirmation_embed)
+    confirmed = await __process_confirmation(member, confirmation_embed)
     
     if confirmed is None:
         return WelcomeUser(student_name, is_student, student_number, program)
@@ -54,7 +54,7 @@ async def walk_through_welcome(member: discord.Member):
         return await member.send("Parfait, on ne recommence pas!")
 
 
-async def __process_confirmation(member: discord.Member, original_message: discord.Message, embed: discord.Embed):
+async def __process_confirmation(member: discord.Member, embed: discord.Embed):
     current_view = ConfirmationInteraction()
     confirmation_message = await member.send(embed=embed, view=current_view)
     confirmed = await current_view.start()
@@ -122,7 +122,6 @@ async def process_welcome_result(member: discord.Member, result):
     if isinstance(result, WelcomeUser):
         guild = member.guild
         name = result.name
-        student_id = result.student_id
 
         role = None
         if result.is_student:
@@ -137,6 +136,14 @@ async def process_welcome_result(member: discord.Member, result):
 
         await member.edit(nick=name, roles=[role], reason="Inital setup")
 
+        embed = discord.Embed(title="Nouveau membre dans ADEPT-Informatique", timestamp=discord.utils.utcnow())
+        embed.add_field(name="Nom:", value=name, inline=False)
+        embed.add_field(name="Numéro étudiant:", value=result.student_id, inline=False)
+        embed.add_field(name="Professeur:", value="Oui" if result.is_teacher else "Non", inline=False)
+        embed.add_field(name="Programme:", value=result.program, inline=False)
+        embed.add_field(name="id", value=member.id, inline=False)
+
+        await util.say(configs.LOGS_CHANNEL, embed=embed)
         # TODO: Post to API the new partial student setup
     else:
         util.logger.warning(f"Failed to complete setup for {member.name} ({member.id})")
