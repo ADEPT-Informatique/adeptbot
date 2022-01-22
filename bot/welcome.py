@@ -1,4 +1,4 @@
-import discord
+import disnake
 
 import configs
 from bot import util
@@ -11,27 +11,27 @@ NO_REPLY = "Nous avons pas reçu de réponse! Utilisez `!setup` pour recommencer
 
 
 class NoReplyException(TimeoutError):
-    def __init__(self, channel: discord.abc.Messageable, message: str = NO_REPLY) -> None:
+    def __init__(self, channel: disnake.abc.Messageable, message: str = NO_REPLY) -> None:
         self.channel = channel
         self.message = message
 
 
-async def walk_through_welcome(member: discord.Member):
+async def walk_through_welcome(member: disnake.Member):
     current_view = WelcomeInteraction()
-    original_message: discord.Message = await member.send(embed=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"), view=current_view)
+    original_message: disnake.Message = await member.send(embed=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"), view=current_view)
     is_student = await current_view.start()
 
     if is_student is None:
         raise NoReplyException(member)
 
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre nom?"), view=current_view)
-    student_name_msg = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
+    student_name_msg = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
 
     if student_name_msg is None:
         raise NoReplyException(member)
 
     student_name = student_name_msg.content
-    confirmation_embed = discord.Embed(title="Est-ce que ces informations sont tous exactes?")
+    confirmation_embed = disnake.Embed(title="Est-ce que ces informations sont tous exactes?")
     confirmation_embed.add_field(name="Nom:", value=student_name, inline=False)
 
     if is_student:
@@ -54,7 +54,7 @@ async def walk_through_welcome(member: discord.Member):
         return await member.send("Parfait, on ne recommence pas!")
 
 
-async def __process_confirmation(member: discord.Member, embed: discord.Embed):
+async def __process_confirmation(member: disnake.Member, embed: disnake.Embed):
     current_view = ConfirmationInteraction()
     confirmation_message = await member.send(embed=embed, view=current_view)
     confirmed = await current_view.start()
@@ -77,7 +77,7 @@ async def __process_confirmation(member: discord.Member, embed: discord.Embed):
         return restart
 
 
-async def __process_teacher(member: discord.Member, original_message: discord.Message):
+async def __process_teacher(member: disnake.Member, original_message: disnake.Message):
     current_view = TeacherInteraction()
     await original_message.edit(embed=util.get_welcome_instruction("Êtes-vous un professeur?"), view=current_view)
     is_teacher = await current_view.start()
@@ -90,7 +90,7 @@ async def __process_teacher(member: discord.Member, original_message: discord.Me
     return is_teacher
 
 
-async def __process_student(member: discord.Member, original_message: discord.Message):
+async def __process_student(member: disnake.Member, original_message: disnake.Message):
     current_view = StudentInteraction()
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre programme?"), view=current_view)
     program = await current_view.start()
@@ -107,7 +107,7 @@ async def __process_student(member: discord.Member, original_message: discord.Me
         program = "DEC-BAC"
 
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre numéro étudiant?"), view=current_view)
-    student_number_msg = await util.client.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, discord.DMChannel))
+    student_number_msg = await util.client.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
 
     if student_number_msg is None:
         await original_message.edit(view=current_view)
@@ -118,7 +118,7 @@ async def __process_student(member: discord.Member, original_message: discord.Me
     return student_number, program
 
 
-async def process_welcome_result(member: discord.Member, result):
+async def process_welcome_result(member: disnake.Member, result):
     if isinstance(result, WelcomeUser):
         guild = member.guild
         name = result.name
@@ -136,7 +136,7 @@ async def process_welcome_result(member: discord.Member, result):
 
         await member.edit(nick=name, roles=[role], reason="Inital setup")
 
-        embed = discord.Embed(title="Nouveau membre dans ADEPT-Informatique", timestamp=discord.utils.utcnow())
+        embed = disnake.Embed(title="Nouveau membre dans ADEPT-Informatique", timestamp=disnake.utils.utcnow())
         embed.add_field(name="Nom:", value=name, inline=False)
         embed.add_field(name="Numéro étudiant:", value=result.student_id, inline=False)
         embed.add_field(name="Professeur:", value="Oui" if result.is_teacher else "Non", inline=False)

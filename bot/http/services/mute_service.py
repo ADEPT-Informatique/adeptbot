@@ -1,4 +1,4 @@
-import discord
+import disnake
 
 from . import BaseClient
 from ..models import MuteRequest
@@ -11,12 +11,12 @@ class MuteService(BaseClient):
         super().__init__(loop=loop)
         self.MUTE_URL = self._get_api_url(self.MUTE_URL)
 
-    async def mute(self, member: discord.Member, reason: str, duration: int):
+    async def mute(self, member: disnake.Member, reason: str, duration: int):
         mute_request = MuteRequest(reason, duration)
 
         return await self.post(self.MUTE_URL + f"/{member.id}", mute_request)
 
-    async def unmute(self, member: discord.Member, reason: str):
+    async def unmute(self, member: disnake.Member, reason: str):
         return await self.delete(self.MUTE_URL + f"/{member.id}", reason=reason)
 
     async def fetch_temp_mutes(self):

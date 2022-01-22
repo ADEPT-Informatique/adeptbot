@@ -1,5 +1,5 @@
 import datetime
-import discord
+import disnake
 from jsonpickle.pickler import Pickler
 
 from bot.strikes import Strike
@@ -11,11 +11,9 @@ class Task(Pickler):
         self.end_date = end_date
         self.type = type
 
-
     def __getstate__(self):
         return {'member': self.member.id, 'guild': self.member.guild.id, 'end_date': str(self.end_date), 'type': str(self.type)}
 
-
-    member: discord.Member
+    member: disnake.Member
     end_date: str
     type:Strike

@@ -1,13 +1,12 @@
-from discord import ui
-from discord.enums import ButtonStyle
-from discord.interactions import Interaction
+from disnake import ui
+from disnake.enums import ButtonStyle
+from disnake.interactions import Interaction
 
-
-class Interaction(ui.View):
+class BaseInteraction(ui.View):
     def __init__(self, *, timeout: int = 60):
         super().__init__(timeout=timeout)
 
-class WelcomeInteraction(Interaction):
+class WelcomeInteraction(BaseInteraction):
     async def start(self):
         timed_out = await self.wait()
 

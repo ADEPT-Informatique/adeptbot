@@ -1,20 +1,19 @@
 import traceback
-from discord.ext import commands
-from discord.ext.commands.context import Context
-from discord.ext.commands.errors import CommandInvokeError
+from disnake.ext import commands
+from disnake.ext.commands.context import Context
+from disnake.ext.commands.errors import CommandInvokeError
 
 import configs
 from bot import welcome, util
 from bot.interactions import TicketOpeningInteraction
 from bot.tickets import TicketConverter
+from management import WelcomeCog
 
 
 class MemberCog(commands.Cog):
-    @commands.command()
-    async def setup(self, ctx: Context):
-        await ctx.reply("Nous vous avons envoyé un message en privé avec les instructions!")
-        result = await welcome.walk_through_welcome(ctx.author)
-        await welcome.process_welcome_result(ctx.author, result)
+    def __init__(self, bot: commands.Bot) -> None:
+        self.bot = bot
+        bot.add_cog(WelcomeCog(bot))
 
     @commands.command()
     async def ticket(self, ctx: Context, ticket: TicketConverter):

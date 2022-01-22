@@ -1,10 +1,11 @@
-import discord
+import disnake
 import re
 import traceback
 import typing
-from discord.ext import commands
-from discord.ext.commands.context import Context
-from discord.ext.commands.errors import CommandInvokeError
+from disnake.ext import commands
+from disnake.ext.commands.context import Context
+from disnake.ext.commands.errors import CommandInvokeError
+from bot.management import StrikesCog
 
 import configs
 from .. import tasks, util, permissions
@@ -87,7 +88,9 @@ class ModerationCog(commands.Cog):
         self.mute_service = MuteService(bot.loop)
         self.ban_service = BanService(bot.loop)
 
-    async def __create_moderation_embed(self, strike: Strike, target: discord.User| discord.Member, author: discord.Member, reason: str, parsed_time: ParsedTime = None):
+        bot.add_cog(StrikesCog(bot))
+
+    async def __create_moderation_embed(self, strike: Strike, target: disnake.User| disnake.Member, author: disnake.Member, reason: str, parsed_time: ParsedTime = None):
         color = None
         if strike in (Strike.WARN, Strike.MUTE, Strike.UNMUTE):
             color = 15066368
@@ -96,7 +99,7 @@ class ModerationCog(commands.Cog):
         elif strike in (Strike.BAN, Strike.UNBAN):
             color = 993326
 
-        moderation_embed = discord.Embed(title=f"Nouveau cas | {strike} | {target.name}", color=color)
+        moderation_embed = disnake.Embed(title=f"Nouveau cas | {strike} | {target.name}", color=color)
         moderation_embed.add_field(name="Utilisateur", value=target.mention, inline=False)
         moderation_embed.add_field(name="Moderateur", value=author.mention, inline=False)
         moderation_embed.add_field(name="Raison", value=reason, inline=False)
@@ -108,14 +111,14 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
-    async def warn(self, ctx: Context, member: discord.Member, *, reason: str=NO_REASON):
+    async def warn(self, ctx: Context, member: disnake.Member, *, reason: str=NO_REASON):
         """
         USAGE EXAMPLES:
         !warn @DeveloperAnonymous Is a noob
         """
         try:
             await member.send("Vous avez été averti(e) %s.\n\nRaison: %s" % (ctx.guild.name, reason))
-        except(discord.errors.HTTPException, discord.errors.Forbidden):
+        except(disnake.errors.HTTPException, disnake.errors.Forbidden):
             util.logger.warn("Failed to notify warn")
 
         warn_embed = self.__create_moderation_embed(Strike.WARN, member, ctx.author, reason)
@@ -126,7 +129,7 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
-    async def mute(self, ctx: Context, member: discord.Member, length: typing.Optional[CustomTime] = None, *, reason: str = NO_REASON):
+    async def mute(self, ctx: Context, member: disnake.Member, length: typing.Optional[CustomTime] = None, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
         !mute @DeveloperAnonymous Is a noob
@@ -153,7 +156,7 @@ class ModerationCog(commands.Cog):
 
         try:
             await member.send("Vous êtes désormais muet sur %s.\n\nRaison: %s" % (ctx.guild.name, reason))
-        except (discord.errors.HTTPException, discord.errors.Forbidden):
+        except (disnake.errors.HTTPException, disnake.errors.Forbidden):
             util.logger.warn("Failed to notify mute")
 
         mute_embed = await self.__create_moderation_embed(Strike.MUTE, member, ctx.author, reason, length)
@@ -169,7 +172,7 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
-    async def unmute(self, ctx: Context, member: discord.Member, *, reason: str=NO_REASON):
+    async def unmute(self, ctx: Context, member: disnake.Member, *, reason: str=NO_REASON):
         """
         USAGE EXAMPLES:
         !unmute @DeveloperAnonymous
@@ -188,7 +191,7 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE)
-    async def kick(self, ctx: Context, member: discord.Member, *, reason: str=NO_REASON):
+    async def kick(self, ctx: Context, member: disnake.Member, *, reason: str=NO_REASON):
         """
         USAGE EXAMPLES:
         !kick @DeveloperAnonymous
@@ -200,7 +203,7 @@ class ModerationCog(commands.Cog):
         
         try:
             await member.send("Vous avez été retiré de %s.\n\nRaison: %s" % (ctx.guild.name, reason))
-        except (discord.errors.HTTPException, discord.errors.Forbidden):
+        except (disnake.errors.HTTPException, disnake.errors.Forbidden):
             util.logger.warn("Failed to notify kick")
 
         kick_embed = await self.__create_moderation_embed(Strike.KICK, member, ctx.author, reason)
@@ -212,13 +215,13 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE)
-    async def ban(self, ctx: Context, user: discord.User, *, reason: str=NO_REASON):
+    async def ban(self, ctx: Context, user: disnake.User, *, reason: str=NO_REASON):
         """
         USAGE EXAMPLES:
         !ban @DeveloperAnonymous
         !ban @DeveloperAnonymous Is a noob
         """
-        guild: discord.Guild = ctx.guild
+        guild: disnake.Guild = ctx.guild
         member = guild.get_member(user.id)
         if member is None:
             return await util.exception(ctx.channel, "Ce membre n'existe pas!")
@@ -232,7 +235,7 @@ class ModerationCog(commands.Cog):
 
         try:
             await user.send("Vous avez été banni dans %s.\n\nRaison: %s" % (guild.name, reason))
-        except (discord.errors.HTTPException, discord.errors.Forbidden):
+        except (disnake.errors.HTTPException, disnake.errors.Forbidden):
             util.logger.warn("Failed to notify ban")
 
         ban_embed = await self.__create_moderation_embed(Strike.BAN, user, ctx.author, reason)
@@ -245,13 +248,13 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE)
-    async def unban(self, ctx: Context, user: discord.User, *, reason: str=NO_REASON):
+    async def unban(self, ctx: Context, user: disnake.User, *, reason: str=NO_REASON):
         """
         USAGE EXAMPLES:
         !unban @DeveloperAnonymous
         !unban @DeveloperAnonymous Is not a noob anymore
         """
-        guild: discord.Guild = ctx.guild
+        guild: disnake.Guild = ctx.guild
 
         if user not in [entry.user for entry in await guild.bans()]:
             return await util.exception(ctx.channel, "Ce membre n'est pas banni!")

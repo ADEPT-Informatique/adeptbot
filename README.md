@@ -7,7 +7,7 @@ A discord bot for managing your server
 ### Requirements
 
 - Python 3.10+
-- Dependencies (`pip install -r requirements.txt`)
+- Dependencies (`pip3 install -r requirements.txt`)
 - [ADEPT-API](https://github.com/ADEPT-Informatique/ADEPT-API)
 
 ### Setting up the bot
@@ -18,4 +18,4 @@ Make sure to include the discord token & modify the channels and roles IDs if ne
 
 ### Run the bot
 
-> `python3 run.py`
+> `python3.10 run.py`

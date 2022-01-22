@@ -1,24 +1,24 @@
 import asyncio
-import discord
+import disnake
 import traceback
-from discord.ext import commands
+from disnake.ext import commands
+from bot.botcommands import MemberCog, ModerationCog
 
 import configs
-from bot import tasks, users, util, welcome
-from bot.botcommands import member, moderation
+from bot import tasks, util, welcome
 from bot.interactions import TicketOpeningInteraction, TicketCloseInteraction
 from bot.welcome import NoReplyException
 
 
 class AdeptClient(commands.Bot):
     def __init__(self, prefix):
-        intents = discord.Intents.default()
+        intents = disnake.Intents.default()
         intents.members = True
         loop = asyncio.get_event_loop_policy().new_event_loop()
         super().__init__(prefix, loop=loop, intents=intents)
 
-        self.add_cog(member.MemberCog())
-        self.add_cog(moderation.ModerationCog(self))
+        self.add_cog(MemberCog(self))
+        self.add_cog(ModerationCog(self))
         self.persistent_views_loaded = False
 
     async def on_ready(self):
@@ -30,31 +30,12 @@ class AdeptClient(commands.Bot):
             self.add_view(TicketCloseInteraction())
             self.persistent_views_loaded = True
 
-        await self.change_presence(activity=discord.Activity(name="for bad boys!", type=discord.ActivityType.watching))
+        await self.change_presence(activity=disnake.Activity(name="for bad boys!", type=disnake.ActivityType.watching))
         tasks._load_tasks(self)
 
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: disnake.Message):
         if (message.author.bot):
             return
-
-        member = message.author
-        user: users.User = await users.get_user(member)
-        if user is None:
-            user = await users.create_user(member)
-
-        if (message.created_at.timestamp() - user.last_message_timestamp) < 0.5:
-            user.strikes += 1
-            
-            if user.strikes % 3:
-                if member.get_role(configs.ADMIN_ROLE) is None and member.get_role(configs.TRUST_ROLE) is None:
-                    times = user.strikes / 3
-                    await tasks.create_mute_task(member, 60 * times)
-                    await message.channel.send(f"{member.mention} est maintenant muet en raison du spam!")
-                user.strikes = 0
-        else:
-            user.strikes = 0
-
-        user.last_message_timestamp = message.created_at.timestamp()
 
         message.content = message.content.replace(f"<@!{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
         message.content = message.content.replace(f"<@{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
@@ -62,11 +43,11 @@ class AdeptClient(commands.Bot):
         if message.content.startswith(configs.PREFIX):
             await self.process_commands(message)
 
-    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+    async def on_message_edit(self, before: disnake.Message, after: disnake.Message):
         if before.author.bot:
             return
 
-        embed = discord.Embed(title="Message édité", color=0x00ff00, timestamp=discord.utils.utcnow(), url=after.jump_url)
+        embed = disnake.Embed(title="Message édité", color=0x00ff00, timestamp=disnake.utils.utcnow(), url=after.jump_url)
 
         if before.content != after.content:
             embed.add_field(name="Contenu avant", value=before.content)
@@ -75,12 +56,12 @@ class AdeptClient(commands.Bot):
         if embed.fields:
             await self.say(configs.LOGS_CHANNEL, embed=embed)
 
-    async def on_message_delete(self, message: discord.Message):
-        embed = discord.Embed(title="Message supprimé", color=0xff0000, timestamp=discord.utils.utcnow())
+    async def on_message_delete(self, message: disnake.Message):
+        embed = disnake.Embed(title="Message supprimé", color=0xff0000, timestamp=disnake.utils.utcnow())
         embed.add_field(name="Contenu", value=message.content, inline=False)
 
         if message.author.id != self.user.id:
-            logs = await message.guild.audit_logs(limit=1, action=discord.AuditLogAction.message_delete).flatten()
+            logs = await message.guild.audit_logs(limit=1, action=disnake.AuditLogAction.message_delete).flatten()
             if logs:
                 embed.add_field(name="Supprimé par", value=logs[0].user.mention, inline=False)
             else:
@@ -88,18 +69,22 @@ class AdeptClient(commands.Bot):
 
         await self.say(configs.LOGS_CHANNEL, embed=embed)
 
-    async def on_member_join(self, member: discord.Member):
+    async def on_member_join(self, member: disnake.Member):
         await self.say(configs.LOGS_CHANNEL, f"{member.mention} a rejoint le serveur.")
+        await self.change_presence(activity=disnake.Activity(name="for bad boys!", type=disnake.ActivityType.watching))
+        tasks._load_tasks(self)
+
+    async def on_member_join(self, member: disnake.Member):
         await self.say(configs.WELCOME_CHANNEL, configs.WELCOME_SERVER.format(name=member.mention))
         result = await welcome.walk_through_welcome(member)
 
         await welcome.process_welcome_result(member, result)
 
-    async def on_member_remove(self, member: discord.Member):
+    async def on_member_remove(self, member: disnake.Member):
         await self.say(configs.LOGS_CHANNEL, f"{member.mention} a quitté le serveur.")
 
-    async def on_member_update(self, before: discord.Member, after: discord.Member):
-        embed = discord.Embed(title="Membre modifié", color=0x00ff00)
+    async def on_member_update(self, before: disnake.Member, after: disnake.Member):
+        embed = disnake.Embed(title="Membre modifié", color=0x00ff00)
         embed.add_field(name="Membre", value=f"{after.mention}")
 
         if before.nick != after.nick:
@@ -124,10 +109,10 @@ class AdeptClient(commands.Bot):
             await self.say(configs.LOGS_CHANNEL, embed=embed)
         
 
-    async def on_guild_channel_create(self, channel: discord.TextChannel):
-        embed = discord.Embed(title="Canal créé", color=0x00ff00)
+    async def on_guild_channel_create(self, channel: disnake.TextChannel):
+        embed = disnake.Embed(title="Canal créé", color=0x00ff00)
 
-        logs = await channel.guild.audit_logs(limit=1, action=discord.AuditLogAction.channel_create).flatten()
+        logs = await channel.guild.audit_logs(limit=1, action=disnake.AuditLogAction.channel_create).flatten()
         embed.add_field(name="Nom", value=f"{channel.mention}")
         if logs:
             embed.add_field(name="Créé par", value=logs[0].user.mention, inline=False)
@@ -137,10 +122,10 @@ class AdeptClient(commands.Bot):
         if embed.fields:
             await self.say(configs.LOGS_CHANNEL, embed=embed)
 
-    async def on_guild_channel_remove(self, channel: discord.TextChannel):
-        embed = discord.Embed(title="Canal supprimé", color=0x00ff00)
+    async def on_guild_channel_remove(self, channel: disnake.TextChannel):
+        embed = disnake.Embed(title="Canal supprimé", color=0x00ff00)
         
-        logs = await channel.guild.audit_logs(limit=1, action=discord.AuditLogAction.channel_delete).flatten()
+        logs = await channel.guild.audit_logs(limit=1, action=disnake.AuditLogAction.channel_delete).flatten()
         embed.add_field(name="Nom", value=f"{channel.mention}")
         if logs:
             embed.add_field(name="Supprimé par", value=logs[0].user.mention, inline=False)
@@ -150,10 +135,10 @@ class AdeptClient(commands.Bot):
         if embed.fields:
             await self.say(configs.LOGS_CHANNEL, embed=embed)
 
-    async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
-        embed = discord.Embed(title="Canal modifié", color=0x00ff00)
+    async def on_guild_channel_update(self, before: disnake.abc.GuildChannel, after: disnake.abc.GuildChannel):
+        embed = disnake.Embed(title="Canal modifié", color=0x00ff00)
 
-        logs = await before.guild.audit_logs(limit=1, action=discord.AuditLogAction.channel_update).flatten()
+        logs = await before.guild.audit_logs(limit=1, action=disnake.AuditLogAction.channel_update).flatten()
         if before.name != after.name:
             embed.add_field(name="Nom", value=f"{before.mention} -> {after.mention}")
         
@@ -180,14 +165,14 @@ class AdeptClient(commands.Bot):
         
         traceback.print_exc()
 
-    async def say(self, channel: discord.TextChannel | str, *args, **kwargs):
+    async def say(self, channel: disnake.TextChannel | str, *args, **kwargs):
         if type(channel) is str:
             # channel_id/server_id
             channel_id, server_id = channel.split("/")
             channel = self.get_guild(int(server_id)).get_channel(int(channel_id))
         try:
             return await channel.send(*args, **kwargs)
-        except discord.Forbidden as send_error:
+        except disnake.Forbidden as send_error:
             util.logger.warning(send_error)
 
 

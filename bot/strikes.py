@@ -1,4 +1,4 @@
-﻿from discord.errors import InvalidArgument
+﻿from disnake.errors import InvalidArgument
 from enum import Enum
 
 
