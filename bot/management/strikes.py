@@ -21,7 +21,7 @@ class StrikesCog(commands.Cog):
 
         if (message.created_at.timestamp() - user.last_message_timestamp) < 0.5:
             user.strikes += 1
-            
+
             if user.strikes % 3:
                 if member.get_role(configs.ADMIN_ROLE) is None and member.get_role(configs.TRUST_ROLE) is None:
                     times = user.strikes / 3

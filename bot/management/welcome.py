@@ -31,12 +31,12 @@ class WelcomeCog(commands.Cog):
             error = event.original
             if isinstance(error, welcome.NoReplyException):
                 await util.exception(error.channel, error.message)
-            
+
             elif isinstance(error, disnake.Forbidden):
                 await util.logger.error("Can't apply roles to the user", error)
             else:
                 # We suppress the other errors, might be check errors but they are not important
                 # It should mostly be the case of the user trying to use the bot in DMs
                 pass
-        
+
         traceback.print_exc()

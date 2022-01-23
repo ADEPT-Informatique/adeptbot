@@ -5,9 +5,9 @@ from enum import Enum
 class Strike(Enum):
     def __str__(self):
         return self.value
-    
+
     def __int__(self):
-        match(self):
+        match (self):
             case Strike.MUTE:
                 return 0
             case Strike.UNMUTE:

@@ -9,6 +9,7 @@ from bot.task import Task
 
 task_list = []
 
+
 async def create_mute_task(member: disnake.Member, duration: int = None):
     if duration is None:
         return await util.mute(member)
@@ -28,7 +29,7 @@ async def create_mute_task(member: disnake.Member, duration: int = None):
     await util.mute(member)
 
 
-async def delete_task(member: disnake.Member, strike_type: Strike, reason = "Automatic moderation"):
+async def delete_task(member: disnake.Member, strike_type: Strike, reason: str = "Automatic moderation"):
     if strike_type == Strike.MUTE:
         # TODO: Api call
         await util.unmute(member, reason)

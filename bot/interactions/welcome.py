@@ -2,9 +2,11 @@ from disnake import ui
 from disnake.enums import ButtonStyle
 from disnake.interactions import Interaction
 
+
 class BaseInteraction(ui.View):
     def __init__(self, *, timeout: int = 60):
         super().__init__(timeout=timeout)
+
 
 class WelcomeInteraction(BaseInteraction):
     def __init__(self):
@@ -62,7 +64,7 @@ class TeacherInteraction(BaseInteraction):
             return None
 
         return self.is_teacher
-    
+
     @ui.button(label="Oui", style=ButtonStyle.green)
     async def yes_teacher(self, button: ui.Button, interaction: Interaction):
         self.is_teacher = True

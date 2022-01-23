@@ -86,7 +86,7 @@ class ModerationCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         bot.add_cog(StrikesCog(bot))
 
-    async def __create_moderation_embed(self, strike: Strike, target: disnake.User| disnake.Member, author: disnake.Member, reason: str, parsed_time: ParsedTime = None):
+    async def __create_moderation_embed(self, strike: Strike, target: disnake.User | disnake.Member, author: disnake.Member, reason: str, parsed_time: ParsedTime = None):
         color = None
         if strike in (Strike.WARN, Strike.MUTE, Strike.UNMUTE):
             color = 15066368
@@ -107,7 +107,7 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
-    async def warn(self, ctx: Context, member: disnake.Member, *, reason: str=NO_REASON):
+    async def warn(self, ctx: Context, member: disnake.Member, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
         !warn @DeveloperAnonymous Is a noob
@@ -168,7 +168,7 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
-    async def unmute(self, ctx: Context, member: disnake.Member, *, reason: str=NO_REASON):
+    async def unmute(self, ctx: Context, member: disnake.Member, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
         !unmute @DeveloperAnonymous
@@ -187,7 +187,7 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE)
-    async def kick(self, ctx: Context, member: disnake.Member, *, reason: str=NO_REASON):
+    async def kick(self, ctx: Context, member: disnake.Member, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
         !kick @DeveloperAnonymous
@@ -211,7 +211,7 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE)
-    async def ban(self, ctx: Context, user: disnake.User, *, reason: str=NO_REASON):
+    async def ban(self, ctx: Context, user: disnake.User, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
         !ban @DeveloperAnonymous
@@ -244,7 +244,7 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE)
-    async def unban(self, ctx: Context, user: disnake.User, *, reason: str=NO_REASON):
+    async def unban(self, ctx: Context, user: disnake.User, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
         !unban @DeveloperAnonymous

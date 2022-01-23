@@ -1,5 +1,6 @@
 from . import BaseService
 
+
 class UserService(BaseService):
     __COLLECTION_NAME = "users"
 

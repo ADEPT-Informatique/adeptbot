@@ -10,6 +10,7 @@ class InsufficientPermissionsError(PermissionError):
         self.channel = channel
         self.message = message
 
+
 @total_ordering
 class Permission(Enum):
     def __gt__(self, other):

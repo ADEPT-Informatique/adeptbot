@@ -36,7 +36,7 @@ async def say(*args, **kwargs):
 
 
 async def exception(channel: disnake.abc.Messageable, message: disnake.Message, **kwargs):
-    await say(channel, ":bangbang: **%s**" %message, **kwargs)
+    await say(channel, f":bangbang: **{message}**", **kwargs)
 
 
 async def mute(member: disnake.Member):
@@ -60,15 +60,16 @@ async def has_role(member: disnake.Member, role: disnake.Role):
 async def create_ticket(member: disnake.Member, ticket: TicketType):
     guild = member.guild
     category: disnake.CategoryChannel = guild.get_channel(configs.TICKET_CATEGORY)
-    overwrites = disnake.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, read_message_history=True)
+    overwrites = disnake.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True,
+                                             read_message_history=True)
     channel = await category.create_text_channel(f"{member.display_name}")
     await channel.set_permissions(member, overwrite=overwrites)
 
     admin = guild.get_role(configs.ADMIN_ROLE)
     close_button = TicketCloseInteraction()
-    await channel.send(configs.TICKET_MESSAGE.format(plaintive=member.mention, admins=admin.mention, 
-                                                    ticket_type=ticket, prefix=configs.PREFIX), 
-                                                    view=close_button)
+    await channel.send(configs.TICKET_MESSAGE.format(plaintive=member.mention, admins=admin.mention,
+                                                     ticket_type=ticket, prefix=configs.PREFIX),
+                       view=close_button)
 
     return channel
 
@@ -77,7 +78,8 @@ async def archive_ticket(member: disnake.Member, channel: disnake.TextChannel):
     guild = channel.guild
     category = guild.get_channel(configs.TICKET_ARCHIVE_CATEGORY)
 
-    overwrites = disnake.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=False, read_message_history=True)
+    overwrites = disnake.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=False,
+                                             read_message_history=True)
 
     await channel.set_permissions(member, overwrite=overwrites)
     await channel.send(f'Ticket fermé par {member.mention}.')
@@ -85,9 +87,9 @@ async def archive_ticket(member: disnake.Member, channel: disnake.TextChannel):
 
 
 def get_welcome_instruction(instruction: str):
-    welcome_embed = disnake.Embed(title = configs.WELCOME_TITLE,
-                                description=configs.WELCOME_MESSAGE.format(content=instruction),
-                                color=0x1de203)
+    welcome_embed = disnake.Embed(title=configs.WELCOME_TITLE,
+                                  description=configs.WELCOME_MESSAGE.format(content=instruction),
+                                  color=0x1de203)
     welcome_embed.set_thumbnail(url="https://www.adeptinfo.ca/img/badge.png")
     welcome_embed.set_footer(text=configs.WELCOME_FOOTER)
 
@@ -97,10 +99,10 @@ def get_welcome_instruction(instruction: str):
 def get_plural(value: int, word: str):
     if word.endswith("s"):
         return word
-    
+
     if value > 1:
         return word + "s"
-    
+
     return word
 
 

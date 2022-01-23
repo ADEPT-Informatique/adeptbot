@@ -31,7 +31,7 @@ class TicketConfirmationInteraction(ui.View):
     async def interaction_check(self, interaction: disnake.Interaction) -> bool:
         for child in self.children:
             child.disabled = True
-        
+
         await interaction.response.edit_message(view=self)
 
         return await super().interaction_check(interaction)
@@ -44,6 +44,7 @@ class TicketConfirmationInteraction(ui.View):
     async def decline(self, button: ui.Button, interaction: disnake.Interaction):
         await interaction.edit_original_message(content='Vous avez annulé la création du ticket.')
 
+
 class TicketCloseInteraction(ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -55,7 +56,7 @@ class TicketCloseInteraction(ui.View):
         await interaction.response.edit_message(view=self)
 
         return await super().interaction_check(interaction)
-    
-    @ui.button(label='Fermer', style=ButtonStyle.red,  custom_id=configs.TICKET_CLOSE_ID)
+
+    @ui.button(label='Fermer', style=ButtonStyle.red, custom_id=configs.TICKET_CLOSE_ID)
     async def close(self, button: ui.Button, interaction: disnake.Interaction):
         await util.archive_ticket(interaction.user, interaction.channel)
