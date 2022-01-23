@@ -1,2 +1,2 @@
-﻿disnake
+disnake
 jsonpickle

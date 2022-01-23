@@ -1,4 +1,4 @@
-﻿# ADEPT Informatique Bot
+# ADEPT Informatique Bot
 
 A discord bot for managing your server
 
