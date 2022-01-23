@@ -6,14 +6,15 @@ from disnake.ext.commands.errors import CommandInvokeError
 import configs
 from bot import welcome, util
 from bot.interactions import TicketOpeningInteraction
+from bot.management import WelcomeCog, LoggingCog
 from bot.tickets import TicketConverter
-from management import WelcomeCog
 
 
 class MemberCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         bot.add_cog(WelcomeCog(bot))
+        bot.add_cog(LoggingCog(bot))
 
     @commands.command()
     async def ticket(self, ctx: Context, ticket: TicketConverter):

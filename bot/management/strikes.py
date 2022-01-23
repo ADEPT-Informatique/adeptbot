@@ -4,6 +4,7 @@ from disnake.ext import commands
 import configs
 from bot import tasks, users
 
+
 class StrikesCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

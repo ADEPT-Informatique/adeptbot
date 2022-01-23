@@ -5,9 +5,9 @@ import typing
 from disnake.ext import commands
 from disnake.ext.commands.context import Context
 from disnake.ext.commands.errors import CommandInvokeError
-from bot.management import StrikesCog
 
 import configs
+from bot.management import StrikesCog
 from .. import tasks, util, permissions
 from ..http.services import BanService, MuteService
 from ..strikes import Strike

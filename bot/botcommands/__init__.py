@@ -1,2 +1,2 @@
-from member import *
-from moderation import *
+from .member import *
+from .moderation import *

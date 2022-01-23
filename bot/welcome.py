@@ -1,4 +1,6 @@
 import disnake
+import json
+import jsonpickle
 
 import configs
 from bot import util
@@ -24,15 +26,10 @@ async def walk_through_welcome(member: disnake.Member):
     if is_student is None:
         raise NoReplyException(member)
 
-    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre nom?"), view=current_view)
-    student_name_msg = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
+    full_name = await __process_name(member, original_message)
 
-    if student_name_msg is None:
-        raise NoReplyException(member)
-
-    student_name = student_name_msg.content
-    confirmation_embed = disnake.Embed(title="Est-ce que ces informations sont tous exactes?")
-    confirmation_embed.add_field(name="Nom:", value=student_name, inline=False)
+    confirmation_embed = disnake.Embed(title="Est-ce que ces informations sont tous exactes?", color=0xF9E18B)
+    confirmation_embed.add_field(name="Nom:", value=full_name, inline=False)
 
     if is_student:
         student_number, program = await __process_student(member, original_message)
@@ -47,7 +44,24 @@ async def walk_through_welcome(member: disnake.Member):
     confirmed = await __process_confirmation(member, confirmation_embed)
     
     if confirmed is None:
-        return WelcomeUser(student_name, is_student, student_number, program)
+        welcome_user = WelcomeUser(full_name, is_student, student_number, program)
+
+        # Open welcome_user json file
+        # Handle if file is empty or doesn't exists
+        try:
+            with open(configs.WELCOME_USERS_PATH, "r") as f:
+                users = json.load(f)
+        except FileNotFoundError:
+            users = {}
+
+        # Add welcome_user to json file
+        users[member.id] = json.loads(jsonpickle.encode(welcome_user, False))
+        
+        # Save json file
+        with open(configs.WELCOME_USERS_PATH, "w") as f:
+            json.dump(users, f, indent=2)
+
+        return welcome_user
     elif confirmed:
         return await walk_through_welcome(member)
     else:
@@ -77,6 +91,25 @@ async def __process_confirmation(member: disnake.Member, embed: disnake.Embed):
         return restart
 
 
+async def __process_name(member: disnake.Member, original_message: disnake.Message):
+    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre prénom?"), view=None)
+    first_name_msg = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
+
+    if first_name_msg is None:
+        raise NoReplyException(member)
+    first_name = first_name_msg.content
+
+    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre nom de famille?"))
+    last_name_msg = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
+
+    if last_name_msg is None:
+        raise NoReplyException(member)
+    last_name = last_name_msg.content
+
+    full_name = f"{first_name} {last_name}"
+    return full_name
+
+
 async def __process_teacher(member: disnake.Member, original_message: disnake.Message):
     current_view = TeacherInteraction()
     await original_message.edit(embed=util.get_welcome_instruction("Êtes-vous un professeur?"), view=current_view)
@@ -91,12 +124,20 @@ async def __process_teacher(member: disnake.Member, original_message: disnake.Me
 
 
 async def __process_student(member: disnake.Member, original_message: disnake.Message):
+    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre numéro étudiant?"), view=None)
+    student_number_msg = await util.client.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
+
+    if student_number_msg is None:
+        raise NoReplyException(member)
+
+    student_number = student_number_msg.content
+
     current_view = StudentInteraction()
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre programme?"), view=current_view)
     program = await current_view.start()
 
     if program is None:
-        await original_message.edit(view=current_view)
+        await original_message.edit(view=None)
         raise NoReplyException(member)
     
     if program == "prog":
@@ -106,16 +147,7 @@ async def __process_student(member: disnake.Member, original_message: disnake.Me
     elif program == "decbac":
         program = "DEC-BAC"
 
-    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre numéro étudiant?"), view=current_view)
-    student_number_msg = await util.client.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
-
-    if student_number_msg is None:
-        await original_message.edit(view=current_view)
-        raise NoReplyException(member)
-
-    student_number = student_number_msg.content
-
-    return student_number, program
+    return int(student_number), program
 
 
 async def process_welcome_result(member: disnake.Member, result):
@@ -139,10 +171,11 @@ async def process_welcome_result(member: disnake.Member, result):
         embed = disnake.Embed(title="Nouveau membre dans ADEPT-Informatique", timestamp=disnake.utils.utcnow())
         embed.add_field(name="Nom:", value=name, inline=False)
         embed.add_field(name="Numéro étudiant:", value=result.student_id, inline=False)
-        embed.add_field(name="Professeur:", value="Oui" if result.is_teacher else "Non", inline=False)
+        embed.add_field(name="Professeur:", value="Non" if result.is_student else "Oui", inline=False)
         embed.add_field(name="Programme:", value=result.program, inline=False)
         embed.add_field(name="id", value=member.id, inline=False)
 
+        print("Sending welcome embed in logs channel")
         await util.say(configs.LOGS_CHANNEL, embed=embed)
         # TODO: Post to API the new partial student setup
     else:
