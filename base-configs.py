@@ -2,6 +2,13 @@
 TOKEN = ""
 PREFIX = "!"
 
+# Database Configs
+DB_HOST = "localhost"
+DB_PORT = 27017
+DB_NAME = "database_name"
+DB_USER = "Cool Name"
+DB_PASSWORD = "Secure Password"
+
 # Server Configs
 ADEPT = 362987473154080778
 LOGS_CHANNEL = f"547896873776578563/{ADEPT}"

@@ -1,2 +1,0 @@
-class BaseRequest:
-    pass

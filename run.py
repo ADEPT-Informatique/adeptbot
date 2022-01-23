@@ -10,10 +10,9 @@ from bot.interactions import TicketOpeningInteraction, TicketCloseInteraction
 
 class AdeptClient(commands.Bot):
     def __init__(self, prefix):
-        intents = disnake.Intents.default()
-        intents.members = True
+        intents = disnake.Intents.all()
         loop = asyncio.get_event_loop_policy().new_event_loop()
-        super().__init__(prefix, loop=loop, intents=intents)
+        super().__init__(prefix, loop=loop, intents=intents, case_insensitive=True)
 
         self.add_cog(MemberCog(self))
         self.add_cog(ModerationCog(self))

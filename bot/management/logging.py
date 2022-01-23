@@ -32,7 +32,7 @@ class LoggingCog(commands.Cog):
             return
 
         author = message.author
-        embed = disnake.Embed(color=0xff0000, timestamp=disnake.utils.utcnow())
+        embed = disnake.Embed(color=0xFC5233, timestamp=disnake.utils.utcnow())
         embed.set_author(name=f"{author}", icon_url=author.avatar.url)
         embed.set_footer(text=f"ID: {author.id}")
         
@@ -92,30 +92,31 @@ class LoggingCog(commands.Cog):
         
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel: disnake.abc.GuildChannel):
-        embed = disnake.Embed(color=0x99CC99, timestamp=disnake.utils.utcnow())
+        embed = disnake.Embed(color=0xF9E18B, timestamp=disnake.utils.utcnow())
         embed.set_author(name=f"{channel.guild}", icon_url=channel.guild.icon.url)
+        embed.set_footer(text=f"ID: {channel.guild.id}")
 
         logs = await channel.guild.audit_logs(limit=1, action=disnake.AuditLogAction.channel_create).flatten()
         if logs:
             author = logs[0].user
-            embed.description = f"**{channel.mention} a été créé par {author.mention}**"
+            embed.description = f"**#{channel.name} a été créé par {author.mention}**"
         else:
-            embed.description = f"**{channel.mention} a été créé**"
+            embed.description = f"**#{channel.name} a été créé**"
 
         await self.bot.say(configs.LOGS_CHANNEL, embed=embed)
 
     @commands.Cog.listener()
-    async def on_guild_channel_remove(self, channel: disnake.abc.GuildChannel):
-        embed = disnake.Embed(color=0xF9E18B, timestamp=disnake.utils.utcnow())
+    async def on_guild_channel_delete(self, channel: disnake.abc.GuildChannel):
+        embed = disnake.Embed(color=0xFC5233, timestamp=disnake.utils.utcnow())
         embed.set_author(name=f"{channel.guild}", icon_url=channel.guild.icon.url)
+        embed.set_footer(text=f"ID: {channel.guild.id}")
 
         logs = await channel.guild.audit_logs(limit=1, action=disnake.AuditLogAction.channel_create).flatten()
         if logs:
             author = logs[0].user
-            embed.set_footer(text=f"ID: {author.id}")
-            embed.description = f"**{channel.mention} a été supprimé par {author.mention}**"
+            embed.description = f"**#{channel.name} a été supprimé par {author.mention}**"
         else:
-            embed.description = f"**{channel.mention} a été supprimé**"
+            embed.description = f"**#{channel.name} a été supprimé**"
 
         await self.bot.say(configs.LOGS_CHANNEL, embed=embed)
 
@@ -123,14 +124,14 @@ class LoggingCog(commands.Cog):
     async def on_guild_channel_update(self, before: disnake.abc.GuildChannel, after: disnake.abc.GuildChannel):
         embed = disnake.Embed(color=0xF9E18B, timestamp=disnake.utils.utcnow())
         embed.set_author(name=f"{after.guild}", icon_url=after.guild.icon.url)
+        embed.set_footer(text=f"ID: {after.guild.id}")
 
         logs = await before.guild.audit_logs(limit=1, action=disnake.AuditLogAction.channel_update).flatten()
         if before.name != after.name:
             if logs:
                 author = logs[0].user
-                embed.set_footer(text=f"ID: {author.id}")
-                embed.description = f"**{before} a été renommé pour {after.mention} par {author.mention}**"
+                embed.description = f"**``#{before}`` a été renommé pour {after.mention} par {author.mention}**"
             else:
-                embed.description = f"**{before} a été renommé pour {after.mention}**"
-
+                embed.description = f"**``#{before}`` a été renommé pour {after.mention}**"
+ 
             await self.bot.say(configs.LOGS_CHANNEL, embed=embed)

@@ -9,7 +9,6 @@ from disnake.ext.commands.errors import CommandInvokeError
 import configs
 from bot.management import StrikesCog
 from .. import tasks, util, permissions
-from ..http.services import BanService, MuteService
 from ..strikes import Strike
 
 NO_REASON = "Pas de raison spécifié"
@@ -85,9 +84,6 @@ class CustomTime(commands.Converter):
 
 class ModerationCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
-        self.mute_service = MuteService(bot.loop)
-        self.ban_service = BanService(bot.loop)
-
         bot.add_cog(StrikesCog(bot))
 
     async def __create_moderation_embed(self, strike: Strike, target: disnake.User| disnake.Member, author: disnake.Member, reason: str, parsed_time: ParsedTime = None):
@@ -125,7 +121,7 @@ class ModerationCog(commands.Cog):
         await util.say(configs.LOGS_CHANNEL, embed=warn_embed)
         await util.react_to(ctx.message, u"\u2705")
 
-        # TODO: Do API Calls in the background
+        # TODO: Do DB Calls in the background
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
@@ -168,7 +164,7 @@ class ModerationCog(commands.Cog):
             await tasks.create_mute_task(member, length.seconds)
 
         # TODO: Create the task
-        # TODO: Do API Calls in the background
+        # TODO: Do DB Calls in the background
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
@@ -187,7 +183,7 @@ class ModerationCog(commands.Cog):
         await util.react_to(ctx.message, u"\u2705")
 
         # TODO: Remove the task, if any
-        # TODO: Do API Calls in the background
+        # TODO: Do DB Calls in the background
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE)
@@ -211,7 +207,7 @@ class ModerationCog(commands.Cog):
         await util.say(configs.LOGS_CHANNEL, embed=kick_embed)
         await util.react_to(ctx.message, u"\u2705")
 
-        # TODO: Do API Calls in the background
+        # TODO: Do DB Calls in the background
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE)
@@ -244,7 +240,7 @@ class ModerationCog(commands.Cog):
         await util.react_to(ctx.message, u"\u2705")
 
         # TODO: Create the task
-        # TODO: Do API Calls in the background
+        # TODO: Do DB Calls in the background
 
     @commands.command()
     @commands.has_any_role(configs.ADMIN_ROLE)
@@ -265,7 +261,7 @@ class ModerationCog(commands.Cog):
         await util.react_to(ctx.message, u"\u2705")
 
         # TODO: Remove the task, if any
-        # TODO: Do API Calls in the background
+        # TODO: Do DB Calls in the background
 
     async def cog_command_error(self, ctx: Context, error):
         if isinstance(error, CommandInvokeError):

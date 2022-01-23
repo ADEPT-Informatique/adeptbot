@@ -1,10 +1,8 @@
 import disnake
-import json
-import jsonpickle
 
 import configs
 from bot import util
-from bot.http.models.user import WelcomeUser
+from bot.db.models import WelcomeUser
 from bot.interactions.welcome import (ConfirmationInteraction,
                                       StudentInteraction, TeacherInteraction,
                                       WelcomeInteraction)
@@ -19,9 +17,9 @@ class NoReplyException(TimeoutError):
 
 
 async def walk_through_welcome(member: disnake.Member):
-    current_view = WelcomeInteraction()
-    original_message: disnake.Message = await member.send(embed=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"), view=current_view)
-    is_student = await current_view.start()
+    welcome_view = WelcomeInteraction()
+    original_message: disnake.Message = await member.send(embed=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"), view=welcome_view)
+    is_student = await welcome_view.start()
 
     if is_student is None:
         raise NoReplyException(member)
@@ -44,22 +42,8 @@ async def walk_through_welcome(member: disnake.Member):
     confirmed = await __process_confirmation(member, confirmation_embed)
     
     if confirmed is None:
-        welcome_user = WelcomeUser(full_name, is_student, student_number, program)
-
-        # Open welcome_user json file
-        # Handle if file is empty or doesn't exists
-        try:
-            with open(configs.WELCOME_USERS_PATH, "r") as f:
-                users = json.load(f)
-        except FileNotFoundError:
-            users = {}
-
-        # Add welcome_user to json file
-        users[member.id] = json.loads(jsonpickle.encode(welcome_user, False))
-        
-        # Save json file
-        with open(configs.WELCOME_USERS_PATH, "w") as f:
-            json.dump(users, f, indent=2)
+        welcome_user = WelcomeUser(member.id, full_name, is_student, student_number, program)
+        welcome_user.save()
 
         return welcome_user
     elif confirmed:
@@ -69,22 +53,22 @@ async def walk_through_welcome(member: disnake.Member):
 
 
 async def __process_confirmation(member: disnake.Member, embed: disnake.Embed):
-    current_view = ConfirmationInteraction()
-    confirmation_message = await member.send(embed=embed, view=current_view)
-    confirmed = await current_view.start()
+    confirmation_view = ConfirmationInteraction()
+    confirmation_message = await member.send(embed=embed, view=confirmation_view)
+    confirmed = await confirmation_view.start()
 
     if confirmed is None:
         raise NoReplyException(member)
 
-    await confirmation_message.edit(view=current_view)
+    await confirmation_message.edit(view=None)
     if confirmed:
         await member.send("Parfait, tout est beau!")
     else:
-        current_view = ConfirmationInteraction()
-        restart_message = await member.send("D'accord, voulez-vous recommencer?", view=current_view)
-        restart = await current_view.start()
+        confirmation_view = ConfirmationInteraction()
+        restart_message = await member.send("D'accord, voulez-vous recommencer?", view=confirmation_view)
+        restart = await confirmation_view.start()
 
-        await restart_message.edit(view=current_view)
+        await restart_message.edit(view=confirmation_view)
         if restart is None:
             raise NoReplyException(member)
 
@@ -132,9 +116,9 @@ async def __process_student(member: disnake.Member, original_message: disnake.Me
 
     student_number = student_number_msg.content
 
-    current_view = StudentInteraction()
-    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre programme?"), view=current_view)
-    program = await current_view.start()
+    student_view = StudentInteraction()
+    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre programme?"), view=student_view)
+    program = await student_view.start()
 
     if program is None:
         await original_message.edit(view=None)
@@ -166,17 +150,21 @@ async def process_welcome_result(member: disnake.Member, result):
         else:
             role = guild.get_role(configs.TEACHER_ROLE)
 
-        await member.edit(nick=name, roles=[role], reason="Inital setup")
+        roles = [role for role in member.roles if role.id not in (configs.PROG_ROLE, configs.NETWORK_ROLE, configs.DECBAC_ROLE, configs.TEACHER_ROLE)]
+        roles.append(role)
+        try:
+            await member.edit(nick=name, roles=roles, reason="Inital setup")
+        except disnake.Forbidden:
+            await member.send("Vous avez des permissions plus élevées que moi. Veuillez contacter un administrateur.\n\n" +
+                                "Si vous êtes un administrateur, veuillez changer vos informations.")
 
         embed = disnake.Embed(title="Nouveau membre dans ADEPT-Informatique", timestamp=disnake.utils.utcnow())
         embed.add_field(name="Nom:", value=name, inline=False)
         embed.add_field(name="Numéro étudiant:", value=result.student_id, inline=False)
         embed.add_field(name="Professeur:", value="Non" if result.is_student else "Oui", inline=False)
         embed.add_field(name="Programme:", value=result.program, inline=False)
-        embed.add_field(name="id", value=member.id, inline=False)
+        embed.add_field(name="ID:", value=member.id, inline=False)
 
-        print("Sending welcome embed in logs channel")
         await util.say(configs.LOGS_CHANNEL, embed=embed)
-        # TODO: Post to API the new partial student setup
     else:
         util.logger.warning(f"Failed to complete setup for {member.name} ({member.id})")
