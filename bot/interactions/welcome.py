@@ -1,21 +1,23 @@
-from discord import ui
-from discord.enums import ButtonStyle
-from discord.interactions import Interaction
+from disnake import ui
+from disnake.enums import ButtonStyle
+from disnake.interactions import Interaction
 
 
-class Interaction(ui.View):
+class BaseInteraction(ui.View):
     def __init__(self, *, timeout: int = 60):
         super().__init__(timeout=timeout)
 
-class WelcomeInteraction(Interaction):
+
+class WelcomeInteraction(BaseInteraction):
+    def __init__(self):
+        super().__init__()
+
     async def start(self):
         timed_out = await self.wait()
 
-        for button in self.children:
-            button.disabled = True
-
         if timed_out:
             return None
+
         return self.is_student
 
     @ui.button(label="Oui", style=ButtonStyle.green)
@@ -29,15 +31,13 @@ class WelcomeInteraction(Interaction):
         self.stop()
 
 
-class StudentInteraction(Interaction):
+class StudentInteraction(BaseInteraction):
     async def start(self):
         timed_out = await self.wait()
 
-        for button in self.children:
-            button.disabled = True
-
         if timed_out:
             return None
+
         return self.program
 
     @ui.button(label="Programmation", style=ButtonStyle.primary)
@@ -56,17 +56,15 @@ class StudentInteraction(Interaction):
         self.stop()
 
 
-class TeacherInteraction(Interaction):
+class TeacherInteraction(BaseInteraction):
     async def start(self):
         timed_out = await self.wait()
 
-        for button in self.children:
-            button.disabled = True
-
         if timed_out:
             return None
+
         return self.is_teacher
-    
+
     @ui.button(label="Oui", style=ButtonStyle.green)
     async def yes_teacher(self, button: ui.Button, interaction: Interaction):
         self.is_teacher = True
@@ -78,7 +76,7 @@ class TeacherInteraction(Interaction):
         self.stop()
 
 
-class ConfirmationInteraction(Interaction):
+class ConfirmationInteraction(BaseInteraction):
     async def start(self):
         timed_out = await self.wait()
 
@@ -87,6 +85,7 @@ class ConfirmationInteraction(Interaction):
 
         if timed_out:
             return None
+
         return self.confirmed
 
     @ui.button(label="Oui", style=ButtonStyle.green)
