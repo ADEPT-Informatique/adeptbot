@@ -20,9 +20,7 @@ class Entity:
         else:
             self.updated_at = datetime.utcnow()
         
-        self.service.update_one({"_id": self._id}, {"$set": self.__dict__}, upsert=upsert)
-
-        return self._id
+        return self.service.update_one({"_id": self._id}, {"$set": self.__dict__}, upsert=upsert)
 
     def delete(self):
         return self.service.delete_one({"_id": self._id})
