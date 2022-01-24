@@ -24,9 +24,7 @@ If you're using docker with a local instance of MongoDB, use host.docker.interna
 
 #### Using Docker
 
-> `docker build -t adeptbot .`
-> 
-> `docker run adeptbot`
+> `sh start.sh`
 
 #### Using python
 
