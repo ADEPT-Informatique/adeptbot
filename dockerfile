@@ -1,8 +1,7 @@
 FROM python:3.10-slim AS python
 
-WORKDIR /usr/src/app
-
-COPY ./ /usr/src/app/
+# Copy project file to the container
+COPY . ./
 
 # Install the dependencies
 RUN python3.10 -m pip install -r ./requirements.txt
