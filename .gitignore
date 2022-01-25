@@ -4,3 +4,4 @@ configs.py
 .DS_STORE
 .idea
 members.json
+logs/
