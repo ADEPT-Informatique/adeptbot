@@ -26,8 +26,11 @@ async def walk_through_welcome(member: disnake.Member):
 
     full_name = await __process_name(member, original_message)
 
+    email = await __process_email(member, util.get_welcome_instruction("Quel est votre adresse email?"))
+
     confirmation_embed = disnake.Embed(title="Est-ce que ces informations sont tous exactes?", color=0xF9E18B)
     confirmation_embed.add_field(name="Nom:", value=full_name, inline=False)
+    confirmation_embed.add_field(name="Email:", value=email, inline=False)
 
     if is_student:
         student_number, program = await __process_student(member, original_message)
@@ -42,7 +45,7 @@ async def walk_through_welcome(member: disnake.Member):
     confirmed = await __process_confirmation(member, confirmation_embed)
     
     if confirmed is None:
-        welcome_user = WelcomeUser(member.id, full_name, is_student, student_number, program)
+        welcome_user = WelcomeUser(member.id, full_name, email, is_student, student_number, program)
         welcome_user.save()
 
         return welcome_user
@@ -92,6 +95,17 @@ async def __process_name(member: disnake.Member, original_message: disnake.Messa
 
     full_name = f"{first_name} {last_name}"
     return full_name
+
+
+async def __process_email(member: disnake.Member, original_message: disnake.Message):
+    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre adresse email?"), view=None)
+    email_msg = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
+
+    if email_msg is None:
+        raise NoReplyException(member)
+    email = email_msg.content
+
+    return email
 
 
 async def __process_teacher(member: disnake.Member, original_message: disnake.Message):
