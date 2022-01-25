@@ -1,4 +1,4 @@
-import discord
+import disnake
 import logging
 
 import configs
@@ -27,7 +27,7 @@ async def strike(id: int, t: str, reason: str):
     raise NotImplementedError()
 
 
-async def react_to(message: discord.Message, reaction: discord.Emoji | discord.Reaction | discord.PartialEmoji | str):
+async def react_to(message: disnake.Message, reaction: disnake.Emoji | disnake.Reaction | disnake.PartialEmoji | str):
     await message.add_reaction(reaction)
 
 
@@ -35,49 +35,51 @@ async def say(*args, **kwargs):
     await client.say(*args, **kwargs)
 
 
-async def exception(channel: discord.abc.Messageable, message: discord.Message, **kwargs):
-    await say(channel, ":bangbang: **%s**" %message, **kwargs)
+async def exception(channel: disnake.abc.Messageable, message: disnake.Message, **kwargs):
+    await say(channel, f":bangbang: **{message}**", **kwargs)
 
 
-async def mute(member: discord.Member):
+async def mute(member: disnake.Member):
     guild = member.guild
     mute_role = guild.get_role(configs.MUTED_ROLE)
 
     await member.add_roles(mute_role)
 
 
-async def unmute(member: discord.Member, reason: str):
+async def unmute(member: disnake.Member, reason: str):
     guild = member.guild
     mute_role = guild.get_role(configs.MUTED_ROLE)
 
     await member.remove_roles(mute_role, reason=reason)
 
 
-async def has_role(member: discord.Member, role: discord.Role):
+async def has_role(member: disnake.Member, role: disnake.Role):
     return role in member.roles
 
 
-async def create_ticket(member: discord.Member, ticket: TicketType):
+async def create_ticket(member: disnake.Member, ticket: TicketType):
     guild = member.guild
-    category: discord.CategoryChannel = guild.get_channel(configs.TICKET_CATEGORY)
-    overwrites = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True, read_message_history=True)
+    category: disnake.CategoryChannel = guild.get_channel(configs.TICKET_CATEGORY)
+    overwrites = disnake.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True,
+                                             read_message_history=True)
     channel = await category.create_text_channel(f"{member.display_name}")
     await channel.set_permissions(member, overwrite=overwrites)
 
     admin = guild.get_role(configs.ADMIN_ROLE)
     close_button = TicketCloseInteraction()
-    await channel.send(configs.TICKET_MESSAGE.format(plaintive=member.mention, admins=admin.mention, 
-                                                    ticket_type=ticket, prefix=configs.PREFIX), 
-                                                    view=close_button)
+    await channel.send(configs.TICKET_MESSAGE.format(plaintive=member.mention, admins=admin.mention,
+                                                     ticket_type=ticket, prefix=configs.PREFIX),
+                       view=close_button)
 
     return channel
 
 
-async def archive_ticket(member: discord.Member, channel: discord.TextChannel):
+async def archive_ticket(member: disnake.Member, channel: disnake.TextChannel):
     guild = channel.guild
     category = guild.get_channel(configs.TICKET_ARCHIVE_CATEGORY)
 
-    overwrites = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=False, read_message_history=True)
+    overwrites = disnake.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=False,
+                                             read_message_history=True)
 
     await channel.set_permissions(member, overwrite=overwrites)
     await channel.send(f'Ticket fermé par {member.mention}.')
@@ -85,9 +87,9 @@ async def archive_ticket(member: discord.Member, channel: discord.TextChannel):
 
 
 def get_welcome_instruction(instruction: str):
-    welcome_embed = discord.Embed(title = configs.WELCOME_TITLE,
-                                description=configs.WELCOME_MESSAGE.format(content=instruction),
-                                color=0x1de203)
+    welcome_embed = disnake.Embed(title=configs.WELCOME_TITLE,
+                                  description=configs.WELCOME_MESSAGE.format(content=instruction),
+                                  color=0x1de203)
     welcome_embed.set_thumbnail(url="https://www.adeptinfo.ca/img/badge.png")
     welcome_embed.set_footer(text=configs.WELCOME_FOOTER)
 
@@ -97,10 +99,10 @@ def get_welcome_instruction(instruction: str):
 def get_plural(value: int, word: str):
     if word.endswith("s"):
         return word
-    
+
     if value > 1:
         return word + "s"
-    
+
     return word
 
 

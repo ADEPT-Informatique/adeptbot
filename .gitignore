@@ -1,5 +1,7 @@
-﻿.vscode
+.vscode
 __pycache__
 configs.py
 .DS_STORE
 .idea
+members.json
+logs/

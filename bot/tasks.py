@@ -1,7 +1,7 @@
 import datetime
-import discord
+import disnake
 from datetime import datetime as date
-from discord.ext import tasks
+from disnake.ext import tasks
 
 from bot import util
 from bot.strikes import Strike
@@ -9,7 +9,8 @@ from bot.task import Task
 
 task_list = []
 
-async def create_mute_task(member: discord.Member, duration: int = None):
+
+async def create_mute_task(member: disnake.Member, duration: int = None):
     if duration is None:
         return await util.mute(member)
 
@@ -28,7 +29,7 @@ async def create_mute_task(member: discord.Member, duration: int = None):
     await util.mute(member)
 
 
-async def delete_task(member: discord.Member, strike_type: Strike, reason = "Automatic moderation"):
+async def delete_task(member: disnake.Member, strike_type: Strike, reason: str = "Automatic moderation"):
     if strike_type == Strike.MUTE:
         # TODO: Api call
         await util.unmute(member, reason)
