@@ -174,6 +174,7 @@ async def process_welcome_result(member: disnake.Member, result):
 
         embed = disnake.Embed(title="Nouveau membre dans ADEPT-Informatique", timestamp=disnake.utils.utcnow())
         embed.add_field(name="Nom:", value=name, inline=False)
+        embed.add_field(name="Email:", value=result.email, inline=False)
         embed.add_field(name="Numéro étudiant:", value=result.student_id, inline=False)
         embed.add_field(name="Professeur:", value="Non" if result.is_student else "Oui", inline=False)
         embed.add_field(name="Programme:", value=result.program, inline=False)
