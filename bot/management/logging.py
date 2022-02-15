@@ -42,7 +42,7 @@ class LoggingCog(commands.Cog):
         else:
             embed.description = f"Message envoyé par {author.mention} a été supprimé dans {message.channel.mention}"
 
-            await self.bot.say(configs.LOGS_CHANNEL, embed=embed)
+        await self.bot.say(configs.LOGS_CHANNEL, embed=embed)
 
     @commands.Cog.listener()
     async def on_member_join(self, member: disnake.Member):

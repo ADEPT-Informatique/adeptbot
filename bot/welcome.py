@@ -26,7 +26,7 @@ async def walk_through_welcome(member: disnake.Member):
 
     full_name = await __process_name(member, original_message)
 
-    email = await __process_email(member, util.get_welcome_instruction("Quel est votre adresse email?"))
+    email = await __process_email(member, original_message)
 
     confirmation_embed = disnake.Embed(title="Est-ce que ces informations sont tous exactes?", color=0xF9E18B)
     confirmation_embed.add_field(name="Nom:", value=full_name, inline=False)

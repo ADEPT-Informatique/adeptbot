@@ -65,7 +65,3 @@ TICKET_CLOSE_ID = "ticket_view_1.0:Close"
 # Emojis
 CHECK_REACT = u"\u2705"
 CROSS_REACT = u"\u274C"
-
-# Save files (temporary)
-# TODO: Complete the ADEPT-API
-WELCOME_USERS_PATH = "members.json"
