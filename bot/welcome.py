@@ -6,14 +6,17 @@ from bot.db.models import WelcomeUser
 from bot.interactions.welcome import (ConfirmationInteraction,
                                       StudentInteraction, TeacherInteraction,
                                       WelcomeInteraction)
+from bot.util import AdeptBotError
 
-NO_REPLY = "Nous avons pas reçu de réponse! Utilisez `!setup` pour recommencer."
+
+class NoReplyException(AdeptBotError):
+    def __init__(self, channel: disnake.abc.Messageable) -> None:
+        super().__init__(channel, f"Nous avons pas reçu de réponse! Utilisez `{configs.PREFIX}setup` dans <#{configs.SETUP_CHANNEL}> pour recommencer.")
 
 
-class NoReplyException(TimeoutError):
-    def __init__(self, channel: disnake.abc.Messageable, message: str = NO_REPLY) -> None:
-        self.channel = channel
-        self.message = message
+class InvalidInputException(AdeptBotError):
+    def __init__(self, channel: disnake.abc.Messageable, message: str) -> None:
+        super().__init__(channel, message)
 
 
 async def walk_through_welcome(member: disnake.Member):
@@ -57,7 +60,7 @@ async def walk_through_welcome(member: disnake.Member):
 
 async def __process_confirmation(member: disnake.Member, embed: disnake.Embed):
     confirmation_view = ConfirmationInteraction()
-    confirmation_message = await member.send(embed=embed, view=confirmation_view)
+    confirmation_message: disnake.Message = await member.send(embed=embed, view=confirmation_view)
     confirmed = await confirmation_view.start()
 
     if confirmed is None:
@@ -80,14 +83,14 @@ async def __process_confirmation(member: disnake.Member, embed: disnake.Embed):
 
 async def __process_name(member: disnake.Member, original_message: disnake.Message):
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre prénom?"), view=None)
-    first_name_msg = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
+    first_name_msg: disnake.Message = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
 
     if first_name_msg is None:
         raise NoReplyException(member)
     first_name = first_name_msg.content
 
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre nom de famille?"))
-    last_name_msg = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
+    last_name_msg: disnake.Message = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
 
     if last_name_msg is None:
         raise NoReplyException(member)
@@ -99,7 +102,7 @@ async def __process_name(member: disnake.Member, original_message: disnake.Messa
 
 async def __process_email(member: disnake.Member, original_message: disnake.Message):
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre adresse email?"), view=None)
-    email_msg = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
+    email_msg: disnake.Message = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
 
     if email_msg is None:
         raise NoReplyException(member)
@@ -122,20 +125,23 @@ async def __process_teacher(member: disnake.Member, original_message: disnake.Me
 
 
 async def __process_student(member: disnake.Member, original_message: disnake.Message):
-    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre numéro étudiant?"), view=None)
-    student_number_msg = await util.client.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
+    await original_message.edit(embed=util.get_welcome_instruction("Quel est votre matricule?"), view=None)
+    student_number_msg: disnake.Message = await util.client.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
 
     if student_number_msg is None:
         raise NoReplyException(member)
 
     student_number = student_number_msg.content
+    if not student_number.isdigit():
+        await util.exception(member, "Le numéro étudiant doit être un nombre entier.")
+        return await __process_student(member, original_message)
 
     student_view = StudentInteraction()
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre programme?"), view=student_view)
     program = await student_view.start()
 
+    await original_message.edit(view=None)
     if program is None:
-        await original_message.edit(view=None)
         raise NoReplyException(member)
     
     if program == "prog":

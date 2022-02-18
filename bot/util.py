@@ -11,6 +11,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('ADEPT-INFO')
 
 
+class AdeptBotError(Exception):
+    def __init__(self, channel: disnake.abc.Messageable, message) -> None:
+        self.channel = channel
+        self.message = message
+
+
 def get_member(guild_id: int, member_id: int):
     return client.get_guild(guild_id).get_member(member_id)
 
