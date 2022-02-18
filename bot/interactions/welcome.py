@@ -3,13 +3,14 @@ from disnake.enums import ButtonStyle
 from disnake.interactions import Interaction
 
 
-class BaseInteraction(ui.View):
+class BaseWelcomeInteraction(ui.View):
     def __init__(self, *, timeout: int = 60):
         super().__init__(timeout=timeout)
 
 
-class WelcomeInteraction(BaseInteraction):
+class WelcomeInteraction(BaseWelcomeInteraction):
     def __init__(self):
+        self.is_student = None
         super().__init__()
 
     async def start(self):
@@ -22,16 +23,21 @@ class WelcomeInteraction(BaseInteraction):
 
     @ui.button(label="Oui", style=ButtonStyle.green)
     async def yes_student(self, button: ui.Button, interaction: Interaction):
+        await interaction.response.defer()
         self.is_student = True
         self.stop()
 
     @ui.button(label="Non", style=ButtonStyle.red)
     async def no_student(self, button: ui.Button, interaction: Interaction):
+        await interaction.response.defer()
         self.is_student = False
         self.stop()
 
 
-class StudentInteraction(BaseInteraction):
+class StudentInteraction(BaseWelcomeInteraction):
+    def __init__(self):
+        self.program = None
+
     async def start(self):
         timed_out = await self.wait()
 
@@ -42,21 +48,28 @@ class StudentInteraction(BaseInteraction):
 
     @ui.button(label="Programmation", style=ButtonStyle.primary)
     async def prog(self, button: ui.Button, interaction: Interaction):
+        await interaction.response.defer()
         self.program = "prog"
         self.stop()
 
     @ui.button(label="Réseautique", style=ButtonStyle.primary)
     async def network(self, button: ui.Button, interaction: Interaction):
+        await interaction.response.defer()
         self.program = "network"
         self.stop()
 
     @ui.button(label="DEC-BAC", style=ButtonStyle.primary)
     async def decbac(self, button: ui.Button, interaction: Interaction):
+        await interaction.response.defer()
         self.program = "decbac"
         self.stop()
 
 
-class TeacherInteraction(BaseInteraction):
+class TeacherInteraction(BaseWelcomeInteraction):
+    def __init__(self):
+        self.is_teacher = None
+        super().__init__()
+
     async def start(self):
         timed_out = await self.wait()
 
@@ -67,16 +80,22 @@ class TeacherInteraction(BaseInteraction):
 
     @ui.button(label="Oui", style=ButtonStyle.green)
     async def yes_teacher(self, button: ui.Button, interaction: Interaction):
+        await interaction.response.defer()
         self.is_teacher = True
         self.stop()
 
     @ui.button(label="Non", style=ButtonStyle.red)
     async def no_teacher(self, button: ui.Button, interaction: Interaction):
+        await interaction.response.defer()
         self.is_teacher = False
         self.stop()
 
 
-class ConfirmationInteraction(BaseInteraction):
+class ConfirmationInteraction(BaseWelcomeInteraction):
+    def __init__(self):
+        self.confirmed = None
+        super().__init__()
+
     async def start(self):
         timed_out = await self.wait()
 
@@ -90,10 +109,12 @@ class ConfirmationInteraction(BaseInteraction):
 
     @ui.button(label="Oui", style=ButtonStyle.green)
     async def yes(self, button: ui.Button, interaction: Interaction):
+        await interaction.response.defer()
         self.confirmed = True
         self.stop()
 
     @ui.button(label="Non", style=ButtonStyle.red)
     async def no(self, button: ui.Button, interaction: Interaction):
+        await interaction.response.defer()
         self.confirmed = False
         self.stop()

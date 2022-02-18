@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 import disnake
 from disnake.ext import commands
 
@@ -49,6 +50,18 @@ class AdeptClient(commands.Bot):
             return await channel.send(*args, **kwargs)
         except disnake.Forbidden as send_error:
             util.logger.warning(send_error)
+
+    async def on_error(self, error, *args):
+        if isinstance(error, commands.errors.CommandInvokeError):
+            error = error.original
+        
+        if isinstance(error, util.AdeptBotError):
+            await util.exception(error.channel, error.message)
+
+        elif isinstance(error, disnake.Forbidden):
+            util.logger.error("Can't apply roles to the user", error)
+
+        traceback.print_exc()
 
 
 if __name__ == "__main__":

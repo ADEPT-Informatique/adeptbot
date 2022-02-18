@@ -3,11 +3,12 @@ import traceback
 from disnake.ext import commands
 
 import configs
-from bot import welcome, util
+from bot import welcome
 
 
 class WelcomeCog(commands.Cog):
     def __init__(self, bot):
+        super().__init__()
         self.bot = bot
 
     @commands.command()
@@ -25,18 +26,5 @@ class WelcomeCog(commands.Cog):
         await welcome.process_welcome_result(member, result)
 
     @commands.Cog.listener()
-    async def on_error(self, event, *args):
-
-        if isinstance(event, commands.CommandInvokeError):
-            error = event.original
-            if isinstance(error, welcome.NoReplyException):
-                await util.exception(error.channel, error.message)
-
-            elif isinstance(error, disnake.Forbidden):
-                await util.logger.error("Can't apply roles to the user", error)
-            else:
-                # We suppress the other errors, might be check errors but they are not important
-                # It should mostly be the case of the user trying to use the bot in DMs
-                pass
-
-        traceback.print_exc()
+    async def on_command_error(self, ctx, error):
+        await self.bot.on_error(error)
