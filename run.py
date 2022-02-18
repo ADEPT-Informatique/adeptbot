@@ -1,6 +1,6 @@
 import asyncio
-import traceback
 import disnake
+import traceback
 from disnake.ext import commands
 
 import configs

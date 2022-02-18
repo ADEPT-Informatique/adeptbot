@@ -2,11 +2,11 @@ import disnake
 
 import configs
 from bot import util
-from bot.util import AdeptBotError
 from bot.db.models import WelcomeUser
 from bot.interactions.welcome import (ConfirmationInteraction,
                                       StudentInteraction, TeacherInteraction,
                                       WelcomeInteraction)
+from bot.util import AdeptBotError
 
 
 class NoReplyException(AdeptBotError):

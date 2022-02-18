@@ -37,6 +37,7 @@ class WelcomeInteraction(BaseWelcomeInteraction):
 class StudentInteraction(BaseWelcomeInteraction):
     def __init__(self):
         self.program = None
+        super().__init__()
 
     async def start(self):
         timed_out = await self.wait()
