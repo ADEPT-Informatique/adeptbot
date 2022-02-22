@@ -51,18 +51,6 @@ class AdeptClient(commands.Bot):
         except disnake.Forbidden as send_error:
             util.logger.warning(send_error)
 
-    async def on_error(self, error, *args):
-        if isinstance(error, commands.errors.CommandInvokeError):
-            error = error.original
-        
-        if isinstance(error, util.AdeptBotError):
-            await util.exception(error.channel, error.message)
-
-        elif isinstance(error, disnake.Forbidden):
-            util.logger.error("Can't apply roles to the user", error)
-
-        traceback.print_exc()
-
 
 if __name__ == "__main__":
     util.logger.info("Starting the bot!")

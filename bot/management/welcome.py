@@ -2,7 +2,7 @@ import disnake
 from disnake.ext import commands
 
 import configs
-from bot import welcome
+from bot import util, welcome
 
 
 class WelcomeCog(commands.Cog):
@@ -23,7 +23,14 @@ class WelcomeCog(commands.Cog):
         result = await welcome.walk_through_welcome(member)
 
         await welcome.process_welcome_result(member, result)
-
+    
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        await self.bot.on_error(error)
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
+        if isinstance(error, commands.CommandInvokeError):
+            error = error.original
+
+        if isinstance(error, util.AdeptBotError):
+            await util.say(error.channel, error.message)
+        else:
+            await ctx.reply("Une erreur inconnue est survenue. Veuillez réessayer plus tard.")
+            raise error
