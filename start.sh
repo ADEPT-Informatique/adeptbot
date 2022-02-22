@@ -1,6 +1,6 @@
 #!/bin/bash
-# Stop the container
-docker stop adeptbot
+# Build the new image
+docker build -t adeptbot:latest .
 
 # if logs/ folder doesn't exist, create it
 if [ ! -d "logs" ]; then
@@ -10,9 +10,9 @@ fi
 # Save the logs with today's date up to seconds precision
 nohup docker logs adeptbot >> "logs/$(date +%Y-%m-%d_%H-%M-%S).txt"
 
-# Delete the container
+# Stop and delete the container
+docker stop adeptbot
 docker rm adeptbot
 
-# Rebuild the image and start the container
-docker build -t adeptbot:latest .
-docker run --name adeptbot adeptbot:latest
+# Start the container
+docker run -d --name adeptbot adeptbot:latest

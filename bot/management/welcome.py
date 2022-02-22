@@ -1,13 +1,13 @@
 import disnake
-import traceback
 from disnake.ext import commands
 
 import configs
-from bot import welcome, util
+from bot import util, welcome
 
 
 class WelcomeCog(commands.Cog):
     def __init__(self, bot):
+        super().__init__()
         self.bot = bot
 
     @commands.command()
@@ -23,20 +23,14 @@ class WelcomeCog(commands.Cog):
         result = await welcome.walk_through_welcome(member)
 
         await welcome.process_welcome_result(member, result)
-
+    
     @commands.Cog.listener()
-    async def on_error(self, event, *args):
+    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
+        if isinstance(error, commands.CommandInvokeError):
+            error = error.original
 
-        if isinstance(event, commands.CommandInvokeError):
-            error = event.original
-            if isinstance(error, welcome.NoReplyException):
-                await util.exception(error.channel, error.message)
-
-            elif isinstance(error, disnake.Forbidden):
-                await util.logger.error("Can't apply roles to the user", error)
-            else:
-                # We suppress the other errors, might be check errors but they are not important
-                # It should mostly be the case of the user trying to use the bot in DMs
-                pass
-
-        traceback.print_exc()
+        if isinstance(error, util.AdeptBotError):
+            await util.say(error.channel, error.message)
+        else:
+            await ctx.reply("Une erreur inconnue est survenue. Veuillez réessayer plus tard.")
+            raise error
