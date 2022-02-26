@@ -21,7 +21,6 @@ class WelcomeCog(commands.Cog):
     async def on_member_join(self, member: disnake.Member):
         await self.bot.say(configs.WELCOME_CHANNEL, configs.WELCOME_SERVER.format(name=member.mention))
         result = await welcome.walk_through_welcome(member)
-
         await welcome.process_welcome_result(member, result)
     
     @commands.Cog.listener()
