@@ -222,7 +222,7 @@ async def process_welcome_result(member: disnake.Member, result: WelcomeUser):
     embed.set_footer(text=f"ID: {member.id}")
 
     content = None
-    if not result.is_student and not result.is_teacher:
+    if not result.is_it_student or result.is_teacher:
         content = f"<@&{configs.ADMIN_ROLE}> Veuillez valider la requête de {member.mention}."
 
     await util.say(configs.LOGS_CHANNEL, content, embed=embed)

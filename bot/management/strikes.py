@@ -11,7 +11,7 @@ class StrikesCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: disnake.Message):
-        if (message.author.bot):
+        if (message.author.bot or isinstance(message.channel, disnake.DMChannel)):
             return
 
         member = message.author
