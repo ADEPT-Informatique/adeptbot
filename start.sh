@@ -1,4 +1,8 @@
 #!/bin/bash
+# Make sure we have the latest updates from the repo
+git reset --hard
+git pull
+
 # Build the new image
 docker build -t adeptbot:latest .
 
@@ -15,4 +19,4 @@ docker stop adeptbot
 docker rm adeptbot
 
 # Start the container
-docker run -d --name adeptbot adeptbot:latest
+docker run -d --net=host --name adeptbot adeptbot:latest
