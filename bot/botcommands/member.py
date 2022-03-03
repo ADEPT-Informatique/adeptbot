@@ -12,9 +12,8 @@ from bot.tickets import TicketConverter
 
 class MemberCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
-        self.bot = bot
         bot.add_cog(WelcomeCog(bot))
-        bot.add_cog(LoggingCog(bot))
+        bot.add_cog(LoggingCog())
 
     @commands.command()
     async def ticket(self, ctx: Context, ticket: TicketConverter):
