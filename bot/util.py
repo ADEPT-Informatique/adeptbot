@@ -7,8 +7,8 @@ from bot.tickets import TicketType
 
 client = None
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('ADEPT-INFO')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(name)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger('ADEPT-BOT')
 
 
 class AdeptBotError(Exception):

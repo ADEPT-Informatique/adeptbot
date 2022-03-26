@@ -8,10 +8,10 @@ class YesNoInteraction(ui.View):
     Parameters
     ------------
     timeout: Optional[:class:`int`]
-        Timeout in seconds, defaults to 60
+        Timeout in seconds, defaults to 300
     """
 
-    def __init__(self, timeout: int = 60):
+    def __init__(self, timeout: int = 300):
         super().__init__(timeout=timeout)
         self.value: bool | NoneType = None
 
