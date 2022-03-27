@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import disnake
 import traceback
 from disnake.ext import commands
@@ -50,6 +51,23 @@ class AdeptClient(commands.Bot):
             return await channel.send(*args, **kwargs)
         except disnake.Forbidden as send_error:
             util.logger.warning(send_error)
+
+    async def on_error(self, _: str, *args) -> None:
+        error = sys.exc_info()[1]
+        
+        await self.handle_error(error)
+
+    async def handle_error(self, error, ctx: commands.Context = None):
+        if isinstance(error, commands.CommandInvokeError):
+            error = error.original
+
+        if isinstance(error, util.AdeptBotError):
+            await util.say(error.channel, error.message)
+        else:
+            if ctx is not None:
+                await util.say(ctx.channel, ":bangbang: **Une erreur est survenue**")
+            
+            util.logger.error(f"Une erreur inconnue est survenue.\n```{traceback.format_exc()}```")
 
 
 if __name__ == "__main__":
