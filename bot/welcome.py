@@ -9,7 +9,7 @@ from bot.util import AdeptBotError
 
 class NoReplyException(AdeptBotError):
     def __init__(self, channel: disnake.abc.Messageable) -> None:
-        super().__init__(channel, f"Nous avons pas reçu de réponse! Utilisez `{configs.PREFIX}setup` dans <#{configs.SETUP_CHANNEL}> pour recommencer.")
+        super().__init__(channel, f"Nous n'avons pas reçu de réponse! Utilisez `{configs.PREFIX}setup` dans <#{configs.SETUP_CHANNEL}> pour recommencer.")
 
 
 class InvalidInputException(AdeptBotError):
@@ -28,13 +28,21 @@ class StudentProcessOutput:
         self.program = None
 
 
+async def __handle_on_timeout(member: disnake.Member, message: disnake.Message) -> NoReplyException:
+    """
+    Clean up the message from any interactions and raises a NoReplyException
+    """
+    await message.edit(view=None)
+    raise NoReplyException(member)
+
+
 async def walk_through_welcome(member: disnake.Member):
     is_student_view = YesNoInteraction()
     original_message: disnake.Message = await member.send(embed=util.get_welcome_instruction("Êtes-vous un étudiant?"), view=is_student_view)
     is_student = await is_student_view.start()
 
     if is_student is None:
-        raise NoReplyException(member)
+        await __handle_on_timeout(member, original_message)
 
     full_name = await __process_name(member, original_message)
 
@@ -81,7 +89,7 @@ async def __process_confirmation(member: disnake.Member, embed: disnake.Embed):
     confirmed = await confirmation_view.start()
 
     if confirmed is None:
-        raise NoReplyException(member)
+        await __handle_on_timeout(member, confirmation_message)
 
     await confirmation_message.edit(view=None)
     if confirmed:
@@ -93,7 +101,7 @@ async def __process_confirmation(member: disnake.Member, embed: disnake.Embed):
 
         await restart_message.edit(view=confirmation_view)
         if restart is None:
-            raise NoReplyException(member)
+            await __handle_on_timeout(member, restart_message)
 
         return restart
 
@@ -103,14 +111,14 @@ async def __process_name(member: disnake.Member, original_message: disnake.Messa
     first_name_msg: disnake.Message = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
 
     if first_name_msg is None:
-        raise NoReplyException(member)
+        await __handle_on_timeout(member, original_message)
     first_name = first_name_msg.content
 
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre nom de famille?"))
     last_name_msg: disnake.Message = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
 
     if last_name_msg is None:
-        raise NoReplyException(member)
+        await __handle_on_timeout(member, original_message)
     last_name = last_name_msg.content
 
     full_name = f"{first_name} {last_name}"
@@ -122,7 +130,7 @@ async def __process_email(member: disnake.Member, original_message: disnake.Mess
     email_msg: disnake.Message = await util.client.wait_for("message", check=lambda message: message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
 
     if email_msg is None:
-        raise NoReplyException(member)
+        await __handle_on_timeout(member, original_message)
     email = email_msg.content
 
     return email
@@ -134,7 +142,7 @@ async def __process_teacher(member: disnake.Member, original_message: disnake.Me
     is_teacher = await current_view.start()
 
     if is_teacher is None:
-        raise NoReplyException(member)
+        await __handle_on_timeout(member, original_message)
     
     await original_message.edit(view=current_view)
 
@@ -146,7 +154,7 @@ async def __process_student(member: disnake.Member, original_message: disnake.Me
     student_number_msg: disnake.Message = await util.client.wait_for("message", check=lambda message:message.author.id == member.id and isinstance(message.channel, disnake.DMChannel))
 
     if student_number_msg is None:
-        raise NoReplyException(member)
+        await __handle_on_timeout(member, original_message)
 
     student_number = student_number_msg.content
     if not student_number.isdigit():
@@ -161,7 +169,7 @@ async def __process_student(member: disnake.Member, original_message: disnake.Me
     is_it_student = await is_info_view.start()
     
     if is_it_student is None:
-        raise NoReplyException(member)
+        await __handle_on_timeout(member, original_message)
     
     result.is_it_student = is_it_student
 
@@ -172,7 +180,7 @@ async def __process_student(member: disnake.Member, original_message: disnake.Me
 
         await original_message.edit(view=None)
         if program is None:
-            raise NoReplyException(member)
+            await __handle_on_timeout(member, original_message)
         
         if program == "prog":
             program = "Programmation"

@@ -1,8 +1,4 @@
 #!/bin/bash
-# Make sure we have the latest updates from the repo
-git reset --hard
-git pull
-
 # Build the new image
 docker build -t adeptbot:latest .
 
