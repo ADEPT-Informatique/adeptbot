@@ -224,8 +224,8 @@ async def process_welcome_result(member: disnake.Member, result: WelcomeUser):
     embed.add_field(name="Nom:", value=name, inline=False)
     embed.add_field(name="Email:", value=result.email, inline=False)
     embed.add_field(name="Numéro étudiant:", value=result.student_id, inline=False)
-    embed.add_field(name="Étudiant:", value="Non" if result.is_student else "Oui", inline=False)
-    embed.add_field(name="Professeur:", value="Non" if result.is_teacher else "Oui", inline=False)
+    embed.add_field(name="Étudiant:", value="Oui" if result.is_student else "Non", inline=False)
+    embed.add_field(name="Professeur:", value="Oui" if result.is_teacher else "Non", inline=False)
     embed.add_field(name="Programme:", value=result.program if result.is_it_student else "N'est pas en informatique" , inline=False)
     embed.set_footer(text=f"ID: {member.id}")
 
