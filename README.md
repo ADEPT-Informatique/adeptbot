@@ -18,7 +18,7 @@ Make sure to include the discord token & modify the channels and roles IDs if ne
 
 Invite the bot in your server with the following permissions: 402869446
 
-If you're using docker with a local instance of MongoDB, use host.docker.internal instead of localhost
+If you're using docker with a local instance of MongoDB, use `host.docker.internal` instead of `localhost`
 
 ### Run the bot
 

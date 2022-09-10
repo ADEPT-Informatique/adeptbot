@@ -1,5 +1,8 @@
 from types import NoneType
-from disnake import ButtonStyle, Interaction, ui
+
+import discord
+from discord import ButtonStyle, ui
+
 
 class YesNoInteraction(ui.View):
     """
@@ -27,13 +30,13 @@ class YesNoInteraction(ui.View):
 
 
     @ui.button(label="Oui", style=ButtonStyle.green)
-    async def yes(self, button: ui.Button, interaction: Interaction):
+    async def yes(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.defer()
         self.value = True
         self.stop()
 
     @ui.button(label="Non", style=ButtonStyle.red)
-    async def no(self, button: ui.Button, interaction: Interaction):
+    async def no(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.defer()
         self.value = False
         self.stop()

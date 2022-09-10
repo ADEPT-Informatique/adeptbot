@@ -1,5 +1,5 @@
-from disnake.ext import commands
-from disnake.ext.commands.errors import ArgumentParsingError
+from discord.ext import commands
+from discord.ext.commands.errors import ArgumentParsingError
 from enum import Enum
 
 

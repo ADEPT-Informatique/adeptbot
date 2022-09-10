@@ -1,7 +1,8 @@
-import disnake
 import logging
 
 import configs
+import discord
+
 from bot.interactions.ticket import TicketCloseInteraction
 from bot.tickets import TicketType
 
@@ -11,10 +12,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger('ADEPT-BOT')
 
 
-class AdeptBotError(Exception):
-    def __init__(self, channel: disnake.abc.Messageable, message) -> None:
+class AdeptBotException(Exception):
+    def __init__(self, channel: discord.abc.Messageable, message) -> None:
         self.channel = channel
-        self.message = message
+        self.message = f":bangbang: **{message}**"
 
 
 def get_member(guild_id: int, member_id: int):
@@ -33,7 +34,7 @@ async def strike(id: int, t: str, reason: str):
     raise NotImplementedError()
 
 
-async def react_to(message: disnake.Message, reaction: disnake.Emoji | disnake.Reaction | disnake.PartialEmoji | str):
+async def react_to(message: discord.Message, reaction: discord.Emoji | discord.Reaction | discord.PartialEmoji | str):
     await message.add_reaction(reaction)
 
 
@@ -41,32 +42,33 @@ async def say(*args, **kwargs):
     await client.say(*args, **kwargs)
 
 
-async def exception(channel: disnake.abc.Messageable, message: disnake.Message, **kwargs):
+async def exception(channel: discord.abc.Messageable, message: discord.Message, **kwargs):
     await say(channel, f":bangbang: **{message}**", **kwargs)
 
 
-async def mute(member: disnake.Member):
+
+async def mute(member: discord.Member):
     guild = member.guild
     mute_role = guild.get_role(configs.MUTED_ROLE)
 
     await member.add_roles(mute_role)
 
 
-async def unmute(member: disnake.Member, reason: str):
+async def unmute(member: discord.Member, reason: str):
     guild = member.guild
     mute_role = guild.get_role(configs.MUTED_ROLE)
 
     await member.remove_roles(mute_role, reason=reason)
 
 
-async def has_role(member: disnake.Member, role: disnake.Role):
+async def has_role(member: discord.Member, role: discord.Role):
     return role in member.roles
 
 
-async def create_ticket(member: disnake.Member, ticket: TicketType):
+async def create_ticket(member: discord.Member, ticket: TicketType):
     guild = member.guild
-    category: disnake.CategoryChannel = guild.get_channel(configs.TICKET_CATEGORY)
-    overwrites = disnake.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True,
+    category: discord.CategoryChannel = guild.get_channel(configs.TICKET_CATEGORY)
+    overwrites = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True,
                                              read_message_history=True)
     channel = await category.create_text_channel(f"{member.display_name}")
     await channel.set_permissions(member, overwrite=overwrites)
@@ -80,11 +82,11 @@ async def create_ticket(member: disnake.Member, ticket: TicketType):
     return channel
 
 
-async def archive_ticket(member: disnake.Member, channel: disnake.TextChannel):
+async def archive_ticket(member: discord.Member, channel: discord.TextChannel):
     guild = channel.guild
     category = guild.get_channel(configs.TICKET_ARCHIVE_CATEGORY)
 
-    overwrites = disnake.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=False,
+    overwrites = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=False,
                                              read_message_history=True)
 
     await channel.set_permissions(member, overwrite=overwrites)
@@ -93,7 +95,7 @@ async def archive_ticket(member: disnake.Member, channel: disnake.TextChannel):
 
 
 def get_welcome_instruction(instruction: str):
-    welcome_embed = disnake.Embed(title=configs.WELCOME_TITLE,
+    welcome_embed = discord.Embed(title=configs.WELCOME_TITLE,
                                   description=configs.WELCOME_MESSAGE.format(content=instruction),
                                   color=0x1de203)
     welcome_embed.set_thumbnail(url="https://www.adeptinfo.ca/img/badge.png")

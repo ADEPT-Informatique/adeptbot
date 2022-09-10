@@ -1,5 +1,5 @@
-import disnake
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
 import configs
 from bot import util
@@ -7,14 +7,14 @@ from bot import util
 
 class LoggingCog(commands.Cog):
     @commands.Cog.listener()
-    async def on_message_edit(self, before: disnake.Message, after: disnake.Message):
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
         if before.author.bot:
             return
 
         author = after.author
-        embed = disnake.Embed(description=f"**Message modifié dans {after.channel.mention}** [Allez au message]({after.jump_url})", 
+        embed = discord.Embed(description=f"**Message modifié dans {after.channel.mention}** [Allez au message]({after.jump_url})", 
                             color=0xF9E18B, 
-                            timestamp=disnake.utils.utcnow())
+                            timestamp=discord.utils.utcnow())
         embed.set_author(name=f"{author}", icon_url=author.avatar.url)
         embed.set_footer(text=f"ID: {author.id}")
 
@@ -25,12 +25,12 @@ class LoggingCog(commands.Cog):
             await util.say(configs.LOGS_CHANNEL, embed=embed)
 
     @commands.Cog.listener()
-    async def on_message_delete(self, message: disnake.Message):
+    async def on_message_delete(self, message: discord.Message):
         if message.author.bot:
             return
 
         author = message.author
-        embed = disnake.Embed(color=0xFC5233, timestamp=disnake.utils.utcnow())
+        embed = discord.Embed(color=0xFC5233, timestamp=discord.utils.utcnow())
         embed.set_author(name=f"{author}", icon_url=author.avatar.url)
         embed.set_footer(text=f"ID: {author.id}")
         
@@ -39,16 +39,16 @@ class LoggingCog(commands.Cog):
         await util.say(configs.LOGS_CHANNEL, embed=embed)
 
     @commands.Cog.listener()
-    async def on_member_join(self, member: disnake.Member):
+    async def on_member_join(self, member: discord.Member):
         await util.say(configs.LOGS_CHANNEL, f"{member.mention} a rejoint le serveur.")
 
     @commands.Cog.listener()
-    async def on_member_remove(self, member: disnake.Member):
+    async def on_member_remove(self, member: discord.Member):
         await util.say(configs.LOGS_CHANNEL, f"{member.mention} a quitté le serveur.")
 
     @commands.Cog.listener()
-    async def on_member_update(self, before: disnake.Member, after: disnake.Member):
-        embed = disnake.Embed(color=0xF9E18B, timestamp=disnake.utils.utcnow())
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        embed = discord.Embed(color=0xF9E18B, timestamp=discord.utils.utcnow())
         embed.set_author(name=f"{after}", icon_url=after.avatar.url)
         embed.set_footer(text=f"ID: {after.id}")
 
@@ -69,8 +69,8 @@ class LoggingCog(commands.Cog):
             await util.say(configs.LOGS_CHANNEL, embed=embed)
 
     @commands.Cog.listener()
-    async def on_voice_state_update(self, member: disnake.Member, before: disnake.VoiceState, after: disnake.VoiceState):
-        embed = disnake.Embed(color=0xF9E18B, timestamp=disnake.utils.utcnow())
+    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+        embed = discord.Embed(color=0xF9E18B, timestamp=discord.utils.utcnow())
         embed.set_author(name=f"{member}", icon_url=member.avatar.url)
         embed.set_footer(text=f"ID: {member.id}")
 
@@ -85,8 +85,8 @@ class LoggingCog(commands.Cog):
             await util.say(configs.LOGS_CHANNEL, embed=embed)
         
     @commands.Cog.listener()
-    async def on_guild_channel_create(self, channel: disnake.abc.GuildChannel):
-        embed = disnake.Embed(color=0xF9E18B, timestamp=disnake.utils.utcnow())
+    async def on_guild_channel_create(self, channel: discord.abc.GuildChannel):
+        embed = discord.Embed(color=0xF9E18B, timestamp=discord.utils.utcnow())
         embed.set_author(name=f"{channel.guild}", icon_url=channel.guild.icon.url)
         embed.set_footer(text=f"ID: {channel.guild.id}")
 
@@ -95,8 +95,8 @@ class LoggingCog(commands.Cog):
         await util.say(configs.LOGS_CHANNEL, embed=embed)
 
     @commands.Cog.listener()
-    async def on_guild_channel_delete(self, channel: disnake.abc.GuildChannel):
-        embed = disnake.Embed(color=0xFC5233, timestamp=disnake.utils.utcnow())
+    async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
+        embed = discord.Embed(color=0xFC5233, timestamp=discord.utils.utcnow())
         embed.set_author(name=f"{channel.guild}", icon_url=channel.guild.icon.url)
         embed.set_footer(text=f"ID: {channel.guild.id}")
 
@@ -105,8 +105,8 @@ class LoggingCog(commands.Cog):
         await util.say(configs.LOGS_CHANNEL, embed=embed)
 
     @commands.Cog.listener()
-    async def on_guild_channel_update(self, before: disnake.abc.GuildChannel, after: disnake.abc.GuildChannel):
-        embed = disnake.Embed(color=0xF9E18B, timestamp=disnake.utils.utcnow())
+    async def on_guild_channel_update(self, before: discord.abc.GuildChannel, after: discord.abc.GuildChannel):
+        embed = discord.Embed(color=0xF9E18B, timestamp=discord.utils.utcnow())
         embed.set_author(name=f"{after.guild}", icon_url=after.guild.icon.url)
         embed.set_footer(text=f"ID: {after.guild.id}")
 
