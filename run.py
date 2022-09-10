@@ -74,7 +74,8 @@ class AdeptClient(commands.Bot):
             await util.exception(error.channel, error.message)
             return
         elif isinstance(error, UserNotFound):
-            await util.exception(ctx.channel, error)
+            if ctx:
+                await util.exception(ctx.channel, error)
         else:
             if ctx is not None:
                 await util.exception(ctx.channel, "Une erreur est survenue!")
