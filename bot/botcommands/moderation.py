@@ -144,7 +144,7 @@ class ModerationCog(commands.Cog):
             raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas rendre muet {member.mention} puisqu'il dispose de permissions plus élevées!")
         
         if await util.has_role(member, ctx.guild.get_role(configs.MUTED_ROLE)):
-            return await ctx.channel.send("Ce membre est déjà muet!")
+            raise AdeptBotException(ctx.channel, "Ce membre est déjà muet!")
 
         try:
             await member.send("Vous êtes désormais muet sur %s.\n\nRaison: %s" % (ctx.guild.name, reason))
