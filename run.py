@@ -3,7 +3,7 @@ import traceback
 
 import discord
 from discord.ext import commands
-from discord.ext.commands.errors import NoPrivateMessage, UserNotFound
+from discord.ext.commands.errors import NoPrivateMessage, UserNotFound, MissingAnyRole
 
 import configs
 from bot import tasks, util
@@ -58,29 +58,26 @@ class AdeptClient(commands.Bot):
             util.logger.warning(send_error)
     
     async def on_error(self, _, *args):
-        ctx = args[0] if len(args) == 1 else None
+        ctx: commands.Context = args[0] if len(args) == 1 else None
         error = sys.exc_info()[1]
 
         if isinstance(error, commands.CommandInvokeError):
             error = error.original
 
         if isinstance(error, util.AdeptBotException):
-            await self.say(error.channel, error.message)
-            return
-        elif isinstance(error, NoPrivateMessage):
-            await util.exception(ctx, "La commande ne peut pas être utilisé en privé.")
-            return
+            await error.channel.send(error.message)
         elif isinstance(error, welcome.NoReplyException):
             await util.exception(error.channel, error.message)
-            return
-        elif isinstance(error, UserNotFound):
+        elif isinstance(error, NoPrivateMessage):
+            await util.exception(ctx, "La commande ne peut pas être utilisé en privé.")
+        elif isinstance(error, (UserNotFound, MissingAnyRole)):
             if ctx:
                 await util.exception(ctx.channel, error)
         else:
-            if ctx is not None:
+            if ctx:
                 await util.exception(ctx.channel, "Une erreur est survenue!")
             
-        traceback.print_exc()
+            traceback.print_exc()
 
     async def on_command_error(self, context: commands.Context, exception: commands.errors.CommandError, /) -> None:
         raise exception
