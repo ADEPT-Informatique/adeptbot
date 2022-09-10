@@ -1,4 +1,4 @@
-﻿from disnake.errors import InvalidArgument
+﻿from discord.ext.commands.errors import BadArgument
 from enum import Enum
 
 
@@ -19,7 +19,7 @@ class Strike(Enum):
             case Strike.UNBAN:
                 return 4
             case _:
-                raise InvalidArgument("Invalid Strike value")
+                raise BadArgument("Invalid Strike value")
 
     WARN = "Warn"
     MUTE = "Mute"

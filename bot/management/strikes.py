@@ -1,17 +1,14 @@
-import disnake
-from disnake.ext import commands
+import discord
+from discord.ext import commands
 
 import configs
 from bot import tasks, users
 
 
 class StrikesCog(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-
     @commands.Cog.listener()
-    async def on_message(self, message: disnake.Message):
-        if (message.author.bot or isinstance(message.channel, disnake.DMChannel)):
+    async def on_message(self, message: discord.Message):
+        if (message.author.bot or isinstance(message.channel, discord.DMChannel)):
             return
 
         member = message.author

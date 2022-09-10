@@ -1,38 +1,43 @@
-import asyncio
 import sys
-import disnake
 import traceback
-from disnake.ext import commands
+
+import discord
+from discord.ext import commands
+from discord.ext.commands.errors import NoPrivateMessage, UserNotFound
 
 import configs
 from bot import tasks, util
 from bot.botcommands import MemberCog, ModerationCog
-from bot.interactions import TicketOpeningInteraction, TicketCloseInteraction
+from bot.interactions import TicketCloseInteraction, TicketOpeningInteraction
+from bot.management import LoggingCog, StrikesCog, WelcomeCog, welcome
 
 
 class AdeptClient(commands.Bot):
-    def __init__(self, prefix):
-        intents = disnake.Intents.all()
-        loop = asyncio.get_event_loop_policy().new_event_loop()
-        super().__init__(prefix, loop=loop, intents=intents, case_insensitive=True)
-
-        self.add_cog(MemberCog(self))
-        self.add_cog(ModerationCog(self))
-        self.persistent_views_loaded = False
+    def __init__(self, prefix, intents):
+        super().__init__(prefix, intents=intents, case_insensitive=True)
 
     async def on_ready(self):
-        util._load(self)
         util.logger.info(f"\nLogged in with account @{self.user.name} ID:{self.user.id} \n------------------------------------\n")
-        
-        if not self.persistent_views_loaded:
-            self.add_view(TicketOpeningInteraction())
-            self.add_view(TicketCloseInteraction())
-            self.persistent_views_loaded = True
 
-        await self.change_presence(activity=disnake.Activity(name="for bad boys!", type=disnake.ActivityType.watching))
-        tasks._load_tasks(self)
+        await self.change_presence(activity=discord.Activity(name="for bad boys!", type=discord.ActivityType.watching))
+        tasks._load_tasks()
 
-    async def on_message(self, message: disnake.Message):
+    async def setup_hook(self) -> None:
+        # Register cogs
+        await self.add_cog(LoggingCog())
+        await self.add_cog(MemberCog())
+        await self.add_cog(ModerationCog())
+        await self.add_cog(StrikesCog())
+        await self.add_cog(WelcomeCog())
+
+        # Register persistent views
+        self.add_view(TicketOpeningInteraction())
+        self.add_view(TicketCloseInteraction())
+
+        # Inject itself to the util module
+        util._load(self)
+
+    async def on_message(self, message: discord.Message):
         if (message.author.bot):
             return
 
@@ -42,35 +47,48 @@ class AdeptClient(commands.Bot):
         if message.content.startswith(configs.PREFIX):
             await self.process_commands(message)
 
-    async def say(self, channel: disnake.TextChannel | str, *args, **kwargs):
+    async def say(self, channel: discord.abc.Messageable | str, *args, **kwargs):
         if type(channel) is str:
             # channel_id/server_id
             channel_id, server_id = channel.split("/")
             channel = self.get_guild(int(server_id)).get_channel(int(channel_id))
         try:
             return await channel.send(*args, **kwargs)
-        except disnake.Forbidden as send_error:
+        except discord.Forbidden as send_error:
             util.logger.warning(send_error)
-
-    async def on_error(self, _: str, *args) -> None:
+    
+    async def on_error(self, _, *args):
+        ctx = args[0] if len(args) == 1 else None
         error = sys.exc_info()[1]
-        
-        await self.handle_error(error)
 
-    async def handle_error(self, error, ctx: commands.Context = None):
         if isinstance(error, commands.CommandInvokeError):
             error = error.original
 
-        if isinstance(error, util.AdeptBotError):
-            await util.say(error.channel, error.message)
+        if isinstance(error, util.AdeptBotException):
+            await self.say(error.channel, error.message)
+            return
+        elif isinstance(error, NoPrivateMessage):
+            await util.exception(ctx, "La commande ne peut pas être utilisé en privé.")
+            return
+        elif isinstance(error, welcome.NoReplyException):
+            await util.exception(error.channel, error.message)
+            return
+        elif isinstance(error, UserNotFound):
+            await util.exception(ctx.channel, error)
         else:
             if ctx is not None:
-                await util.say(ctx.channel, ":bangbang: **Une erreur est survenue**")
+                await util.exception(ctx.channel, "Une erreur est survenue!")
             
-            util.logger.error(f"Une erreur inconnue est survenue.\n```{traceback.format_exc()}```")
+        traceback.print_exc()
+
+    async def on_command_error(self, context: commands.Context, exception: commands.errors.CommandError, /) -> None:
+        raise exception
 
 
 if __name__ == "__main__":
     util.logger.info("Starting the bot!")
-    client = AdeptClient(prefix=configs.PREFIX)
+    
+    intents = discord.Intents.all()
+    client = AdeptClient(configs.PREFIX, intents)
+
     client.run(configs.TOKEN)

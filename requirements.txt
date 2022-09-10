@@ -1,3 +1,3 @@
-disnake
+discord.py[speed]
 jsonpickle
 pymongo

@@ -1,19 +1,18 @@
-import traceback
-from disnake.ext import commands
-from disnake.ext.commands.context import Context
-from disnake.ext.commands.errors import CommandInvokeError
-
 import configs
-from bot import welcome, util
+import discord
+from bot import util, welcome
+from bot.db.models.user import AdeptMember
+from bot.db.services.user_service import UserService
 from bot.interactions import TicketOpeningInteraction
-from bot.management import WelcomeCog, LoggingCog
 from bot.tickets import TicketConverter
+from bot.util import AdeptBotException
+from discord.ext import commands
+from discord.ext.commands.context import Context
 
 
 class MemberCog(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
-        bot.add_cog(WelcomeCog(bot))
-        bot.add_cog(LoggingCog())
+    def __init__(self) -> None:
+        self.user_service = UserService()
 
     @commands.command()
     async def ticket(self, ctx: Context, ticket: TicketConverter):
@@ -42,16 +41,26 @@ class MemberCog(commands.Cog):
     async def create_ticket(self, ctx: Context):
         await ctx.channel.send(configs.TICKET_VIEW_MESSAGE, view=TicketOpeningInteraction())
 
-    async def cog_command_error(self, ctx: Context, error):
-        if isinstance(error, CommandInvokeError):
-            error = error.original
-        
-        if isinstance(error, welcome.NoReplyException):
-            await util.exception(error.channel, error.message)
-            return # We don't want to print the traceback
-        
-        if ctx is not None:
-            await util.exception(ctx.channel, error)
-            return
-        
-        traceback.print_exc()
+    @commands.command()
+    @commands.has_any_role(configs.ADMIN_ROLE)
+    async def search(self, ctx: Context, user: discord.User):
+        result = self.user_service.find_by_id(user.id)
+
+        if result is None:
+            raise AdeptBotException(ctx, "Aucune donnée n'a été trouvé pour le membre!")
+
+        adept_member = AdeptMember(
+            result["_id"],
+            result["name"],
+            result["email"],
+            result["is_student"],
+            is_teacher=result["is_teacher"],
+            is_it_student=result["is_it_student"],
+            student_id=result["student_id"],
+            program=result["program"]
+        )
+
+        embed = await welcome.create_welcome_embed(user, adept_member)
+        embed.title = f"Résultat de recherche pour {user}"
+
+        await ctx.send(embed=embed)

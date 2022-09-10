@@ -1,6 +1,7 @@
-from disnake import ui
-from disnake.enums import ButtonStyle
-from disnake.interactions import Interaction
+import discord
+from discord import ButtonStyle, ui
+
+from bot.programs import Programs
 
 
 class StudentInteraction(ui.View):
@@ -14,19 +15,19 @@ class StudentInteraction(ui.View):
         return self.program
 
     @ui.button(label="Programmation", style=ButtonStyle.primary)
-    async def prog(self, button: ui.Button, interaction: Interaction):
+    async def prog(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.defer()
-        self.program = "prog"
+        self.program = Programs.PROGRAMMING
         self.stop()
 
     @ui.button(label="Réseautique", style=ButtonStyle.primary)
-    async def network(self, button: ui.Button, interaction: Interaction):
+    async def network(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.defer()
-        self.program = "network"
+        self.program = Programs.NETWORKING
         self.stop()
 
     @ui.button(label="DEC-BAC", style=ButtonStyle.primary)
-    async def decbac(self, button: ui.Button, interaction: Interaction):
+    async def decbac(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.defer()
-        self.program = "decbac"
+        self.program = Programs.DECBAC
         self.stop()
