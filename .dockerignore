@@ -1,0 +1,8 @@
+.env
+.env.base
+docker-compose.yml
+docker-compose.template.yml
+dockerfile
+README.md
+start.sh
+.git

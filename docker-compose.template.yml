@@ -1,0 +1,30 @@
+version: '3'
+x-common:
+  environment:
+    DB_USERNAME: &db-username root
+    DB_PASSWORD: &db-password "hmSk6NWTw66tYPDs"
+    DB_NAME: &db-name adeptbot
+
+
+services:
+  discordbot:
+    depends_on:
+      - db
+    image: adeptbot:latest
+    restart: always
+    environment:
+      TOKEN: TOKEN
+      PREFIX: ";"
+      DB_HOST: db
+      DB_PORT: 27017
+      DB_NAME: *db-name
+      DB_USER: *db-username 
+      DB_PASSWORD: *db-password
+  db:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: *db-username 
+      MONGO_INITDB_ROOT_PASSWORD: *db-password
+      MONGO_INITDB_DATABASE: *db-name
+    ports:
+      - 27017:27017
