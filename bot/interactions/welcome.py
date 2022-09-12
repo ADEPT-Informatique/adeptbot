@@ -17,17 +17,17 @@ class StudentInteraction(ui.View):
     @ui.button(label="Programmation", style=ButtonStyle.primary)
     async def prog(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.defer()
-        self.program = Programs.PROGRAMMING
+        self.program = Programs.PROGRAMMING.value
         self.stop()
 
     @ui.button(label="Réseautique", style=ButtonStyle.primary)
     async def network(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.defer()
-        self.program = Programs.NETWORKING
+        self.program = Programs.NETWORKING.value
         self.stop()
 
     @ui.button(label="DEC-BAC", style=ButtonStyle.primary)
     async def decbac(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.defer()
-        self.program = Programs.DECBAC
+        self.program = Programs.DECBAC.value
         self.stop()
