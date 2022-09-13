@@ -9,7 +9,7 @@ from bot.util import AdeptBotException
 
 class NoReplyException(AdeptBotException):
     def __init__(self, channel: discord.abc.Messageable) -> None:
-        super().__init__(channel, f"Nous n'avons pas reçu de réponse! Utilisez `{configs.PREFIX}setup` dans <#{configs.SETUP_CHANNEL}> pour recommencer.")
+        super().__init__(channel, f"Nous n'avons pas reçu de réponse! Utilisez `{configs.ENVIRONMENT['PREFIX']}setup` dans <#{configs.SETUP_CHANNEL}> pour recommencer.")
 
 
 class InvalidInputException(AdeptBotException):

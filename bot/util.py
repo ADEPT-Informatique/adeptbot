@@ -1,4 +1,5 @@
 import logging
+from os import environ
 
 import configs
 import discord
@@ -8,7 +9,8 @@ from bot.tickets import TicketType
 
 client = None
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(name)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(name)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger('ADEPT-BOT')
 
 
@@ -46,7 +48,6 @@ async def exception(channel: discord.abc.Messageable, message: discord.Message, 
     await say(channel, f":bangbang: **{message}**", **kwargs)
 
 
-
 async def mute(member: discord.Member):
     guild = member.guild
     mute_role = guild.get_role(configs.MUTED_ROLE)
@@ -67,7 +68,8 @@ async def has_role(member: discord.Member, role: discord.Role):
 
 async def create_ticket(member: discord.Member, ticket: TicketType):
     guild = member.guild
-    category: discord.CategoryChannel = guild.get_channel(configs.TICKET_CATEGORY)
+    category: discord.CategoryChannel = guild.get_channel(
+        configs.TICKET_CATEGORY)
     overwrites = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True,
                                              read_message_history=True)
     channel = await category.create_text_channel(f"{member.display_name}")
@@ -76,7 +78,7 @@ async def create_ticket(member: discord.Member, ticket: TicketType):
     admin = guild.get_role(configs.ADMIN_ROLE)
     close_button = TicketCloseInteraction()
     await channel.send(configs.TICKET_MESSAGE.format(plaintive=member.mention, admins=admin.mention,
-                                                     ticket_type=ticket, prefix=configs.PREFIX),
+                                                     ticket_type=ticket, prefix=configs.ENVIRONMENT["PREFIX"]),
                        view=close_button)
 
     return channel
@@ -96,7 +98,8 @@ async def archive_ticket(member: discord.Member, channel: discord.TextChannel):
 
 def get_welcome_instruction(instruction: str):
     welcome_embed = discord.Embed(title=configs.WELCOME_TITLE,
-                                  description=configs.WELCOME_MESSAGE.format(content=instruction),
+                                  description=configs.WELCOME_MESSAGE.format(
+                                      content=instruction),
                                   color=0x1de203)
     welcome_embed.set_thumbnail(url="https://www.adeptinfo.ca/img/badge.png")
     welcome_embed.set_footer(text=configs.WELCOME_FOOTER)
