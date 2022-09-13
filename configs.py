@@ -1,14 +1,3 @@
-# Discord Configs
-TOKEN = ""
-PREFIX = "!"
-
-# Database Configs
-DB_HOST = "localhost"
-DB_PORT = 27017
-DB_NAME = "database_name"
-DB_USER = "Cool Name"
-DB_PASSWORD = "Secure Password"
-
 # Server Configs
 ADEPT = 362987473154080778
 LOGS_CHANNEL = f"547896873776578563/{ADEPT}"
@@ -31,7 +20,7 @@ ADMIN_ROLE = 363015309562478593
 MUTED_ROLE = 363031112664219648
 MORON_ROLE = 559825539993698316
 
-# Messages 
+# Messages
 # TODO: Use/Make a translation service?
 WELCOME_TITLE = "Bonjour et bienvenue à l'ADEPT!"
 WELCOME_MESSAGE = "Pour commencer, nous allons devoir vous posez quelques questions afin de mieux vous connaitre.\n\n**{content}**"
@@ -67,3 +56,8 @@ TICKET_CLOSE_ID = "ticket_view_1.0:Close"
 # Emojis
 CHECK_REACT = u"\u2705"
 CROSS_REACT = u"\u274C"
+
+ENVIRONMENT = {
+    **dotenv_values(".env"),
+    **os.environ
+}

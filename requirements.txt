@@ -1,3 +1,4 @@
 discord.py[speed]
 jsonpickle
 pymongo
+python-dotenv

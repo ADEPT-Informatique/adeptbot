@@ -1,15 +1,13 @@
+from bot.management import LoggingCog, StrikesCog, WelcomeCog, welcome
+from bot.interactions import TicketCloseInteraction, TicketOpeningInteraction
+from bot.botcommands import MemberCog, ModerationCog
+from bot import tasks, util
+import configs
+from discord.ext.commands.errors import NoPrivateMessage, UserNotFound, MissingAnyRole
+from discord.ext import commands
+import discord
 import sys
 import traceback
-
-import discord
-from discord.ext import commands
-from discord.ext.commands.errors import NoPrivateMessage, UserNotFound, MissingAnyRole
-
-import configs
-from bot import tasks, util
-from bot.botcommands import MemberCog, ModerationCog
-from bot.interactions import TicketCloseInteraction, TicketOpeningInteraction
-from bot.management import LoggingCog, StrikesCog, WelcomeCog, welcome
 
 
 class AdeptClient(commands.Bot):
@@ -17,7 +15,8 @@ class AdeptClient(commands.Bot):
         super().__init__(prefix, intents=intents, case_insensitive=True)
 
     async def on_ready(self):
-        util.logger.info(f"\nLogged in with account @{self.user.name} ID:{self.user.id} \n------------------------------------\n")
+        util.logger.info(
+            f"\nLogged in with account @{self.user.name} ID:{self.user.id} \n------------------------------------\n")
 
         await self.change_presence(activity=discord.Activity(name="for bad boys!", type=discord.ActivityType.watching))
         tasks._load_tasks()
@@ -41,22 +40,25 @@ class AdeptClient(commands.Bot):
         if (message.author.bot):
             return
 
-        message.content = message.content.replace(f"<@!{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
-        message.content = message.content.replace(f"<@{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
+        message.content = message.content.replace(
+            f"<@!{self.user.id}>", configs.ENVIRONMENT["PREFIX"], 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
+        message.content = message.content.replace(
+            f"<@{self.user.id}>", configs.ENVIRONMENT["PREFIX"], 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
 
-        if message.content.startswith(configs.PREFIX):
+        if message.content.startswith(configs.ENVIRONMENT["PREFIX"]):
             await self.process_commands(message)
 
     async def say(self, channel: discord.abc.Messageable | str, *args, **kwargs):
         if type(channel) is str:
             # channel_id/server_id
             channel_id, server_id = channel.split("/")
-            channel = self.get_guild(int(server_id)).get_channel(int(channel_id))
+            channel = self.get_guild(
+                int(server_id)).get_channel(int(channel_id))
         try:
             return await channel.send(*args, **kwargs)
         except discord.Forbidden as send_error:
             util.logger.warning(send_error)
-    
+
     async def on_error(self, _, *args):
         ctx: commands.Context = args[0] if len(args) == 1 else None
         error = sys.exc_info()[1]
@@ -76,7 +78,7 @@ class AdeptClient(commands.Bot):
         else:
             if ctx:
                 await util.exception(ctx.channel, "Une erreur est survenue!")
-            
+
             traceback.print_exc()
 
     async def on_command_error(self, context: commands.Context, exception: commands.errors.CommandError, /) -> None:
@@ -85,8 +87,8 @@ class AdeptClient(commands.Bot):
 
 if __name__ == "__main__":
     util.logger.info("Starting the bot!")
-    
-    intents = discord.Intents.all()
-    client = AdeptClient(configs.PREFIX, intents)
 
-    client.run(configs.TOKEN)
+    intents = discord.Intents.all()
+    client = AdeptClient(configs.ENVIRONMENT["PREFIX"], intents)
+
+    client.run(configs.ENVIRONMENT["TOKEN"])
