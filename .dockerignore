@@ -1,0 +1,9 @@
+.vscode/
+.idea/
+logs/
+
+.gitignore
+LICENSE
+README.md
+start.sh
+base-configs.py

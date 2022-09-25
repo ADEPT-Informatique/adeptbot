@@ -12,13 +12,13 @@ class TicketOpeningInteraction(ui.View):
 
     @ui.button(label='Plainte', style=ButtonStyle.blurple, custom_id=configs.TICKET_COMPLAINT_ID)
     async def plainte(self, interaction: discord.Interaction, button: ui.Button):
-        await interaction.send("Êtes-vous sûre de vouloir ouvrir un ticket de plainte?",
+        await interaction.response.send_message("Êtes-vous sûre de vouloir ouvrir un ticket de plainte?",
                                                 view=TicketConfirmationInteraction(TicketType.COMPLAINT),
                                                 ephemeral=True)
 
     @ui.button(label='Appel de moron', style=ButtonStyle.blurple, custom_id=configs.TICKET_MORON_ID)
     async def moron(self, interaction: discord.Interaction, button: ui.Button):
-        await interaction.send("Êtes-vous sûre de vouloir ouvrir un ticket d'appel de moron?",
+        await interaction.response.send_message("Êtes-vous sûre de vouloir ouvrir un ticket d'appel de moron?",
                                                 view=TicketConfirmationInteraction(TicketType.MORON),
                                                 ephemeral=True)
 
@@ -42,7 +42,7 @@ class TicketConfirmationInteraction(ui.View):
 
     @ui.button(label='Non', style=ButtonStyle.red)
     async def decline(self, interaction: discord.Interaction, button: ui.Button):
-        await interaction.edit_original_message(content='Vous avez annulé la création du ticket.')
+        await interaction.edit_original_response(content='Vous avez annulé la création du ticket.')
 
 
 class TicketCloseInteraction(ui.View):

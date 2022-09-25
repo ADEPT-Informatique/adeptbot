@@ -11,8 +11,12 @@ class BaseService:
 
     def conn(self) -> Database:
         if self.__conn is None:
-            uri = "mongodb://" + configs.DB_USER + ":" + configs.DB_PASSWORD + "@" + configs.DB_HOST + "/admin?authMechanism=SCRAM-SHA-256"
-            self.__conn = MongoClient(uri).get_database(configs.DB_NAME)
+            self.__conn = MongoClient(
+                host=configs.DB_HOST,
+                username=configs.DB_USER,
+                password=configs.DB_PASSWORD,
+                authMechanism="SCRAM-SHA-256"
+            ).get_database(configs.DB_NAME)
 
             return self.__conn
         else:
