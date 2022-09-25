@@ -1,7 +1,6 @@
 .vscode
 __pycache__
+configs.py
 .DS_STORE
 .idea
 logs/
-.env
-docker-compose.yml
