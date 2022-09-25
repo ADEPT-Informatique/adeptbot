@@ -20,12 +20,30 @@ Invite the bot in your server with the following permissions: 402869446
 
 If you're using docker with a local instance of MongoDB, use `host.docker.internal` instead of `localhost`
 
-### Run the bot
+### Setting up the database
 
-#### Using Docker
+- `DB_HOST`: The host of the MongoDB server.
+- `DB_PORT`: The port of the MongoDB server (Default is 27017).
+- `DB_NAME`: The name of the MongoDB database.
+- `DB_USER`: The username of the MongoDB user.
+- `DB_PWD`: The password of the MongoDB user.
+
+Once that is done, you will need to create the MongoDB user. Make sure to replace `DB_USER` and `DB_PWD` with the values set above.
+
+```bash
+$ mongo
+mongo> use admin
+switched to db admin
+mongo> db.createUser({user: "DB_USER", pwd: "DB_PWD", roles: [{role: "root", db: "admin"}]})
+{ "ok" : 1 }
+```
+
+## Running the bot
+
+### Using Docker
 
 > `sh start.sh`
 
-#### Using python
+### Using python
 
 > `python3.10 run.py`
