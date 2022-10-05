@@ -6,7 +6,7 @@ from bot.strikes import Strike
 
 
 class Task(Pickler):
-    def __init__(self, member, end_date: datetime.datetime, type: Strike):
+    def __init__(self, member: discord.Member, end_date: datetime.datetime, type: Strike):
         self.member = member
         self.end_date = end_date
         self.type = type

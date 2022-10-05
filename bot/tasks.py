@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 import discord
 from datetime import datetime as date
 from discord.ext import tasks
@@ -7,7 +8,7 @@ from bot import util
 from bot.strikes import Strike
 from bot.task import Task
 
-task_list = []
+task_list: List[Task] = []
 
 
 async def create_mute_task(member: discord.Member, duration: int = None):
@@ -15,13 +16,14 @@ async def create_mute_task(member: discord.Member, duration: int = None):
         return await util.mute(member)
 
     end_date = date.now() + datetime.timedelta(seconds=duration)
-    task = Task(member, end_date, Strike.MUTE)
+    new_task = Task(member, end_date, Strike.MUTE)
 
-    exists = any(task for task in task_list if task.member.id == member.id)
-    if exists:
-        task_list.remove(task for task in task_list if task.member.id == member.id)
+    current_tasks = [task for task in task_list if task.member.id == member.id and task.type == new_task.type]
+    if len(current_tasks) != 0:
+        for current_task in current_tasks:
+            task_list.remove(current_task)
 
-    task_list.append(task)
+    task_list.append(new_task)
 
     if not process_mutes.is_running():
         process_mutes.start()
