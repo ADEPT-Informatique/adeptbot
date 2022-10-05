@@ -31,9 +31,10 @@ class LoggingCog(commands.Cog):
 
         author = message.author
         embed = discord.Embed(color=0xFC5233, timestamp=discord.utils.utcnow())
+        embed.add_field(name="Contenu", value=message.content[0:4000])
         embed.set_author(name=f"{author}", icon_url=author.avatar.url)
         embed.set_footer(text=f"ID: {author.id}")
-        
+
         embed.description = f"Message envoyé par {author.mention} a été supprimé dans {message.channel.mention}"
 
         await util.say(configs.LOGS_CHANNEL, embed=embed)
