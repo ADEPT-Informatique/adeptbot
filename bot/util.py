@@ -50,7 +50,6 @@ async def exception(channel: discord.abc.Messageable, message: discord.Message, 
     await say(channel, f":bangbang: **{message}**", **kwargs)
 
 
-
 async def mute(member: discord.Member):
     guild = member.guild
     mute_role = guild.get_role(configs.MUTED_ROLE)
@@ -116,6 +115,29 @@ def get_plural(value: int, word: str):
         return word + "s"
 
     return word
+
+
+# Simple time formatter based on "Mr. B" - https://stackoverflow.com/a/24542445
+INTERVALS = (
+    ('semaines', 604800),  # 60 * 60 * 24 * 7
+    ('jours', 86400),  # 60 * 60 * 24
+    ('heures', 3600),  # 60 * 60
+    ('minutes', 60),
+    ('secondes', 1),
+)
+
+
+def display_time(seconds, granularity=2):
+    result = []
+
+    for name, count in INTERVALS:
+        value = seconds // count
+        if value:
+            seconds -= value * count
+            if value == 1:
+                name = name.rstrip('s')
+            result.append("{:d} {}".format(int(value), name))
+    return ', '.join(result[:granularity])
 
 
 def _load(c):
