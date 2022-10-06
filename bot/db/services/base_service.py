@@ -1,8 +1,10 @@
 from abc import abstractproperty
-from pymongo import MongoClient
-from pymongo.database import Database
 
 import configs
+from pymongo import MongoClient
+from pymongo.cursor import Cursor
+from pymongo.database import Database
+from pymongo.results import DeleteResult, InsertOneResult, UpdateResult
 
 
 class BaseService:
@@ -26,23 +28,20 @@ class BaseService:
     def collection_name(self):
         pass
 
-    def insert_one(self, data, **kwargs):
-        return self.conn().get_collection(self.collection_name).insert_one(data, **kwargs)
-
-    def find_one(self, filter, **kwargs):
-        return self.conn().get_collection(self.collection_name).find_one(filter, **kwargs)
-
-    def find(self, filter, **kwargs):
+    def find(self, filter: dict, **kwargs) -> Cursor:
         return self.conn().get_collection(self.collection_name).find(filter, **kwargs)
 
-    def find_all(self):
+    def find_one(self, filter: dict, **kwargs) -> Cursor:
+        return self.conn().get_collection(self.collection_name).find_one(filter, **kwargs)
+
+    def find_all(self) -> Cursor:
         return self.conn().get_collection(self.collection_name).find()
 
-    def update_one(self, filter, data, **kwargs):
-        return self.conn().get_collection(self.collection_name).update_one(filter, data, **kwargs)
+    def insert_one(self, data: dict, **kwargs) -> InsertOneResult:
+        return self.conn().get_collection(self.collection_name).insert_one(data, **kwargs)
 
-    def delete_one(self, filter, **kwargs):
+    def update_one(self, filter: dict, data: dict, **kwargs) -> UpdateResult:
+        return self.conn().get_collection(self.collection_name).update_one(filter, {"$set": data}, **kwargs)
+
+    def delete_one(self, filter: dict, **kwargs) -> DeleteResult:
         return self.conn().get_collection(self.collection_name).delete_one(filter, **kwargs)
-
-    def delete_many(self, filter, **kwargs):
-        return self.conn().get_collection(self.collection_name).delete_many(filter, **kwargs)

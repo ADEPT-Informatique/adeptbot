@@ -3,6 +3,7 @@ import typing
 
 import configs
 import discord
+from bot.botcommands.utils.validators import has_at_least_role
 from bot.util import AdeptBotException
 from discord.ext import commands
 from discord.ext.commands.context import Context
@@ -102,7 +103,7 @@ class ModerationCog(commands.Cog):
         return moderation_embed
 
     @commands.command()
-    @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
+    @has_at_least_role(configs.TRUST_ROLE)
     async def warn(self, ctx: Context, member: discord.Member, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
@@ -120,7 +121,7 @@ class ModerationCog(commands.Cog):
         # TODO: Do DB Calls in the background
 
     @commands.command()
-    @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
+    @has_at_least_role(configs.TRUST_ROLE)
     async def mute(self, ctx: Context, member: discord.Member, length: typing.Optional[CustomTime] = None, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
@@ -163,7 +164,7 @@ class ModerationCog(commands.Cog):
         # TODO: Do DB Calls in the background
 
     @commands.command()
-    @commands.has_any_role(configs.ADMIN_ROLE, configs.TRUST_ROLE)
+    @has_at_least_role(configs.TRUST_ROLE)
     async def unmute(self, ctx: Context, member: discord.Member, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
@@ -182,7 +183,7 @@ class ModerationCog(commands.Cog):
         # TODO: Do DB Calls in the background
 
     @commands.command()
-    @commands.has_any_role(configs.ADMIN_ROLE)
+    @has_at_least_role(configs.ADMIN_ROLE)
     async def kick(self, ctx: Context, member: discord.Member, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
@@ -206,7 +207,7 @@ class ModerationCog(commands.Cog):
         # TODO: Do DB Calls in the background
 
     @commands.command()
-    @commands.has_any_role(configs.ADMIN_ROLE)
+    @has_at_least_role(configs.ADMIN_ROLE)
     async def ban(self, ctx: Context, user: discord.User, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:
@@ -239,7 +240,7 @@ class ModerationCog(commands.Cog):
         # TODO: Do DB Calls in the background
 
     @commands.command()
-    @commands.has_any_role(configs.ADMIN_ROLE)
+    @has_at_least_role(configs.ADMIN_ROLE)
     async def unban(self, ctx: Context, user: discord.User, *, reason: str = NO_REASON):
         """
         USAGE EXAMPLES:

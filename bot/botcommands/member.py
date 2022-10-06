@@ -1,6 +1,7 @@
 import configs
 import discord
 from bot import util, welcome
+from bot.botcommands.utils.validators import has_at_least_role
 from bot.db.models.user import AdeptMember
 from bot.db.services.user_service import UserService
 from bot.interactions import TicketOpeningInteraction
@@ -37,12 +38,12 @@ class MemberCog(commands.Cog):
         await util.archive_ticket(ctx.author, ctx.channel)
 
     @commands.command()
-    @commands.has_any_role(configs.ADMIN_ROLE)
+    @has_at_least_role(configs.ADMIN_ROLE)
     async def create_ticket(self, ctx: Context):
         await ctx.channel.send(configs.TICKET_VIEW_MESSAGE, view=TicketOpeningInteraction())
 
     @commands.command()
-    @commands.has_any_role(configs.ADMIN_ROLE)
+    @has_at_least_role(configs.ADMIN_ROLE)
     async def search(self, ctx: Context, user: discord.User):
         result = self.user_service.find_by_id(user.id)
 
