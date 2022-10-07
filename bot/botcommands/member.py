@@ -48,7 +48,7 @@ class MemberCog(commands.Cog):
         result = self.user_service.find_by_id(user.id)
 
         if result is None:
-            raise AdeptBotException(ctx, "Aucune donnée n'a été trouvé pour le membre!")
+            raise AdeptBotException("Aucune donnée n'a été trouvé pour le membre!")
 
         adept_member = AdeptMember(
             result["_id"],

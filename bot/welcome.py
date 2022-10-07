@@ -1,20 +1,10 @@
+import configs
 import discord
 
-import configs
 from bot import util
 from bot.db.models import AdeptMember
 from bot.interactions import StudentInteraction, YesNoInteraction
-from bot.util import AdeptBotException
-
-
-class NoReplyException(AdeptBotException):
-    def __init__(self, channel: discord.abc.Messageable) -> None:
-        super().__init__(channel, f"Nous n'avons pas reçu de réponse! Utilisez `{configs.PREFIX}setup` dans <#{configs.SETUP_CHANNEL}> pour recommencer.")
-
-
-class InvalidInputException(AdeptBotException):
-    def __init__(self, channel: discord.abc.Messageable, message: str) -> None:
-        super().__init__(channel, message)
+from bot.interactions.errors import NoReplyException
 
 
 class StudentProcessOutput:
@@ -37,7 +27,7 @@ async def __handle_on_timeout(member: discord.Member, message: discord.Message) 
 
 
 async def walk_through_welcome(member: discord.Member):
-    is_student_view = YesNoInteraction(timeout=10)
+    is_student_view = YesNoInteraction()
     original_message: discord.Message = await member.send(embed=util.get_welcome_instruction("Êtes-vous un étudiant?"), view=is_student_view)
     is_student = await is_student_view.start()
 
