@@ -7,7 +7,7 @@ from discord.ext.commands.errors import NoPrivateMessage, UserNotFound, MissingA
 
 import configs
 from bot import tasks, util
-from bot.botcommands import MemberCog, ModerationCog
+from bot.botcommands import BotConfigsCog, MemberCog, ModerationCog
 from bot.interactions import TicketCloseInteraction, TicketOpeningInteraction
 from bot.management import LoggingCog, StrikesCog, WelcomeCog, welcome
 
@@ -24,6 +24,7 @@ class AdeptClient(commands.Bot):
 
     async def setup_hook(self) -> None:
         # Register cogs
+        await self.add_cog(BotConfigsCog())
         await self.add_cog(LoggingCog())
         await self.add_cog(MemberCog())
         await self.add_cog(ModerationCog())
