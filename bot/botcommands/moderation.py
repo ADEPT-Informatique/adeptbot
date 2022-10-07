@@ -145,7 +145,7 @@ class ModerationCog(commands.Cog):
             raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas rendre muet {member.mention} puisqu'il dispose de permissions plus élevées!")
         
         if await util.has_role(member, ctx.guild.get_role(configs.MUTED_ROLE)):
-            raise AdeptBotException(ctx.channel, "Ce membre est déjà muet!")
+            raise AdeptBotException("Ce membre est déjà muet!")
 
         try:
             await member.send("Vous êtes désormais muet sur %s.\n\nRaison: %s" % (ctx.guild.name, reason))
@@ -172,7 +172,7 @@ class ModerationCog(commands.Cog):
         !unmute @DeveloperAnonymous Is not a noob anymore
         """
         if not await util.has_role(member, ctx.guild.get_role(configs.MUTED_ROLE)):
-            raise AdeptBotException(ctx.channel, "Ce membre n'est pas muet!")
+            raise AdeptBotException("Ce membre n'est pas muet!")
 
         mute_embed = await self.__create_moderation_embed(Strike.UNMUTE, member, ctx.author, reason)
         await util.unmute(member)
@@ -217,14 +217,14 @@ class ModerationCog(commands.Cog):
         guild: discord.Guild = ctx.guild
         member = guild.get_member(user.id)
         if member is None:
-            raise AdeptBotException(ctx.channel, "Ce membre n'existe pas!")
+            raise AdeptBotException("Ce membre n'existe pas!")
 
         target_perm = permissions.determine_permission(member)
         if not permissions.has_permission(ctx.author, target_perm):
             raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas bannir {member.mention} puisqu'il dispose de permissions plus élevées!")
         
         if user in [entry.user for entry in await guild.bans()]:
-            raise AdeptBotException(ctx.channel, "Ce membre est déjà banni!")
+            raise AdeptBotException("Ce membre est déjà banni!")
 
         try:
             await user.send("Vous avez été banni dans %s.\n\nRaison: %s" % (guild.name, reason))
@@ -250,7 +250,7 @@ class ModerationCog(commands.Cog):
         guild: discord.Guild = ctx.guild
 
         if user not in [entry.user for entry in await guild.bans()]:
-            raise AdeptBotException(ctx.channel, "Ce membre n'est pas banni!")
+            raise AdeptBotException("Ce membre n'est pas banni!")
 
         unban_embed = await self.__create_moderation_embed(Strike.UNBAN, user, ctx.author, reason)
         await guild.unban(user, reason=reason)

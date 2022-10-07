@@ -1,15 +1,18 @@
 import sys
-import traceback
 
 import discord
 from discord.ext import commands
-from discord.ext.commands.errors import NoPrivateMessage, UserNotFound, MissingAnyRole
+from discord.ext.commands.errors import (BadArgument, CommandInvokeError,
+                                         CommandNotFound, MissingAnyRole,
+                                         MissingRequiredArgument,
+                                         NoPrivateMessage, UserNotFound)
 
 import configs
 from bot import tasks, util
 from bot.botcommands import BotConfigsCog, MemberCog, ModerationCog
 from bot.interactions import TicketCloseInteraction, TicketOpeningInteraction
-from bot.management import LoggingCog, StrikesCog, WelcomeCog, welcome
+from bot.interactions.errors import NoReplyException
+from bot.management import LoggingCog, StrikesCog, WelcomeCog
 
 
 class AdeptClient(commands.Bot):
@@ -62,26 +65,48 @@ class AdeptClient(commands.Bot):
         ctx: commands.Context = args[0] if len(args) == 1 else None
         error = sys.exc_info()[1]
 
-        if isinstance(error, commands.CommandInvokeError):
-            error = error.original
+        if ctx:
+            await self.on_command_error(ctx, error) # Sketchy but works flawlessly (:
+            return
+        
+        util.logger.error(error)
 
-        if isinstance(error, util.AdeptBotException):
-            await error.channel.send(error.message)
-        elif isinstance(error, welcome.NoReplyException):
-            await util.exception(error.channel, error.message)
-        elif isinstance(error, NoPrivateMessage):
-            await util.exception(ctx, "La commande ne peut pas être utilisé en privé.")
-        elif isinstance(error, (UserNotFound, MissingAnyRole)):
-            if ctx:
-                await util.exception(ctx.channel, error)
-        else:
-            if ctx:
-                await util.exception(ctx.channel, "Une erreur est survenue!")
-            
-            traceback.print_exc()
+    async def on_command_error(self, ctx: commands.Context, exception: commands.errors.CommandError) -> None:
+        if isinstance(exception, CommandInvokeError):
+            exception = exception.original
 
-    async def on_command_error(self, context: commands.Context, exception: commands.errors.CommandError, /) -> None:
-        raise exception
+        if isinstance(ctx, CommandNotFound):
+            return
+
+        elif isinstance(exception, NoPrivateMessage):
+            await ctx.send("Cette commande ne peut pas être utilisée en message privé.")
+            return
+
+        elif isinstance(exception, UserNotFound):
+            await ctx.send("Utilisateur introuvable.")
+            return
+
+        elif isinstance(exception, MissingAnyRole):
+            await ctx.send("Vous n'avez pas la permission d'utiliser cette commande.")
+            return
+
+        elif isinstance(exception, MissingRequiredArgument):
+            await ctx.send(f"Argument manquant: {exception.param.name}")
+            return
+
+        elif isinstance(exception, BadArgument):
+            await ctx.send(f"Argument invalide: {exception.param.name}")
+            return
+
+        elif isinstance(exception, NoReplyException):
+            await exception.channel.send(exception.message)
+            return
+
+        elif isinstance(exception, util.AdeptBotException):
+            await ctx.send(exception.message)
+            return
+
+        return await super().on_command_error(ctx, exception)
 
 
 if __name__ == "__main__":
