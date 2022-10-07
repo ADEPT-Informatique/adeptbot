@@ -17,8 +17,7 @@ logger = logging.getLogger('ADEPT-BOT')
 
 
 class AdeptBotException(Exception):
-    def __init__(self, channel: discord.abc.Messageable, message) -> None:
-        self.channel = channel
+    def __init__(self, message) -> None:
         self.message = f":bangbang: **{message}**"
 
 

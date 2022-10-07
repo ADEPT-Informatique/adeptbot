@@ -1,10 +1,9 @@
-from discord.ext import commands
-from bot.botcommands.utils.validators import has_at_least_role
-from bot.db.models.bot_configs import SpamConfigs
-from bot.util import AdeptBotException
-
 import configs
+from bot.botcommands.utils.validators import has_at_least_role
 from bot.db.services import ConfigsService
+from bot.util import AdeptBotException
+from discord.ext import commands
+
 
 class BotConfigsCog(commands.Cog):
     def __init__(self) -> None:
@@ -33,28 +32,15 @@ class BotConfigsCog(commands.Cog):
             La nouvelle valeur de la configuration
         """
         if value < 0:
-            raise AdeptBotException(ctx, "La valeur doit être de 0 ou superieur.")
+            raise AdeptBotException("La valeur doit être de 0 ou superieur.")
 
         sc = self.configs_service.find_or_create_spam_configs()
 
         if not hasattr(sc, key):
-            raise AdeptBotException(ctx, f"Le paramêtre {key} n'est pas valide. Veuillez choisir parmis les suivantes: {', '.join(sc.__dict__.keys())}")
+            raise AdeptBotException(f"Le paramêtre {key} n'est pas valide. Veuillez choisir parmis les suivantes: {', '.join(sc.__dict__.keys())}")
 
         setattr(sc, key, value)
 
         self.configs_service.update_configs(sc)
 
         await ctx.send(f"La valeur pour `{key}` est maintenant à `{value}`")
-
-    async def cog_command_error(self, ctx: commands.Context, error: Exception) -> None:
-        if isinstance(error, commands.CommandInvokeError):
-            error = error.original
-
-        if isinstance(error, commands.MissingRole):
-            await ctx.send(":bangbang: **Vous n'avez pas les permissions suffisantes pour utiliser la commande!**")
-
-        if isinstance(error, commands.NoPrivateMessage):
-            await ctx.send(":bangbang: **Vous ne pouvez pas utiliser cette commande en privée!**")
-
-        if isinstance(error, (commands.BadArgument, ValueError)):
-            await ctx.send(":bangbang: **Un ou plusieurs arguments fournis sont invalides.**")
