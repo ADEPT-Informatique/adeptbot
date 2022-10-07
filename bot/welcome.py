@@ -27,7 +27,7 @@ async def __handle_on_timeout(member: discord.Member, message: discord.Message) 
 
 
 async def walk_through_welcome(member: discord.Member):
-    is_student_view = YesNoInteraction(timeout=10)
+    is_student_view = YesNoInteraction()
     original_message: discord.Message = await member.send(embed=util.get_welcome_instruction("Êtes-vous un étudiant?"), view=is_student_view)
     is_student = await is_student_view.start()
 
