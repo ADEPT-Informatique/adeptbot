@@ -102,9 +102,19 @@ class AdeptClient(commands.Bot):
             await exception.channel.send(exception.message)
             return
 
+        # Bot can't DM user
+        elif isinstance(exception, discord.Forbidden):
+            # Check if the error is about not being able to send a DM
+            if exception.code == 50007:
+                await ctx.send(configs.WELCOME_CANT_DM)
+                return
+
         elif isinstance(exception, util.AdeptBotException):
             await ctx.send(exception.message)
             return
+
+        # Log any uncatched error in the logging channel
+        await self.say(configs.LOGS_CHANNEL, f"```py\n{exception}```")
 
         return await super().on_command_error(ctx, exception)
 
