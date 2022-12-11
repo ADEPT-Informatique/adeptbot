@@ -43,6 +43,15 @@ veuillez suivre les étapes en message privé pour avoir accès au serveur!
 
 Assurez-vous également de regardez les réglements dans <#471133862442041355> après avoir complété les étapes
 """
+WELCOME_CANT_DM = """
+Bonjour {name},
+
+Nous avons essayé de vous envoyer un message privé, mais nous n'avons pas réussi.
+Veuillez vérifier vos paramètres de confidentialité et réessayer.
+https://support.discordapp.com/hc/articles/217916488-Blocking-Privacy-Settings
+
+Si vous avez des questions ou que vous n'arrivez toujours pas à recevoir le message, veuillez contacter un membre du CA.
+"""
 
 TICKET_VIEW_MESSAGE = "Bonjour! Tu peux ouvrir un ticket en utilisant les boutons ci-dessous:"
 TICKET_MESSAGE = """
