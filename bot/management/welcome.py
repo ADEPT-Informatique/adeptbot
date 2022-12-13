@@ -9,9 +9,15 @@ class WelcomeCog(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def setup(self, ctx: commands.Context):
-        await ctx.reply("Nous vous avons envoyé un message en privé avec les instructions!")
-        result = await welcome.walk_through_welcome(ctx.author)
-        await welcome.process_welcome_result(ctx.author, result)
+        author: discord.Member = ctx.author
+        message = await ctx.reply("Nous vous avons envoyé un message en privé avec les instructions!")
+        try:
+            result = await welcome.walk_through_welcome(author)
+            await welcome.process_welcome_result(author, result)
+        except discord.Forbidden as e:
+            await message.delete()
+            raise e
+
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
