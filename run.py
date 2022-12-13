@@ -105,7 +105,7 @@ class AdeptClient(commands.Bot):
         elif isinstance(exception, discord.Forbidden):
             # Check if the error is about not being able to send a DM
             if exception.code == 50007:
-                await ctx.send(configs.WELCOME_CANT_DM)
+                await ctx.reply(configs.WELCOME_CANT_DM)
                 return
 
         elif isinstance(exception, util.AdeptBotException):
