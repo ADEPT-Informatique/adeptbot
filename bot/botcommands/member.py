@@ -1,4 +1,3 @@
-import asyncio
 import configs
 import discord
 from bot import util, welcome
@@ -68,61 +67,48 @@ class MemberCog(commands.Cog):
 
         await ctx.send(embed=embed)
 
-        @commands.command()
-        # @has_at_least_role(configs.)
-        async def count_students_in_comp_sci(self, ctx: Context):
-            prog_students_count = 0
-            network_students_count = 0
-            decbac_students_count = 0
+    @commands.command()
+    async def count_students_in_comp_sci(self, ctx: Context):
+        # Non student
+        former_student_count = 0
+        # Students
+        prog_students_count = 0
+        network_students_count = 0
+        decbac_students_count = 0
 
-            # Check if a member has specific roles
-            async def member_is_comp_sci_student(member: discord.Member):
-                # Get the role objects by searching for them by their id's
-                # Student roles
-                prog_role = discord.utils.get(configs.PROG_ROLE)
-                network_role = discord.utils.get(configs.NETWORK_ROLE)
-                decbac_role = discord.utils.get(configs.DECBAC_ROLE)
-                # Not student role
-                former_student_role = discord.utils.get(
-                    configs.FORMER_STUDENT_ROLE)
+        # Get the guild object for the server you want to get the members from
+        guild = ctx.guild
 
-                if former_student_role in member.roles:
-                    return False
-                else:
-                    if prog_role in member.roles:
-                        prog_students_count += 1
-                        return True
-                    if network_role in member.roles:
-                        network_students_count += 1
-                        return True
-                    if decbac_role in member.roles:
-                        decbac_students_count += 1
-                        return True
+        # Get a list of all members in the server
+        members = guild.members
 
-            # Get the guild object for the server you want to get the members from
-            guild = ctx.guild
+        # Iterate through the list of members
+        for member in members:
+            # -Get the roles by searching for them by their id's
+            # Not student role
+            former_student_role = discord.utils.get(
+                configs.FORMER_STUDENT_ROLE)
+            # Student roles
+            prog_role = discord.utils.get(configs.PROG_ROLE)
+            network_role = discord.utils.get(configs.NETWORK_ROLE)
+            decbac_role = discord.utils.get(configs.DECBAC_ROLE)
 
-            # Get a list of all members in the server
-            members = guild.members
+            if former_student_role in member.roles:
+                former_student_count += 1
+            elif prog_role in member.roles:
+                prog_students_count += 1
+            elif network_role in member.roles:
+                network_students_count += 1
+            elif decbac_role in member.roles:
+                decbac_students_count += 1
 
-            # Create an empty list to store the tasks
-            tasks = []
+        # Count the number of True (valid students) values in the results list
+        comp_sci_students_number = prog_students_count + \
+            network_students_count + decbac_students_count
 
-            # Iterate through the list of members
-            for member in members:
-                # Create a task for each member and add it to the list of tasks
-                task = asyncio.create_task(
-                    member_is_comp_sci_student(member),)
-                task.append(task)
-
-            # Wait for all tasks to complete and get the results
-            results = await asyncio.gather(tasks)
-
-            # Count the number of True (valid students) values in the results list
-            comp_sci_students_number = results.count(True)
-
-            await ctx.send(f"Présentement, dans le serveur de l'ADEPT, ``{comp_sci_students_number}`` étudiants sont dans le programme de Technique Informatique.\n" +
-                           "Plus précisément:\n" +
-                           f"  - ``{prog_students_count}``en Programmation\n" +
-                           f"  - ``{network_students_count}`` en Réseau\n" +
-                           f"  - ``{decbac_students_count}`` en DEC-BAC\n")
+        await ctx.send(f"Présentement, dans le serveur de l'ADEPT, ``{comp_sci_students_number}`` étudiants sont dans le programme de Technique Informatique.\n" +
+                       "Plus précisément:\n" +
+                       f"  - ``{prog_students_count}`` en **Programmation**\n" +
+                       f"  - ``{network_students_count}`` en **Réseau**\n" +
+                       f"  - ``{decbac_students_count}`` en **DEC-BAC**\n\n" +
+                       f"Et ``{former_student_count}`` anciens étudiants")
