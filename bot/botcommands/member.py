@@ -66,32 +66,33 @@ class MemberCog(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command()
+    @has_at_least_role(configs.ADMIN_ROLE)
+    @commands.command(name="count", aliases=["compte", "c", "total", "t"])
     async def count_students_in_comp_sci(self, ctx: Context):
-        # Non student
-        former_student_count = 0
-        # Students
-        prog_students_count = 0
-        network_students_count = 0
-        decbac_students_count = 0
-
-        # Get the guild object for the server you want to get the members from
+        # Get the guild object from where the command is executed
         guild = ctx.guild
 
         # Get a list of all members in the server
         members = guild.members
 
+        # -Get the roles by searching for them by their id's
+        # Non student role
+        former_student_role = guild.get_role(
+            configs.FORMER_STUDENT_ROLE)
+        # Student roles
+        prog_role = guild.get_role(configs.PROG_ROLE)
+        network_role = guild.get_role(configs.NETWORK_ROLE)
+        decbac_role = guild.get_role(configs.DECBAC_ROLE)
+
+        # Non student count
+        former_student_count = 0
+        # Student counts
+        prog_students_count = 0
+        network_students_count = 0
+        decbac_students_count = 0
+
         # Iterate through the list of members
         for member in members:
-            # -Get the roles by searching for them by their id's
-            # Not student role
-            former_student_role = discord.utils.get(
-                configs.FORMER_STUDENT_ROLE)
-            # Student roles
-            prog_role = discord.utils.get(configs.PROG_ROLE)
-            network_role = discord.utils.get(configs.NETWORK_ROLE)
-            decbac_role = discord.utils.get(configs.DECBAC_ROLE)
-
             if former_student_role in member.roles:
                 former_student_count += 1
             elif prog_role in member.roles:
@@ -101,7 +102,7 @@ class MemberCog(commands.Cog):
             elif decbac_role in member.roles:
                 decbac_students_count += 1
 
-        # Count the number of True (valid students) values in the results list
+        # Add up the values of valid students
         comp_sci_students_number = prog_students_count + \
             network_students_count + decbac_students_count
 
