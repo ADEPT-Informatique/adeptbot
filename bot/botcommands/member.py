@@ -25,7 +25,7 @@ class MemberCog(commands.Cog):
         category = ctx.channel.category
         if category != None and category.id == configs.TICKET_CATEGORY:
             return await ctx.message.add_reaction(configs.CROSS_REACT)
-        
+
         await util.create_ticket(ctx.author, ticket)
         await ctx.message.add_reaction(configs.CHECK_REACT)
 
@@ -34,7 +34,7 @@ class MemberCog(commands.Cog):
         category = ctx.channel.category
         if category is None or category.id != configs.TICKET_CATEGORY:
             return await ctx.message.add_reaction(configs.CROSS_REACT)
-        
+
         await util.archive_ticket(ctx.author, ctx.channel)
 
     @commands.command()
@@ -65,3 +65,50 @@ class MemberCog(commands.Cog):
         embed.title = f"Résultat de recherche pour {user}"
 
         await ctx.send(embed=embed)
+
+    @has_at_least_role(configs.ADMIN_ROLE)
+    @commands.command(name="count", aliases=["compte", "c", "total", "t"])
+    async def count_students_in_comp_sci(self, ctx: Context):
+        # Get the guild object from where the command is executed
+        guild = ctx.guild
+
+        # Get a list of all members in the server
+        members = guild.members
+
+        # -Get the roles by searching for them by their id's
+        # Non student role
+        former_student_role = guild.get_role(
+            configs.FORMER_STUDENT_ROLE)
+        # Student roles
+        prog_role = guild.get_role(configs.PROG_ROLE)
+        network_role = guild.get_role(configs.NETWORK_ROLE)
+        decbac_role = guild.get_role(configs.DECBAC_ROLE)
+
+        # Non student count
+        former_student_count = 0
+        # Student counts
+        prog_students_count = 0
+        network_students_count = 0
+        decbac_students_count = 0
+
+        # Iterate through the list of members
+        for member in members:
+            if former_student_role in member.roles:
+                former_student_count += 1
+            elif prog_role in member.roles:
+                prog_students_count += 1
+            elif network_role in member.roles:
+                network_students_count += 1
+            elif decbac_role in member.roles:
+                decbac_students_count += 1
+
+        # Add up the values of valid students
+        comp_sci_students_number = prog_students_count + \
+            network_students_count + decbac_students_count
+
+        await ctx.send(f"Présentement, dans le serveur de l'ADEPT, ``{comp_sci_students_number}`` étudiants sont dans le programme de Technique Informatique.\n" +
+                       "Plus précisément:\n" +
+                       f"  - ``{prog_students_count}`` en **Programmation**\n" +
+                       f"  - ``{network_students_count}`` en **Réseau**\n" +
+                       f"  - ``{decbac_students_count}`` en **DEC-BAC**\n\n" +
+                       f"Et ``{former_student_count}`` anciens étudiants")
