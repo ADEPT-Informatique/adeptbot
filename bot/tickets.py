@@ -1,9 +1,14 @@
+"""Module for ticket related commands."""
+
+from enum import Enum
+
 from discord.ext import commands
 from discord.ext.commands.errors import ArgumentParsingError
-from enum import Enum
 
 
 class TicketType(Enum):
+    """Enum for ticket types."""
+
     def __str__(self) -> str:
         return self.value
 
@@ -18,6 +23,7 @@ class TicketType(Enum):
 
 
 class TicketConverter(commands.Converter):
+    """Converter for ticket types."""
     async def convert(self, _, value) -> TicketType:
         match value:
             case TicketType.COMPLAINT:

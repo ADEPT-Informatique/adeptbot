@@ -1,4 +1,4 @@
-from types import NoneType
+"""Base interaction classes"""
 
 import discord
 from discord import ButtonStyle, ui
@@ -16,7 +16,7 @@ class YesNoInteraction(ui.View):
 
     def __init__(self, timeout: int = 300):
         super().__init__(timeout=timeout)
-        self.value: bool | NoneType = None
+        self.value: bool | None = None
 
     async def start(self):
         """
@@ -28,15 +28,16 @@ class YesNoInteraction(ui.View):
 
         return self.value
 
-
     @ui.button(label="Oui", style=ButtonStyle.green)
-    async def yes(self, interaction: discord.Interaction, button: ui.Button):
+    async def btn_yes(self, interaction: discord.Interaction, _: ui.Button):
+        """Yes button"""
         await interaction.response.defer()
         self.value = True
         self.stop()
 
     @ui.button(label="Non", style=ButtonStyle.red)
-    async def no(self, interaction: discord.Interaction, button: ui.Button):
+    async def btn_no(self, interaction: discord.Interaction, _: ui.Button):
+        """No button"""
         await interaction.response.defer()
         self.value = False
         self.stop()

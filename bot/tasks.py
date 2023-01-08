@@ -1,73 +1,104 @@
+"""
+This module contains the task class and the task list.
+It also contains the task loop that checks if a task is finished.
+"""
+
 import datetime
-from typing import List
-import discord
 from datetime import datetime as date
+from typing import List
+
+import discord
 from discord.ext import tasks
 
 from bot import util
 from bot.strikes import Strike
 from bot.task import Task
 
-task_list: List[Task] = []
+TASK_LIST: List[Task] = []
 
 
-async def create_mute_task(member: discord.Member, duration: int = None):
+async def create_mute_task(member: discord.Member, duration: int = None, reason: str = None):
+    """
+    Creates a mute task for the given member.
+
+    Parameters
+    ----------
+    - member: Target member
+    - duration: Duration of the mute in seconds
+    """
     if duration is None:
-        return await util.mute(member)
+        return await util.mute(member, reason)
 
     end_date = date.now() + datetime.timedelta(seconds=duration)
     new_task = Task(member, end_date, Strike.MUTE)
 
-    current_tasks = [task for task in task_list if task.member.id == member.id and task.type == new_task.type]
+    current_tasks = [task for task in TASK_LIST if task.member.id == member.id and task.type == new_task.type]
     if len(current_tasks) != 0:
         for current_task in current_tasks:
-            task_list.remove(current_task)
+            TASK_LIST.remove(current_task)
 
-    task_list.append(new_task)
+    TASK_LIST.append(new_task)
 
     if not process_mutes.is_running():
         process_mutes.start()
 
-    await util.mute(member)
+    await util.mute(member, reason)
 
 
 async def delete_task(member: discord.Member, strike_type: Strike, reason: str = "Automatic moderation"):
+    """
+    Deletes a task from the task list.
+
+    Parameters
+    ----------
+    - member: Target member
+    - strike_type: Type of the strike
+    - reason: Reason of the removal
+    """
     if strike_type == Strike.MUTE:
-        # TODO: Api call
+        # TODO: DB call
         await util.unmute(member, reason)
     elif strike_type == Strike.BAN:
-        # TODO: Api call
+        # TODO: DB call
         # TODO: Remove ban
         pass
 
-    task = [task for task in task_list if task.member.id == member.id and task.type == strike_type]
+    task = [task for task in TASK_LIST if task.member.id == member.id and task.type == strike_type]
     if len(task) > 0:
         task = task[0]
-        task_list.remove(task)
+        TASK_LIST.remove(task)
 
 
 @tasks.loop(seconds=1)
 async def process_mutes():
+    """
+    This loop checks if a task is finished.
+    If it is, it deletes the task and executes the action.
+    """
     now = date.now()
-    for task in task_list:
+    for task in TASK_LIST:
         if task.end_date <= now:
             await delete_task(task.member, task.type)
 
-    if len(task_list) == 0:
+    if len(TASK_LIST) == 0:
         process_mutes.stop()
 
 
-def _load_tasks():
-    # TODO: Fetch from API
+def load_tasks():
+    """
+    Loads all tasks from the database.
+
+    NOTE: This function should **ONLY** be called once at startup.
+    """
+    # TODO: Fetch from DB
     to_process = []
 
-    global task_list
     for task in to_process:
         # Just to make the code more readable
         member = util.get_member(task['guild'], task['member'])
         end_date = datetime.datetime.strptime(task['end_date'], "%Y-%m-%d %H:%M:%S.%f")
 
-        task_list.append(Task(member, end_date, task['type']))
+        TASK_LIST.append(Task(member, end_date, task['type']))
 
-    if len(task_list) > 0:
+    if len(TASK_LIST) > 0:
         process_mutes.start()

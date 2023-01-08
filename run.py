@@ -1,4 +1,7 @@
+"""Main file of the bot."""
+
 import sys
+import traceback
 
 import discord
 from discord.ext import commands
@@ -16,14 +19,21 @@ from bot.management import LoggingCog, StrikesCog, WelcomeCog
 
 
 class AdeptClient(commands.Bot):
-    def __init__(self, prefix, intents):
+    """Main class of the bot."""
+
+    def __init__(self, prefix: str, intents: discord.Intents):
         super().__init__(prefix, intents=intents, case_insensitive=True)
 
     async def on_ready(self):
-        util.logger.info(f"\nLogged in with account @{self.user.name} ID:{self.user.id} \n------------------------------------\n")
+        """Called when the bot is ready."""
+        util.logger.info(
+            "\nLogged in with account @%s ID:%s \n------------------------------------\n",
+            self.user.name,
+            self.user.id
+        )
 
         await self.change_presence(activity=discord.Activity(name="for bad boys!", type=discord.ActivityType.watching))
-        tasks._load_tasks()
+        tasks.load_tasks()
 
     async def setup_hook(self) -> None:
         # Register cogs
@@ -39,20 +49,36 @@ class AdeptClient(commands.Bot):
         self.add_view(TicketCloseInteraction())
 
         # Inject itself to the util module
-        util._load(self)
+        util.load(self)
 
-    async def on_message(self, message: discord.Message):
-        if (message.author.bot):
+    async def on_message(self, message: discord.Message, /):
+        if message.author.bot:
             return
 
-        message.content = message.content.replace(f"<@!{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@!{self.user.id}>") else message.content
-        message.content = message.content.replace(f"<@{self.user.id}>", configs.PREFIX, 1) if message.content.startswith(f"<@{self.user.id}>") else message.content
+        if message.content.startswith(f"<@!{self.user.id}>") or \
+                message.content.startswith(f"<@{self.user.id}>"):
+            message.content = message.content.replace(f"<@!{self.user.id}>", configs.PREFIX, 1)
+            message.content = message.content.replace(f"<@{self.user.id}>", configs.PREFIX, 1)
 
         if message.content.startswith(configs.PREFIX):
             await self.process_commands(message)
 
     async def say(self, channel: discord.abc.Messageable | str, *args, **kwargs):
-        if type(channel) is str:
+        """
+        Send a message to a channel.
+
+        Parameters
+        ----------
+        - channel: The channel to send the message to.
+        - *args: The arguments to pass to the send method.
+        - **kwargs: The keyword arguments to pass to the send
+        method.
+
+        Returns
+        -------
+        The message sent.
+        """
+        if isinstance(channel, str):
             # channel_id/server_id
             channel_id, server_id = channel.split("/")
             channel = self.get_guild(int(server_id)).get_channel(int(channel_id))
@@ -60,18 +86,18 @@ class AdeptClient(commands.Bot):
             return await channel.send(*args, **kwargs)
         except discord.Forbidden as send_error:
             util.logger.warning(send_error)
-    
+
     async def on_error(self, _, *args):
         ctx: commands.Context = args[0] if len(args) == 1 else None
         error = sys.exc_info()[1]
 
         if ctx:
-            await self.on_command_error(ctx, error) # Sketchy but works flawlessly (:
+            await self.on_command_error(ctx, error)  # Sketchy but works flawlessly (:
             return
-        
+
         util.logger.error(error)
 
-    async def on_command_error(self, ctx: commands.Context, exception: commands.errors.CommandError) -> None:
+    async def on_command_error(self, ctx: commands.Context, exception: commands.errors.CommandError, /) -> None:
         if isinstance(exception, CommandInvokeError):
             exception = exception.original
 
@@ -113,15 +139,15 @@ class AdeptClient(commands.Bot):
             return
 
         # Log any uncatched error in the logging channel
-        await self.say(configs.LOGS_CHANNEL, f"```py\n{exception}```")
+        await self.say(configs.LOGS_CHANNEL, f"```py\n{traceback.format_exc()[-1500:]}```")
 
         return await super().on_command_error(ctx, exception)
 
 
 if __name__ == "__main__":
     util.logger.info("Starting the bot!")
-    
-    intents = discord.Intents.all()
-    client = AdeptClient(configs.PREFIX, intents)
+
+    all_intents = discord.Intents.all()
+    client = AdeptClient(configs.PREFIX, all_intents)
 
     client.run(configs.TOKEN)

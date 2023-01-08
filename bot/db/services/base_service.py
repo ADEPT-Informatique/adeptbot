@@ -1,17 +1,23 @@
-from abc import abstractproperty
+"""Base service class for all services."""
 
-import configs
+from abc import abstractmethod
+
 from pymongo import MongoClient
 from pymongo.cursor import Cursor
 from pymongo.database import Database
 from pymongo.results import DeleteResult, InsertOneResult, UpdateResult
 
+import configs
+
 
 class BaseService:
+    """Base service class for all services."""
+
     def __init__(self):
         self.__conn = None
 
     def conn(self) -> Database:
+        """Return a connection to the database."""
         if self.__conn is None:
             self.__conn = MongoClient(
                 host=configs.DB_HOST,
@@ -24,24 +30,86 @@ class BaseService:
         else:
             return self.__conn
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def collection_name(self):
-        pass
+        """Return the collection name."""
 
-    def find(self, filter: dict, **kwargs) -> Cursor:
-        return self.conn().get_collection(self.collection_name).find(filter, **kwargs)
+    def find(self, filters: dict, **kwargs) -> Cursor:
+        """
+        Find documents in the database.
 
-    def find_one(self, filter: dict, **kwargs) -> Cursor:
-        return self.conn().get_collection(self.collection_name).find_one(filter, **kwargs)
+        Parameters
+        ----------
+        - `filters` The filters to use.
+        - `kwargs` The kwargs to pass to the find
 
-    def find_all(self) -> Cursor:
-        return self.conn().get_collection(self.collection_name).find()
+        Returns
+        -------
+        The result of the query.
+        """
+        return self.conn().get_collection(self.collection_name).find(filters, **kwargs)
+
+    def find_one(self, filters: dict, **kwargs) -> Cursor:
+        """
+        Find a single document in the database.
+
+        Parameters
+        ----------
+        - `filters` The filters to use.
+        - `kwargs` The kwargs to pass to the find_one
+
+        Returns
+        -------
+        The result of the query.
+        """
+        return self.conn().get_collection(self.collection_name).find_one(filters, **kwargs)
+
+    def find_all(self, **kwargs) -> Cursor:
+        """Find all documents in the database."""
+        return self.conn().get_collection(self.collection_name).find(**kwargs)
 
     def insert_one(self, data: dict, **kwargs) -> InsertOneResult:
+        """
+        Insert a single document into the database.
+
+        Parameters
+        ----------
+        - `data` The data to insert.
+        - `kwargs` The kwargs to pass to the insert_one
+
+        Returns
+        -------
+        The result of the insert.
+        """
         return self.conn().get_collection(self.collection_name).insert_one(data, **kwargs)
 
-    def update_one(self, filter: dict, data: dict, **kwargs) -> UpdateResult:
-        return self.conn().get_collection(self.collection_name).update_one(filter, {"$set": data}, **kwargs)
+    def update_one(self, filters: dict, data: dict, **kwargs) -> UpdateResult:
+        """
+        Update a single document in the database.
 
-    def delete_one(self, filter: dict, **kwargs) -> DeleteResult:
-        return self.conn().get_collection(self.collection_name).delete_one(filter, **kwargs)
+        Parameters
+        ----------
+        - `filters` The filters to use.
+        - `data` The data to update.
+
+        Returns
+        -------
+        The result of the update.
+        """
+        return self.conn().get_collection(self.collection_name).update_one(filters, {"$set": data}, **kwargs)
+
+    def delete_one(self, filters: dict, **kwargs) -> DeleteResult:
+        """
+        Delete a document in the database.
+
+        Parameters
+        ----------
+        - `filters` The filters to use.
+        - `kwargs` The kwargs to pass to the delete_one
+
+        Returns
+        -------
+        The result of the delete.
+        """
+        return self.conn().get_collection(self.collection_name).delete_one(filters, **kwargs)

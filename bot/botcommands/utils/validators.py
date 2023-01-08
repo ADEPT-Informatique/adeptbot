@@ -1,8 +1,12 @@
+"""Validators for bot commands."""
+
 import discord
 from discord.ext import commands
 
 
 def has_at_least_role(role_id: int | str):
+    """Check if the user has the specified role or higher."""
+
     def predicate(ctx: commands.Context):
         if ctx.guild is None or isinstance(ctx.author, discord.User):
             raise commands.NoPrivateMessage()

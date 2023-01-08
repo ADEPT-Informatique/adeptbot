@@ -1,3 +1,8 @@
 discord.py[speed]
 jsonpickle
 pymongo
+
+# Linter
+pylint
+# Formatter
+autopep8

@@ -1,4 +1,8 @@
+"""Models for dynamic bot configs."""
+
+
 class GlobalConfig:
+    """Model for global configs."""
     _id: str
 
     def __init__(self, _id) -> None:
@@ -6,7 +10,9 @@ class GlobalConfig:
 
 
 class SpamConfigs(GlobalConfig):
-    _id: str
+    """Model for spam configs."""
+    __slots__ = ["repetition", "mute_time"]
+
     repetition: int
     mute_time: int
 

@@ -1,9 +1,11 @@
-from typing import overload
-from . import Entity
-from ..services import BaseService, UserService
+"""ADEPT User model."""
+
+from bot.db.services import BaseService, UserService
+from bot.db.models import Entity
 
 
 class AdeptMember(Entity):
+    """ADEPT User model."""
     name: str
     email: str
     is_student: bool

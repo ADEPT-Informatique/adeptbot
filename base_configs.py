@@ -1,3 +1,7 @@
+"""
+Configs for ADEPT Bot
+"""
+
 # Discord Configs
 TOKEN = ""
 PREFIX = "!"

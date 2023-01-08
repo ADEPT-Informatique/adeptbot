@@ -1,26 +1,31 @@
+"""This module contains the moderation commands."""
+
 import re
 import typing
 
-import configs
 import discord
-from bot.botcommands.utils.validators import has_at_least_role
-from bot.util import AdeptBotException
 from discord.ext import commands
 from discord.ext.commands.context import Context
 
-from .. import permissions, tasks, util
-from ..strikes import Strike
+import configs
+from bot import permissions, tasks, util
+from bot.botcommands.utils.validators import has_at_least_role
+from bot.strikes import Strike
+from bot.util import AdeptBotException
 
 NO_REASON = "Pas de raison spécifié"
 
 
 class ParsedTime:
+    """This class represents a parsed time."""
+
     def __init__(self, label, seconds) -> None:
         self.label = label
         self.seconds = seconds
 
 
 def parse_values(value: str):
+    """This function parses the values of the time."""
     pattern = r"(\d+)([A-Za-z]+)"
     matches = re.match(pattern, value)
 
@@ -28,12 +33,14 @@ def parse_values(value: str):
 
 
 def parse_secs(value: int):
+    """This function parses the seconds."""
     label = f"{value} {util.get_plural(value, 'seconde')}"
-    
+
     return ParsedTime(label, value)
 
 
 def parse_mins(value: int):
+    """This function parses the minutes."""
     label = f"{value} {util.get_plural(value, 'minute')}"
     total_time = value * 60
 
@@ -41,6 +48,7 @@ def parse_mins(value: int):
 
 
 def parse_hours(value: int):
+    """This function parses the hours."""
     label = f"{value} {util.get_plural(value, 'heure')}"
     total_time = value * 60 * 60
 
@@ -48,6 +56,7 @@ def parse_hours(value: int):
 
 
 def parse_days(value: int):
+    """This function parses the days."""
     label = f"{value} {util.get_plural(value, 'jour')}"
     total_time = value * 60 * 60 * 24
 
@@ -55,6 +64,7 @@ def parse_days(value: int):
 
 
 def parse_week(value: int):
+    """This function parses the weeks."""
     label = f"{value} {util.get_plural(value, 'semaine')}"
     total_time = value * 60 * 60 * 24 * 7
 
@@ -62,6 +72,7 @@ def parse_week(value: int):
 
 
 class CustomTime(commands.Converter):
+    """This class represents a custom time converter."""
     async def convert(self, _, value: str) -> ParsedTime:
         matches = parse_values(value)
 
@@ -78,12 +89,14 @@ class CustomTime(commands.Converter):
             'd': parse_days(int_value),
             'w': parse_week(int_value)
         }.get(time_parse, None)
-        
+
         return parsed_time
 
 
 class ModerationCog(commands.Cog):
-    async def __create_moderation_embed(self, strike: Strike, target: discord.User | discord.Member, author: discord.Member, reason: str, parsed_time: ParsedTime = None):
+    """This class represents the moderation cog."""
+    async def __create_moderation_embed(self, strike: Strike, target: discord.User | discord.Member,
+                                        author: discord.Member, reason: str, parsed_time: ParsedTime = None):
         color = None
         if strike in (Strike.WARN, Strike.MUTE, Strike.UNMUTE):
             color = 15066368
@@ -110,52 +123,56 @@ class ModerationCog(commands.Cog):
         !warn @DeveloperAnonymous Is a noob
         """
         try:
-            await member.send("Vous avez été averti(e) %s.\n\nRaison: %s" % (ctx.guild.name, reason))
-        except(discord.errors.HTTPException, discord.errors.Forbidden):
-            util.logger.warn("Failed to notify warn")
+            await member.send(f"Vous avez été averti(e) {ctx.guild.name}.\n\nRaison: {reason}")
+        except (discord.errors.HTTPException, discord.errors.Forbidden):
+            util.logger.warning("Failed to notify warn")
 
         warn_embed = self.__create_moderation_embed(Strike.WARN, member, ctx.author, reason)
         await util.say(configs.LOGS_CHANNEL, embed=warn_embed)
-        await util.react_to(ctx.message, u"\u2705")
+        await util.react_to(ctx.message, "\u2705")
 
         # TODO: Do DB Calls in the background
 
     @commands.command()
     @has_at_least_role(configs.TRUST_ROLE)
-    async def mute(self, ctx: Context, member: discord.Member, length: typing.Optional[CustomTime] = None, *, reason: str = NO_REASON):
+    async def mute(self, ctx: Context, member: discord.Member,
+                   length: typing.Optional[CustomTime] = None, *, reason: str = NO_REASON):
         """
-        USAGE EXAMPLES:
-        !mute @DeveloperAnonymous Is a noob
-        !mute @DeveloperAnonymous 15 Is a noob
-        !mute @DeveloperAnonymous 15s Is a noob
-        !mute @DeveloperAnonymous 15m Is a noob
-        !mute @DeveloperAnonymous 15h Is a noob
-        !mute @DeveloperAnonymous 15d Is a noob
-        !mute @DeveloperAnonymous 15w Is a noob
+            USAGE EXAMPLES:
+            !mute @DeveloperAnonymous Is a noob
+            !mute @DeveloperAnonymous 15 Is a noob
+            !mute @DeveloperAnonymous 15s Is a noob
+            !mute @DeveloperAnonymous 15m Is a noob
+            !mute @DeveloperAnonymous 15h Is a noob
+            !mute @DeveloperAnonymous 15d Is a noob
+            !mute @DeveloperAnonymous 15w Is a noob
 
-        NOTE:
-        s = second(s)
-        m = minute(s)
-        h = hour(s)
-        d = day(s)
-        w = week(s)
+            NOTE:
+            s = second(s)
+            m = minute(s)
+            h = hour(s)
+            d = day(s)
+            w = week(s)
         """
         target_perm = permissions.determine_permission(member)
         if not permissions.has_permission(ctx.author, target_perm):
-            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas rendre muet {member.mention} puisqu'il dispose de permissions plus élevées!")
-        
+            raise permissions.InsufficientPermissionsError(
+                ctx.channel,
+                f"Vous ne pouvez pas rendre muet {member.mention} puisqu'il dispose de permissions plus élevées!"
+            )
+
         if await util.has_role(member, ctx.guild.get_role(configs.MUTED_ROLE)):
             raise AdeptBotException("Ce membre est déjà muet!")
 
         try:
-            await member.send("Vous êtes désormais muet sur %s.\n\nRaison: %s" % (ctx.guild.name, reason))
+            await member.send(f"Vous êtes désormais muet sur {ctx.guild.name}.\n\nRaison: {reason}")
         except (discord.errors.HTTPException, discord.errors.Forbidden):
-            util.logger.warn("Failed to notify mute")
+            util.logger.warning("Failed to notify mute")
 
         mute_embed = await self.__create_moderation_embed(Strike.MUTE, member, ctx.author, reason, length)
-        await util.mute(member)
+        await util.mute(member, reason)
         await util.say(configs.LOGS_CHANNEL, embed=mute_embed)
-        await util.react_to(ctx.message, u"\u2705")
+        await util.react_to(ctx.message, "\u2705")
 
         if length is not None:
             await tasks.create_mute_task(member, length.seconds)
@@ -175,9 +192,9 @@ class ModerationCog(commands.Cog):
             raise AdeptBotException("Ce membre n'est pas muet!")
 
         mute_embed = await self.__create_moderation_embed(Strike.UNMUTE, member, ctx.author, reason)
-        await util.unmute(member)
+        await util.unmute(member, reason)
         await util.say(configs.LOGS_CHANNEL, embed=mute_embed)
-        await util.react_to(ctx.message, u"\u2705")
+        await util.react_to(ctx.message, "\u2705")
 
         # TODO: Remove the task, if any
         # TODO: Do DB Calls in the background
@@ -192,17 +209,20 @@ class ModerationCog(commands.Cog):
         """
         target_perm = permissions.determine_permission(member)
         if not permissions.has_permission(ctx.author, target_perm):
-            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas retiré {member.mention} du serveur puisqu'il dispose de permissions plus élevées!")
-        
+            raise permissions.InsufficientPermissionsError(
+                ctx.channel,
+                f"Vous ne pouvez pas retiré {member.mention} du serveur puisqu'il dispose de permissions plus élevées!"
+            )
+
         try:
-            await member.send("Vous avez été retiré de %s.\n\nRaison: %s" % (ctx.guild.name, reason))
+            await member.send(f"Vous avez été retiré de {ctx.guild.name}.\n\nRaison: {reason}")
         except (discord.errors.HTTPException, discord.errors.Forbidden):
-            util.logger.warn("Failed to notify kick")
+            util.logger.warning("Failed to notify kick")
 
         kick_embed = await self.__create_moderation_embed(Strike.KICK, member, ctx.author, reason)
         await member.kick(reason=reason)
         await util.say(configs.LOGS_CHANNEL, embed=kick_embed)
-        await util.react_to(ctx.message, u"\u2705")
+        await util.react_to(ctx.message, "\u2705")
 
         # TODO: Do DB Calls in the background
 
@@ -221,20 +241,23 @@ class ModerationCog(commands.Cog):
 
         target_perm = permissions.determine_permission(member)
         if not permissions.has_permission(ctx.author, target_perm):
-            raise permissions.InsufficientPermissionsError(ctx.channel, f"Vous ne pouvez pas bannir {member.mention} puisqu'il dispose de permissions plus élevées!")
-        
+            raise permissions.InsufficientPermissionsError(
+                ctx.channel,
+                f"Vous ne pouvez pas bannir {member.mention} puisqu'il dispose de permissions plus élevées!"
+            )
+
         if user in [entry.user for entry in await guild.bans()]:
             raise AdeptBotException("Ce membre est déjà banni!")
 
         try:
-            await user.send("Vous avez été banni dans %s.\n\nRaison: %s" % (guild.name, reason))
+            await user.send(f"Vous avez été banni de {ctx.guild.name}.\n\nRaison: {reason}")
         except (discord.errors.HTTPException, discord.errors.Forbidden):
-            util.logger.warn("Failed to notify ban")
+            util.logger.warning("Failed to notify ban")
 
         ban_embed = await self.__create_moderation_embed(Strike.BAN, user, ctx.author, reason)
         await guild.ban(user, reason=reason)
         await util.say(configs.LOGS_CHANNEL, embed=ban_embed)
-        await util.react_to(ctx.message, u"\u2705")
+        await util.react_to(ctx.message, "\u2705")
 
         # TODO: Create the task
         # TODO: Do DB Calls in the background
@@ -255,7 +278,7 @@ class ModerationCog(commands.Cog):
         unban_embed = await self.__create_moderation_embed(Strike.UNBAN, user, ctx.author, reason)
         await guild.unban(user, reason=reason)
         await util.say(configs.LOGS_CHANNEL, embed=unban_embed)
-        await util.react_to(ctx.message, u"\u2705")
+        await util.react_to(ctx.message, "\u2705")
 
         # TODO: Remove the task, if any
         # TODO: Do DB Calls in the background
