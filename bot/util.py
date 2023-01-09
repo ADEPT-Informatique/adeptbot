@@ -7,7 +7,6 @@ from typing import Optional
 import discord
 
 import configs
-from bot.interactions.ticket import TicketCloseInteraction
 from bot.strikes import Strike
 
 CLIENT: discord.Client = None
@@ -168,33 +167,6 @@ async def has_role(member: discord.Member, role: discord.Role):
         The role to check.
     """
     return role in member.roles
-
-
-async def create_ticket(member: discord.Member, ticket: TicketType):
-    """
-    Creates a ticket for a member.
-
-    Parameters
-    ----------
-    `member` : discord.Member
-        The member to create the ticket for.
-    `ticket` : TicketType
-        The type of the ticket.
-    """
-    guild = member.guild
-    category: discord.CategoryChannel = guild.get_channel(configs.TICKET_CATEGORY)
-    overwrites = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=True,
-                                             read_message_history=True)
-    channel = await category.create_text_channel(f"{member.display_name}")
-    await channel.set_permissions(member, overwrite=overwrites)
-
-    admin = guild.get_role(configs.ADMIN_ROLE)
-    close_button = TicketCloseInteraction()
-    await channel.send(configs.TICKET_MESSAGE.format(plaintive=member.mention, admins=admin.mention,
-                                                     ticket_type=ticket, prefix=configs.PREFIX),
-                       view=close_button)
-
-    return channel
 
 
 async def archive_ticket(member: discord.Member, channel: discord.TextChannel):

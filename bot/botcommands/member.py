@@ -5,12 +5,12 @@ from discord.ext import commands
 from discord.ext.commands.context import Context
 
 import configs
-from bot import util, welcome
+from bot import tickets, util, welcome
 from bot.botcommands.utils.validators import has_at_least_role
 from bot.db.models.user import AdeptMember
 from bot.db.services.user_service import UserService
 from bot.interactions import TicketOpeningInteraction
-from bot.tickets import TicketConverter
+from bot.interactions import ticket as ticket_interactions
 from bot.util import AdeptBotException
 
 
@@ -21,7 +21,7 @@ class MemberCog(commands.Cog):
         self.user_service = UserService()
 
     @commands.command()
-    async def ticket(self, ctx: Context, ticket: TicketConverter):
+    async def ticket(self, ctx: Context, ticket: tickets.TicketConverter):
         """
         Cette commande permet de créer un ticket de support.
 
@@ -33,7 +33,7 @@ class MemberCog(commands.Cog):
         if category is not None and category.id == configs.TICKET_CATEGORY:
             return await ctx.message.add_reaction(configs.CROSS_REACT)
 
-        await util.create_ticket(ctx.author, ticket)
+        await ticket_interactions.create_ticket(ctx.author, ticket)
         await ctx.message.add_reaction(configs.CHECK_REACT)
 
     @commands.command()
