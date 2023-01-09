@@ -134,7 +134,7 @@ class ModerationCog(commands.Cog):
 
         warn_embed = self.__create_moderation_embed(Strike.WARN, member, ctx.author, reason)
         await util.say(configs.LOGS_CHANNEL, embed=warn_embed)
-        await util.react_to(ctx.message, "\u2705")
+        await ctx.message.add_reaction("\u2705")
 
         # TODO: Do DB Calls in the background
 
@@ -179,7 +179,7 @@ class ModerationCog(commands.Cog):
         mute_embed = await self.__create_moderation_embed(Strike.MUTE, member, ctx.author, reason, length)
         await util.mute(member, reason)
         await util.say(configs.LOGS_CHANNEL, embed=mute_embed)
-        await util.react_to(ctx.message, "\u2705")
+        await ctx.message.add_reaction("\u2705")
 
         if length is not None:
             await tasks.create_mute_task(member, length.seconds)
@@ -203,7 +203,7 @@ class ModerationCog(commands.Cog):
         mute_embed = await self.__create_moderation_embed(Strike.UNMUTE, member, ctx.author, reason)
         await util.unmute(member, reason)
         await util.say(configs.LOGS_CHANNEL, embed=mute_embed)
-        await util.react_to(ctx.message, "\u2705")
+        await ctx.message.add_reaction("\u2705")
 
         # TODO: Remove the task, if any
         # TODO: Do DB Calls in the background
@@ -233,7 +233,7 @@ class ModerationCog(commands.Cog):
         kick_embed = await self.__create_moderation_embed(Strike.KICK, member, ctx.author, reason)
         await member.kick(reason=reason)
         await util.say(configs.LOGS_CHANNEL, embed=kick_embed)
-        await util.react_to(ctx.message, "\u2705")
+        await ctx.message.add_reaction("\u2705")
 
         # TODO: Do DB Calls in the background
 
@@ -270,7 +270,7 @@ class ModerationCog(commands.Cog):
         ban_embed = await self.__create_moderation_embed(Strike.BAN, user, ctx.author, reason)
         await guild.ban(user, reason=reason)
         await util.say(configs.LOGS_CHANNEL, embed=ban_embed)
-        await util.react_to(ctx.message, "\u2705")
+        await ctx.message.add_reaction("\u2705")
 
         # TODO: Create the task
         # TODO: Do DB Calls in the background
@@ -293,7 +293,7 @@ class ModerationCog(commands.Cog):
         unban_embed = await self.__create_moderation_embed(Strike.UNBAN, user, ctx.author, reason)
         await guild.unban(user, reason=reason)
         await util.say(configs.LOGS_CHANNEL, embed=unban_embed)
-        await util.react_to(ctx.message, "\u2705")
+        await ctx.message.add_reaction("\u2705")
 
         # TODO: Remove the task, if any
         # TODO: Do DB Calls in the background

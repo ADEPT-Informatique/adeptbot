@@ -140,20 +140,14 @@ async def __process_confirmation(member: discord.Member, embed: discord.Embed):
 
 async def __process_name(member: discord.Member, original_message: discord.Message):
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre prénom?"), view=None)
-    first_name_msg: discord.Message = await util.client.wait_for(
-        "message",
-        check=lambda message: message.author.id == member.id and isinstance(message.channel, discord.DMChannel)
-    )
+    first_name_msg: discord.Message = await util.wait_for_message(member)
 
     if first_name_msg is None:
         await __handle_on_timeout(member, original_message)
     first_name = first_name_msg.content
 
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre nom de famille?"))
-    last_name_msg: discord.Message = await util.client.wait_for(
-        "message",
-        check=lambda message: message.author.id == member.id and isinstance(message.channel, discord.DMChannel)
-    )
+    last_name_msg: discord.Message = await util.wait_for_message(member)
 
     if last_name_msg is None:
         await __handle_on_timeout(member, original_message)
@@ -165,10 +159,7 @@ async def __process_name(member: discord.Member, original_message: discord.Messa
 
 async def __process_email(member: discord.Member, original_message: discord.Message):
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre adresse email?"), view=None)
-    email_msg: discord.Message = await util.client.wait_for(
-        "message",
-        check=lambda message: message.author.id == member.id and isinstance(message.channel, discord.DMChannel)
-    )
+    email_msg: discord.Message = await util.wait_for_message(member)
 
     if email_msg is None:
         await __handle_on_timeout(member, original_message)
@@ -192,10 +183,7 @@ async def __process_teacher(member: discord.Member, original_message: discord.Me
 
 async def __process_student(member: discord.Member, original_message: discord.Message):
     await original_message.edit(embed=util.get_welcome_instruction("Quel est votre matricule?"), view=None)
-    student_number_msg: discord.Message = await util.client.wait_for(
-        "message",
-        check=lambda message: message.author.id == member.id and isinstance(message.channel, discord.DMChannel)
-    )
+    student_number_msg: discord.Message = await util.wait_for_message(member)
 
     if student_number_msg is None:
         await __handle_on_timeout(member, original_message)
