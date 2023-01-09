@@ -9,9 +9,8 @@ import discord
 import configs
 from bot.interactions.ticket import TicketCloseInteraction
 from bot.strikes import Strike
-from bot.tickets import TicketType
 
-client: discord.Client = None
+CLIENT: discord.Client = None
 
 logging.basicConfig(
     level=logging.INFO,
@@ -46,7 +45,7 @@ def get_member(guild_id: int, member_id: int):
     `member_id` : int
         The id of the member.
     """
-    return client.get_guild(guild_id).get_member(member_id)
+    return CLIENT.get_guild(guild_id).get_member(member_id)
 
 
 def get_guild(guild_id: int):
@@ -58,7 +57,7 @@ def get_guild(guild_id: int):
     `guild_id` : int
         The id of the guild.
     """
-    return client.get_guild(guild_id)
+    return CLIENT.get_guild(guild_id)
 
 
 def get_case_number():
@@ -97,14 +96,14 @@ async def wait_for_message(author: discord.User, timeout: int = None) -> Optiona
         return message.author.id == author.id and isinstance(message.channel, discord.DMChannel)
 
     try:
-        return await client.wait_for("message", timeout=timeout, check=check)
+        return await CLIENT.wait_for("message", timeout=timeout, check=check)
     except asyncio.exceptions.TimeoutError:
         return None
 
 
 async def say(*args, **kwargs):
     """Sends a message."""
-    await client.say(*args, **kwargs)
+    await CLIENT.say(*args, **kwargs)
 
 
 async def exception(channel: discord.abc.Messageable, message: discord.Message, **kwargs):
@@ -300,5 +299,5 @@ def load(loaded_client):
 
     NOTE: This is a hack and should NEVER be replicated :kekw:
     """
-    global client
-    client = loaded_client
+    global CLIENT
+    CLIENT = loaded_client

@@ -58,10 +58,11 @@ def determine_permission(member: discord.Member) -> Permission:
 
     if is_admin:
         return Permission.ADMIN
-    elif is_trust:
+
+    if is_trust:
         return Permission.TRUSTED
-    else:
-        return Permission.REGULAR
+
+    return Permission.REGULAR
 
 
 def has_permission(member: discord.Member, permission: Permission):
