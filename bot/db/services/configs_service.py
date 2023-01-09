@@ -2,8 +2,7 @@
 
 from bot.db.models import SpamConfigs
 from bot.db.models.bot_configs import GlobalConfig
-
-from . import BaseService
+from bot.db.services import BaseService
 
 
 class ConfigsService(BaseService):
@@ -20,7 +19,7 @@ class ConfigsService(BaseService):
 
             return spam_config
 
-        for attr in spam_config.__dict__:
+        for attr in spam_config.__slots__:
             setattr(spam_config, attr, data[attr])
 
         return spam_config
@@ -31,13 +30,13 @@ class ConfigsService(BaseService):
 
         Parameters
         ----------
-        - `config` The config to update.
+        - `config` The updated config.
 
         Returns
         -------
         The result of the update.
         """
-        return self.update_one({"_id": config._id}, config.__dict__, upsert=True)
+        return self.update_one({"_id": config.config_id}, config.__dict__, upsert=True)
 
     @property
     def collection_name(self):

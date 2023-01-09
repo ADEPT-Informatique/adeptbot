@@ -11,14 +11,41 @@ from bot.interactions.errors import NoReplyException
 
 class StudentProcessOutput:
     """This class represents the output of the student process"""
-    is_it_student: bool
-    student_number: int
-    program: str
+    __is_it_student: bool
+    __student_number: int
+    __program: str
 
     def __init__(self) -> None:
-        self.is_it_student = None
-        self.student_number = None
-        self.program = None
+        self.__is_it_student = None
+        self.__student_number = None
+        self.__program = None
+
+    @property
+    def is_it_student(self) -> bool:
+        """Returns whether the user is a student or not"""
+        return self.__is_it_student
+
+    @is_it_student.setter
+    def is_it_student(self, value: bool) -> None:
+        self.__is_it_student = value
+
+    @property
+    def student_number(self) -> int:
+        """Returns the student number of the user"""
+        return self.__student_number
+
+    @student_number.setter
+    def student_number(self, value: int) -> None:
+        self.__student_number = value
+
+    @property
+    def program(self) -> str:
+        """Returns the program of the user"""
+        return self.__program
+
+    @program.setter
+    def program(self, value: str) -> None:
+        self.__program = value
 
 
 async def __handle_on_timeout(member: discord.Member, message: discord.Message) -> NoReplyException:
@@ -74,10 +101,11 @@ async def walk_through_welcome(member: discord.Member):
         welcome_user.save()
 
         return welcome_user
-    elif confirmed:
+
+    if confirmed:
         return await walk_through_welcome(member)
-    else:
-        return await member.send("Parfait, on ne recommence pas!")
+
+    return await member.send("Parfait, on ne recommence pas!")
 
 
 async def __process_confirmation(member: discord.Member, embed: discord.Embed):
