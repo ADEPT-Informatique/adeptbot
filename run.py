@@ -102,46 +102,39 @@ class AdeptClient(commands.Bot):
             exception = exception.original
 
         if isinstance(ctx, CommandNotFound):
-            return
+            # We don't care
+            pass
 
         elif isinstance(exception, NoPrivateMessage):
             await ctx.send("Cette commande ne peut pas être utilisée en message privé.")
-            return
 
         elif isinstance(exception, UserNotFound):
             await ctx.send("Utilisateur introuvable.")
-            return
 
         elif isinstance(exception, MissingAnyRole):
             await ctx.send("Vous n'avez pas la permission d'utiliser cette commande.")
-            return
 
         elif isinstance(exception, MissingRequiredArgument):
             await ctx.send(f"Argument manquant: {exception.param.name}")
-            return
 
         elif isinstance(exception, BadArgument):
             await ctx.send(f"Argument invalide: {exception.param.name}")
-            return
 
         elif isinstance(exception, NoReplyException):
             await exception.channel.send(exception.message)
-            return
 
         elif isinstance(exception, discord.Forbidden):
             # Check if the error is about not being able to send a DM
             if exception.code == 50007:
                 await ctx.reply(configs.WELCOME_CANT_DM)
-                return
 
         elif isinstance(exception, util.AdeptBotException):
             await ctx.send(exception.message)
-            return
 
-        # Log any uncatched error in the logging channel
-        await self.say(configs.LOGS_CHANNEL, f"```py\n{traceback.format_exc()[-1500:]}```")
-
-        return await super().on_command_error(ctx, exception)
+        else:
+            # Log any uncatched error in the logging channel
+            await self.say(configs.LOGS_CHANNEL, f"```py\n{traceback.format_exc()[-1500:]}```")
+            await super().on_command_error(ctx, exception)
 
 
 if __name__ == "__main__":
