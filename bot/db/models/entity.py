@@ -7,7 +7,18 @@ from bot.db.services import BaseService
 
 
 class Entity:
-    """Base entity class for all models."""
+    """
+    Base entity class for all models.
+
+    Attributes
+    ----------
+    `_id` : int
+        The id of the entity.
+    `created_at` : datetime
+        The time the entity was created.
+    `updated_at` : datetime
+        The time the entity was last updated.
+    """
 
     def __init__(self, _id: int, created_at: datetime = None, updated_at: datetime = None):
         self._id = _id
@@ -21,8 +32,10 @@ class Entity:
         """
         Save the entity to the database.
 
-        :param upsert: Whether to insert the entity if it doesn't exist.
-        :return: The result of the save operation.
+        Parameters
+        ----------
+        `upsert` : bool
+            Whether to insert the entity if it doesn't exist. Defaults to True.
         """
         if self.created_at is None:
             self.created_at = datetime.utcnow()
@@ -47,4 +60,4 @@ class Entity:
     @property
     @abstractmethod
     def service(self) -> BaseService:
-        """Return the service for the entity."""
+        """The service for the entity."""

@@ -13,7 +13,7 @@ class StrikesCog(commands.Cog):
     """This class contains the events related to strikes."""
 
     def __init__(self) -> None:
-        self.configs_service = ConfigsService()
+        self.__configs_service = ConfigsService()
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -36,7 +36,7 @@ class StrikesCog(commands.Cog):
                 member.roles[-1].position < trust_role.position:
             user.strikes += 1
 
-            spam_configs = self.configs_service.find_or_create_spam_configs()
+            spam_configs = self.__configs_service.find_or_create_spam_configs()
             if user.strikes % spam_configs.repetition == 0:
                 times = user.strikes / spam_configs.repetition
 

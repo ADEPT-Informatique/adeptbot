@@ -7,7 +7,14 @@ from bot.programs import Programs
 
 
 class StudentInteraction(ui.View):
-    """View for selecting a program."""
+    """
+    View for selecting a program.
+
+    Attributes
+    ----------
+    `timeout` : int
+        The timeout for the view.
+    """
 
     def __init__(self, timeout: int = 60):
         self.program = None

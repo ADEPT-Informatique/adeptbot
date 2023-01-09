@@ -30,11 +30,8 @@ class ConfigsService(BaseService):
 
         Parameters
         ----------
-        - `config` The updated config.
-
-        Returns
-        -------
-        The result of the update.
+        `config` : GlobalConfig
+            The config to update.
         """
         return self.update_one({"_id": config.config_id}, config.__dict__, upsert=True)
 

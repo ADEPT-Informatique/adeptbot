@@ -30,7 +30,14 @@ class TicketOpeningInteraction(ui.View):
 
 
 class TicketConfirmationInteraction(ui.View):
-    """View for confirming the opening of a ticket."""
+    """
+    View for confirming the opening of a ticket.
+
+    Attributes
+    ----------
+    `ticket_type` : TicketType
+        The type of ticket to open.
+    """
 
     def __init__(self, ticket_type: TicketType):
         super().__init__(timeout=30)

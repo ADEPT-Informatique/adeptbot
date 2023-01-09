@@ -30,12 +30,9 @@ class BotConfigsCog(commands.Cog):
         """
         Modifie la configuration du spam.
 
-        Paramètres
-        ----------
-        key: str
-            La clé de la configuration à modifier (repetition, mute_time)
-        value: int
-            La nouvelle valeur de la configuration
+        Utilisation:
+        !editspamconfig repetition 10
+        !editspamconfig mute_time 60
         """
         if value < 0:
             raise AdeptBotException("La valeur doit être de 0 ou superieur.")

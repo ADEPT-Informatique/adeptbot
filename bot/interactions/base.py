@@ -8,9 +8,9 @@ class YesNoInteraction(ui.View):
     """
     Basic yes/no interaction
 
-    Parameters
+    Attributes
     ------------
-    timeout: Optional[:class:`int`]
+    timeout : Optional[:class:`int`]
         Timeout in seconds, defaults to 300
     """
 
@@ -22,7 +22,10 @@ class YesNoInteraction(ui.View):
         """
         Start the interaction and wait for a response from the user or timeout
 
-        return: The value of the interaction if the user responded, `None` if the user timed out
+        Returns
+        -------
+        Optional[:class:`bool`]
+            The value of the interaction if the user responded, `None` if the user timed out
         """
         await self.wait()
 

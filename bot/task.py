@@ -9,7 +9,18 @@ from bot.strikes import Strike
 
 
 class Task(Pickler):
-    """This class represents a task to be executed at a later time."""
+    """
+    This class represents a task to be executed at a later time.
+
+    Attributes
+    ----------
+    `member` : discord.Member
+        The member the task is related to.
+    `end_date` : datetime.datetime
+        The date and time the task will be executed.
+    `strike_type` : Strike
+        The type of strike to be executed.
+    """
 
     def __init__(self, member: discord.Member, end_date: datetime.datetime, strike_type: Strike):
         self.member = member

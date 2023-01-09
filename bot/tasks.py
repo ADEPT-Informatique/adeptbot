@@ -23,8 +23,12 @@ async def create_mute_task(member: discord.Member, duration: int = None, reason:
 
     Parameters
     ----------
-    - member: Target member
-    - duration: Duration of the mute in seconds
+    `member` : discord.Member
+        The member to mute.
+    `duration` : int
+        The duration in seconds.
+    `reason` : str
+        The reason of the mute.
     """
     if duration is None:
         return await util.mute(member, reason)
@@ -51,9 +55,12 @@ async def delete_task(member: discord.Member, strike_type: Strike, reason: str =
 
     Parameters
     ----------
-    - member: Target member
-    - strike_type: Type of the strike
-    - reason: Reason of the removal
+    `member` : discord.Member
+        The member to delete the task for.
+    `strike_type` : Strike
+        The type of the task to remove.
+    `reason` : str
+        The reason of the removal.
     """
     if strike_type == Strike.MUTE:
         # TODO: DB call

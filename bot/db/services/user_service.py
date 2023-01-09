@@ -1,6 +1,6 @@
 """User service."""
 
-from . import BaseService
+from bot.db.services import BaseService
 
 
 class UserService(BaseService):
@@ -13,11 +13,8 @@ class UserService(BaseService):
 
         Parameters
         ----------
-        - `discord_id` The discord id of the user.
-
-        Returns
-        -------
-        The cursor of the user.
+        `discord_id` : int
+            The discord id of the user.
         """
         return self.find_one({"_id": discord_id})
 

@@ -7,7 +7,7 @@ class GlobalConfig:
 
     Attributes
     ----------
-    `_id` : str
+    `config_id` : str
         The name of the config.
     """
     __slots__ = ("_id",)

@@ -57,7 +57,14 @@ async def __handle_on_timeout(member: discord.Member, message: discord.Message) 
 
 
 async def walk_through_welcome(member: discord.Member):
-    """Walks through the welcome process with the given member"""
+    """
+    Walks through the welcome process with the given member
+
+    Parameters
+    ----------
+    `member` : discord.Member
+        The member to walk through the welcome process with
+    """
     is_student_view = YesNoInteraction()
     original_message: discord.Message = await member.send(
         embed=util.get_welcome_instruction("Êtes-vous un étudiant?"),
@@ -233,12 +240,10 @@ async def create_welcome_embed(member: discord.User, adept_member: AdeptMember):
 
     Parameters
     ----------
-    - member: The member discord member
-    - adept_member: The adept member
-
-    Returns
-    -------
-    The welcome embed
+    `member`: discord.User
+        The new member.
+    `adept_member`: AdeptMember
+        The new member's information.
     """
     embed = discord.Embed(title="Nouveau membre dans ADEPT-Informatique",
                           color=0xF9E18B, timestamp=discord.utils.utcnow())
@@ -260,11 +265,12 @@ async def process_welcome_result(member: discord.Member, result: AdeptMember):
 
     Parameters
     ----------
-    - member: The member discord member
-    - result: The result of the welcome process
+    `member`: discord.Member
+        The new member.
+    `result`: AdeptMember
+        The new member's information.
     """
     guild = member.guild
-    name = result.name
 
     role = None
     if result.is_it_student:
@@ -283,8 +289,9 @@ async def process_welcome_result(member: discord.Member, result: AdeptMember):
         configs.PROG_ROLE, configs.NETWORK_ROLE, configs.DECBAC_ROLE, configs.TEACHER_ROLE)]
     if role is not None:
         roles.append(role)
+
     try:
-        await member.edit(nick=name, roles=roles, reason="Inital setup")
+        await member.edit(nick=result.name, roles=roles, reason="Inital setup")
     except discord.Forbidden:
         await member.send("Vous avez des permissions plus élevées que moi. Veuillez contacter un administrateur.\n\n" +
                           "Si vous êtes un administrateur, veuillez changer vos informations.")

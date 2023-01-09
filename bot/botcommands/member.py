@@ -25,7 +25,7 @@ class MemberCog(commands.Cog):
         """
         Cette commande permet de créer un ticket de support.
 
-        USAGE EXAMPLES:
+        Utilisation:
         !ticket moron
         !ticket plainte
         """
@@ -61,7 +61,7 @@ class MemberCog(commands.Cog):
         """
         Cette commande permet de rechercher un membre dans la base de données.
 
-        USAGE EXAMPLES:
+        Utilisation:
         !search @DeveloperAnonymous
         !search 115269304705875969
         """
@@ -89,11 +89,8 @@ class MemberCog(commands.Cog):
     @has_at_least_role(configs.ADMIN_ROLE)
     @commands.command(name="count", aliases=["compte", "c", "total", "t"])
     async def count_students_in_computer_science(self, ctx: Context):
-        """
-        Cette commande permet de compter le nombre d'étudiants dans le programme de Technique Informatique.
-        """
+        """Cette commande permet de compter le nombre d'étudiants dans le programme de Technique Informatique."""
         guild = ctx.guild
-
         former_student_role = guild.get_role(configs.FORMER_STUDENT_ROLE)
         prog_role = guild.get_role(configs.PROG_ROLE)
         network_role = guild.get_role(configs.NETWORK_ROLE)

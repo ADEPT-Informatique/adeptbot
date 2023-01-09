@@ -7,7 +7,14 @@ from bot.util import AdeptBotException
 
 
 class NoReplyException(AdeptBotException):
-    """Raised when the user doesn't reply to the interaction in time."""
+    """
+    Raised when the user doesn't reply to the interaction in time.
+
+    Attributes
+    ----------
+    `channel` : discord.abc.Messageable
+        The channel the interaction was sent in.
+    """
 
     def __init__(self, channel: discord.abc.Messageable) -> None:
         self.channel = channel
