@@ -8,7 +8,10 @@
     ],
     "python.linting.pylintEnabled": true,
     "python.linting.pylintArgs": [
-        "--max-line-length=120"
+        "--max-line-length=120",
+        "--min-public-methods=0",
+        "--disable=W0511",
+        "--disable=W0603",
     ],
     "editor.formatOnSave": true,
 }

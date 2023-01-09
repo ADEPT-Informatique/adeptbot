@@ -21,4 +21,4 @@ jobs:
         cp base_configs.py configs.py
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py') --max-line-length=120
+        pylint $(git ls-files '*.py') --max-line-length=120 --min-public-methods=0 --disable=W0511,W0603
