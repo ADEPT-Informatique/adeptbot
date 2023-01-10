@@ -1,8 +1,8 @@
 """Service for dynamic bot configs."""
 
-from bot.db.models import SpamConfigs
-from bot.db.models.bot_configs import GlobalConfig
-from bot.db.services import BaseService
+from ..models.bot_configs import GlobalConfig, SpamConfigs
+
+from .base_service import BaseService
 
 
 class ConfigsService(BaseService):

@@ -1,7 +1,7 @@
 """ADEPT User model."""
 
 from bot.db.models import Entity
-from bot.db.services.user_service import UserService
+from bot.db.services import UserService
 
 
 class AdeptMember(Entity):
@@ -33,9 +33,7 @@ class AdeptMember(Entity):
     student_id: int
     program: str
 
-    __service = None
-
-    def __init__(self, discord_id: int, name: str, email: str, is_student: bool, is_teacher: bool = False,
+    def __init__(self, discord_id: int, name: str, email: str, is_student: bool, /, is_teacher: bool = False,
                  is_it_student: bool = False, student_id: int = None, program: str = None, **kwargs) -> None:
         self.name = name
         self.email = email
@@ -46,10 +44,8 @@ class AdeptMember(Entity):
         self.student_id = student_id
         self.program = program
 
-        self.__service = UserService()
-
         super().__init__(discord_id, **kwargs)
 
     @property
     def service(self) -> UserService:
-        return self.__service
+        return UserService()
