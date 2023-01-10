@@ -96,27 +96,57 @@ class CustomTime(commands.Converter):
         return parsed_time
 
 
-class ModerationCog(commands.Cog):
-    """This class represents the moderation cog."""
-    async def __create_moderation_embed(self, strike: Strike, target: discord.User | discord.Member,
-                                        author: discord.Member, reason: str, parsed_time: ParsedTime = None):
+class ModerationEmbedRequest:
+    """
+    This class is used to create a moderation embed.
+
+    Attributes
+    ----------
+    `strike` : Strike
+        The strike type.
+    `target` : discord.User | discord.Member
+        The target of the strike.
+    `author` : discord.Member
+        The author of the strike.
+    `reason` : str
+        The reason of the strike.
+    `parsed_time` : ParsedTime
+        The time information of the strike.
+    """
+
+    def __init__(
+            self, strike: Strike, target: discord.User | discord.Member, author: discord.Member, reason: str,
+            parsed_time: ParsedTime = None, /):
+        self.strike = strike
+        self.target = target
+        self.author = author
+        self.reason = reason
+        self.parsed_time = parsed_time
+
+    @property
+    def moderation_embed(self) -> discord.Embed:
+        """Creates an embed with the moderation information."""
         color = None
-        if strike in (Strike.WARN, Strike.MUTE, Strike.UNMUTE):
+        if self.strike in (Strike.WARN, Strike.MUTE, Strike.UNMUTE):
             color = 15066368
-        elif strike == Strike.KICK:
+        elif self.strike == Strike.KICK:
             color = 16758079
-        elif strike in (Strike.BAN, Strike.UNBAN):
+        elif self.strike in (Strike.BAN, Strike.UNBAN):
             color = 993326
 
-        moderation_embed = discord.Embed(title=f"Nouveau cas | {strike} | {target.name}", color=color)
-        moderation_embed.add_field(name="Utilisateur", value=target.mention, inline=False)
-        moderation_embed.add_field(name="Moderateur", value=author.mention, inline=False)
-        moderation_embed.add_field(name="Raison", value=reason, inline=False)
+        moderation_embed = discord.Embed(title=f"Nouveau cas | {self.strike} | {self.target.name}", color=color)
+        moderation_embed.add_field(name="Utilisateur", value=self.target.mention, inline=False)
+        moderation_embed.add_field(name="Moderateur", value=self.author.mention, inline=False)
+        moderation_embed.add_field(name="Raison", value=self.reason, inline=False)
 
-        if parsed_time:
-            moderation_embed.add_field(name="Durée", value=parsed_time.seconds)
+        if self.parsed_time:
+            moderation_embed.add_field(name="Durée", value=self.parsed_time.seconds)
 
         return moderation_embed
+
+
+class ModerationCog(commands.Cog):
+    """This class represents the moderation cog."""
 
     @commands.command()
     @has_at_least_role(configs.TRUST_ROLE)
@@ -132,7 +162,7 @@ class ModerationCog(commands.Cog):
         except (discord.errors.HTTPException, discord.errors.Forbidden):
             util.logger.warning("Failed to notify warn")
 
-        warn_embed = self.__create_moderation_embed(Strike.WARN, member, ctx.author, reason)
+        warn_embed = ModerationEmbedRequest(Strike.WARN, member, ctx.author, reason).moderation_embed
         await util.say(configs.LOGS_CHANNEL, embed=warn_embed)
         await ctx.message.add_reaction("\u2705")
 
@@ -176,7 +206,7 @@ class ModerationCog(commands.Cog):
         except (discord.errors.HTTPException, discord.errors.Forbidden):
             util.logger.warning("Failed to notify mute")
 
-        mute_embed = await self.__create_moderation_embed(Strike.MUTE, member, ctx.author, reason, length)
+        mute_embed = await ModerationEmbedRequest(Strike.MUTE, member, ctx.author, reason, length).moderation_embed
         await util.mute(member, reason)
         await util.say(configs.LOGS_CHANNEL, embed=mute_embed)
         await ctx.message.add_reaction("\u2705")
@@ -200,7 +230,7 @@ class ModerationCog(commands.Cog):
         if not await util.has_role(member, ctx.guild.get_role(configs.MUTED_ROLE)):
             raise AdeptBotException("Ce membre n'est pas muet!")
 
-        mute_embed = await self.__create_moderation_embed(Strike.UNMUTE, member, ctx.author, reason)
+        mute_embed = await ModerationEmbedRequest(Strike.UNMUTE, member, ctx.author, reason).moderation_embed
         await util.unmute(member, reason)
         await util.say(configs.LOGS_CHANNEL, embed=mute_embed)
         await ctx.message.add_reaction("\u2705")
@@ -230,7 +260,7 @@ class ModerationCog(commands.Cog):
         except (discord.errors.HTTPException, discord.errors.Forbidden):
             util.logger.warning("Failed to notify kick")
 
-        kick_embed = await self.__create_moderation_embed(Strike.KICK, member, ctx.author, reason)
+        kick_embed = await ModerationEmbedRequest(Strike.KICK, member, ctx.author, reason).moderation_embed
         await member.kick(reason=reason)
         await util.say(configs.LOGS_CHANNEL, embed=kick_embed)
         await ctx.message.add_reaction("\u2705")
@@ -267,7 +297,7 @@ class ModerationCog(commands.Cog):
         except (discord.errors.HTTPException, discord.errors.Forbidden):
             util.logger.warning("Failed to notify ban")
 
-        ban_embed = await self.__create_moderation_embed(Strike.BAN, user, ctx.author, reason)
+        ban_embed = await ModerationEmbedRequest(Strike.BAN, user, ctx.author, reason).moderation_embed
         await guild.ban(user, reason=reason)
         await util.say(configs.LOGS_CHANNEL, embed=ban_embed)
         await ctx.message.add_reaction("\u2705")
@@ -290,7 +320,7 @@ class ModerationCog(commands.Cog):
         if user not in [entry.user for entry in await guild.bans()]:
             raise AdeptBotException("Ce membre n'est pas banni!")
 
-        unban_embed = await self.__create_moderation_embed(Strike.UNBAN, user, ctx.author, reason)
+        unban_embed = await ModerationEmbedRequest(Strike.UNBAN, user, ctx.author, reason).moderation_embed
         await guild.unban(user, reason=reason)
         await util.say(configs.LOGS_CHANNEL, embed=unban_embed)
         await ctx.message.add_reaction("\u2705")
