@@ -1,3 +1,7 @@
+"""
+Configs for ADEPT Bot
+"""
+
 # Discord Configs
 TOKEN = ""
 PREFIX = "!"
@@ -34,9 +38,9 @@ MUTED_ROLE = 363031112664219648
 MORON_ROLE = 559825539993698316
 
 # Messages
-# TODO: Use/Make a translation service?
 WELCOME_TITLE = "Bonjour et bienvenue à l'ADEPT!"
-WELCOME_MESSAGE = "Pour commencer, nous allons devoir vous posez quelques questions afin de mieux vous connaitre.\n\n**{content}**"
+WELCOME_MESSAGE = "Pour commencer, nous allons devoir vous posez quelques questions afin de mieux vous connaitre." + \
+                  "\n\n**{content}**"
 WELCOME_FOOTER = "* Le masculin est uniquement utilisé afin d'alléger les questions."
 WELCOME_SERVER = """
 Bienvenue {name} sur le serveur de l'ADEPT Informatique,
@@ -74,5 +78,5 @@ TICKET_MORON_ID = "ticket_view_1.0:Moron"
 TICKET_CLOSE_ID = "ticket_view_1.0:Close"
 
 # Emojis
-CHECK_REACT = u"\u2705"
-CROSS_REACT = u"\u274C"
+CHECK_REACT = "\u2705"
+CROSS_REACT = "\u274C"

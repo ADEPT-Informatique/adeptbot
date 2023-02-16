@@ -1,16 +1,16 @@
-from bot.db.models import SpamConfigs
-from bot.db.models.bot_configs import GlobalConfig
+"""Service for dynamic bot configs."""
 
-from . import BaseService
+from ..models.bot_configs import GlobalConfig, SpamConfigs
+
+from .base_service import BaseService
 
 
 class ConfigsService(BaseService):
+    """Service for dynamic bot configs."""
     __COLLECTION_NAME = "configs"
 
-    def __init__(self):
-        super().__init__()
-
     def find_or_create_spam_configs(self) -> SpamConfigs:
+        """Find or create the spam configs."""
         data = self.find_one({"_id": "spam"})
 
         spam_config = SpamConfigs()
@@ -19,13 +19,21 @@ class ConfigsService(BaseService):
 
             return spam_config
 
-        for attr in spam_config.__dict__.keys():
+        for attr in spam_config.__slots__:
             setattr(spam_config, attr, data[attr])
-        
+
         return spam_config
 
-    def update_configs(self, configs: GlobalConfig):
-        return self.update_one({"_id": configs._id}, configs.__dict__, upsert=True)
+    def update_configs(self, config: GlobalConfig):
+        """
+        Update the configs.
+
+        Parameters
+        ----------
+        `config` : GlobalConfig
+            The config to update.
+        """
+        return self.update_one({"_id": config.config_id}, config.__dict__, upsert=True)
 
     @property
     def collection_name(self):

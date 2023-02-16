@@ -1,10 +1,12 @@
-﻿from discord.ext.commands.errors import BadArgument
+﻿"""Module containing the Strike enum"""
+
 from enum import Enum
+
+from discord.ext.commands.errors import BadArgument
 
 
 class Strike(Enum):
-    def __str__(self):
-        return self.value
+    """Enum representing the different types of strikes"""
 
     def __int__(self):
         match (self):
@@ -20,6 +22,9 @@ class Strike(Enum):
                 return 4
             case _:
                 raise BadArgument("Invalid Strike value")
+
+    def __str__(self):
+        return self.value
 
     WARN = "Warn"
     MUTE = "Mute"

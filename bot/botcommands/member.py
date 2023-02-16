@@ -1,36 +1,46 @@
-import configs
+"""This module contains the commands related to the members of the server."""
+
 import discord
-from bot import util, welcome
+from discord.ext import commands
+from discord.ext.commands.context import Context
+
+import configs
+from bot import tickets, util, welcome
 from bot.botcommands.utils.validators import has_at_least_role
 from bot.db.models.user import AdeptMember
 from bot.db.services.user_service import UserService
 from bot.interactions import TicketOpeningInteraction
-from bot.tickets import TicketConverter
+from bot.interactions import ticket as ticket_interactions
 from bot.util import AdeptBotException
-from discord.ext import commands
-from discord.ext.commands.context import Context
 
 
 class MemberCog(commands.Cog):
+    """This class contains the commands related to the members of the server."""
+
     def __init__(self) -> None:
         self.user_service = UserService()
 
     @commands.command()
-    async def ticket(self, ctx: Context, ticket: TicketConverter):
+    async def ticket(self, ctx: Context, ticket: tickets.TicketConverter):
         """
-        USAGE EXAMPLES:
+        Cette commande permet de créer un ticket de support.
+
+        Utilisation:
         !ticket moron
         !ticket plainte
         """
         category = ctx.channel.category
-        if category != None and category.id == configs.TICKET_CATEGORY:
+        if category is not None and category.id == configs.TICKET_CATEGORY:
             return await ctx.message.add_reaction(configs.CROSS_REACT)
 
-        await util.create_ticket(ctx.author, ticket)
+        await ticket_interactions.create_ticket(ctx.author, ticket)
         await ctx.message.add_reaction(configs.CHECK_REACT)
 
     @commands.command()
     async def close(self, ctx: Context):
+        """
+        Cettte commande permet de fermer le ticket dans lequel l'utilisateur se trouve.
+        """
         category = ctx.channel.category
         if category is None or category.id != configs.TICKET_CATEGORY:
             return await ctx.message.add_reaction(configs.CROSS_REACT)
@@ -40,11 +50,21 @@ class MemberCog(commands.Cog):
     @commands.command()
     @has_at_least_role(configs.ADMIN_ROLE)
     async def create_ticket(self, ctx: Context):
+        """
+        Cette commande permet de créer une interaction pour créer un ticket de support.
+        """
         await ctx.channel.send(configs.TICKET_VIEW_MESSAGE, view=TicketOpeningInteraction())
 
     @commands.command()
     @has_at_least_role(configs.ADMIN_ROLE)
     async def search(self, ctx: Context, user: discord.User):
+        """
+        Cette commande permet de rechercher un membre dans la base de données.
+
+        Utilisation:
+        !search @DeveloperAnonymous
+        !search 115269304705875969
+        """
         result = self.user_service.find_by_id(user.id)
 
         if result is None:
@@ -68,30 +88,20 @@ class MemberCog(commands.Cog):
 
     @has_at_least_role(configs.ADMIN_ROLE)
     @commands.command(name="count", aliases=["compte", "c", "total", "t"])
-    async def count_students_in_comp_sci(self, ctx: Context):
-        # Get the guild object from where the command is executed
+    async def count_students_in_computer_science(self, ctx: Context):
+        """Cette commande permet de compter le nombre d'étudiants dans le programme de Technique Informatique."""
         guild = ctx.guild
-
-        # Get a list of all members in the server
-        members = guild.members
-
-        # -Get the roles by searching for them by their id's
-        # Non student role
-        former_student_role = guild.get_role(
-            configs.FORMER_STUDENT_ROLE)
-        # Student roles
+        former_student_role = guild.get_role(configs.FORMER_STUDENT_ROLE)
         prog_role = guild.get_role(configs.PROG_ROLE)
         network_role = guild.get_role(configs.NETWORK_ROLE)
         decbac_role = guild.get_role(configs.DECBAC_ROLE)
 
-        # Non student count
         former_student_count = 0
-        # Student counts
         prog_students_count = 0
         network_students_count = 0
         decbac_students_count = 0
 
-        # Iterate through the list of members
+        members = guild.members
         for member in members:
             if former_student_role in member.roles:
                 former_student_count += 1
@@ -102,13 +112,11 @@ class MemberCog(commands.Cog):
             elif decbac_role in member.roles:
                 decbac_students_count += 1
 
-        # Add up the values of valid students
-        comp_sci_students_number = prog_students_count + \
-            network_students_count + decbac_students_count
+        comp_sci_students_number = sum((prog_students_count, network_students_count, decbac_students_count))
 
-        await ctx.send(f"Présentement, dans le serveur de l'ADEPT, ``{comp_sci_students_number}`` étudiants sont dans le programme de Technique Informatique.\n" +
+        await ctx.send(f"Présentement, ``{comp_sci_students_number}`` étudiants sont dans le programme.\n" +
                        "Plus précisément:\n" +
                        f"  - ``{prog_students_count}`` en **Programmation**\n" +
                        f"  - ``{network_students_count}`` en **Réseau**\n" +
                        f"  - ``{decbac_students_count}`` en **DEC-BAC**\n\n" +
-                       f"Et ``{former_student_count}`` anciens étudiants")
+                       f"  - ``{former_student_count}`` anciens étudiants")
