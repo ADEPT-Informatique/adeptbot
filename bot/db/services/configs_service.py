@@ -7,6 +7,7 @@ from .base_service import BaseService
 
 class ConfigsService(BaseService):
     """Service for dynamic bot configs."""
+
     __COLLECTION_NAME = "configs"
 
     def find_or_create_spam_configs(self) -> SpamConfigs:

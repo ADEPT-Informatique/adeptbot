@@ -22,7 +22,7 @@ class StrikesCog(commands.Cog):
 
         A member will be muted if he sends more than 3 messages in less than 0.5 seconds.
         """
-        if (message.author.bot or isinstance(message.channel, discord.DMChannel)):
+        if message.author.bot or isinstance(message.channel, discord.DMChannel):
             return
 
         member = message.author
@@ -32,8 +32,9 @@ class StrikesCog(commands.Cog):
 
         guild = message.guild
         trust_role = guild.get_role(configs.TRUST_ROLE)
-        if (message.created_at.timestamp() - user.last_message_timestamp) < 0.5 and \
-                member.roles[-1].position < trust_role.position:
+        if (message.created_at.timestamp() - user.last_message_timestamp) < 0.5 and member.roles[
+            -1
+        ].position < trust_role.position:
             user.strikes += 1
 
             spam_configs = self.__configs_service.find_or_create_spam_configs()

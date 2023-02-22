@@ -25,6 +25,7 @@ class AdeptMember(Entity):
     `program` : str
         The program of the member.
     """
+
     name: str
     email: str
     is_student: bool
@@ -33,8 +34,19 @@ class AdeptMember(Entity):
     student_id: int
     program: str
 
-    def __init__(self, discord_id: int, name: str, email: str, is_student: bool, /, is_teacher: bool = False,
-                 is_it_student: bool = False, student_id: int = None, program: str = None, **kwargs) -> None:
+    def __init__(
+        self,
+        discord_id: int,
+        name: str,
+        email: str,
+        is_student: bool,
+        /,
+        is_teacher: bool = False,
+        is_it_student: bool = False,
+        student_id: int = None,
+        program: str = None,
+        **kwargs,
+    ) -> None:
         self.name = name
         self.email = email
         self.is_student = is_student

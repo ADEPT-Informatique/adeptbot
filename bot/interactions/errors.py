@@ -19,6 +19,6 @@ class NoReplyException(AdeptBotException):
     def __init__(self, channel: discord.abc.Messageable) -> None:
         self.channel = channel
         super().__init__(
-            "Nous n'avons pas reçu de réponse! " +
-            f"Utilisez `{configs.PREFIX}setup` dans <#{configs.SETUP_CHANNEL}> pour recommencer."
+            "Nous n'avons pas reçu de réponse! "
+            + f"Utilisez `{configs.PREFIX}setup` dans <#{configs.SETUP_CHANNEL}> pour recommencer."
         )

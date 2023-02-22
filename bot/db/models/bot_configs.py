@@ -10,6 +10,7 @@ class GlobalConfig:
     `config_id` : str
         The name of the config.
     """
+
     __slots__ = ("_id",)
     _id: str
 
@@ -39,6 +40,7 @@ class SpamConfigs(GlobalConfig):
     `mute_time` : int
         The time in seconds that a user will be muted for.
     """
+
     __slots__ = ("repetition", "mute_time")
 
     repetition: int

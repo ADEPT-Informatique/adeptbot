@@ -11,6 +11,7 @@ from bot.interactions.errors import NoReplyException
 
 class StudentProcessOutput:
     """This class represents the output of the student process"""
+
     __is_it_student: bool
     __student_number: int
     __program: str
@@ -67,8 +68,7 @@ async def walk_through_welcome(member: discord.Member):
     """
     is_student_view = YesNoInteraction()
     original_message: discord.Message = await member.send(
-        embed=util.get_welcome_instruction("Êtes-vous un étudiant?"),
-        view=is_student_view
+        embed=util.get_welcome_instruction("Êtes-vous un étudiant?"), view=is_student_view
     )
     is_student = await is_student_view.start()
 
@@ -198,8 +198,7 @@ async def __process_student(member: discord.Member, original_message: discord.Me
 
     is_info_view = YesNoInteraction()
     await original_message.edit(
-        embed=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"),
-        view=is_info_view
+        embed=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"), view=is_info_view
     )
     is_it_student = await is_info_view.start()
 
@@ -233,15 +232,19 @@ async def create_welcome_embed(member: discord.User, adept_member: AdeptMember):
     `adept_member`: AdeptMember
         The new member's information.
     """
-    embed = discord.Embed(title="Nouveau membre dans ADEPT-Informatique",
-                          color=0xF9E18B, timestamp=discord.utils.utcnow())
+    embed = discord.Embed(
+        title="Nouveau membre dans ADEPT-Informatique", color=0xF9E18B, timestamp=discord.utils.utcnow()
+    )
     embed.add_field(name="Nom:", value=adept_member.name, inline=False)
     embed.add_field(name="Email:", value=adept_member.email, inline=False)
     embed.add_field(name="Numéro étudiant:", value=adept_member.student_id, inline=False)
     embed.add_field(name="Étudiant:", value="Oui" if adept_member.is_student else "Non", inline=False)
     embed.add_field(name="Professeur:", value="Oui" if adept_member.is_teacher else "Non", inline=False)
-    embed.add_field(name="Programme:", value=adept_member.program
-                    if adept_member.is_it_student else "N'est pas en informatique", inline=False)
+    embed.add_field(
+        name="Programme:",
+        value=adept_member.program if adept_member.is_it_student else "N'est pas en informatique",
+        inline=False,
+    )
     embed.set_footer(text=f"ID: {member.id}")
 
     return embed
@@ -273,16 +276,21 @@ async def process_welcome_result(member: discord.Member, result: AdeptMember):
     elif result.is_teacher:
         role = guild.get_role(configs.TEACHER_ROLE)
 
-    roles = [role for role in member.roles if role.id not in (
-        configs.PROG_ROLE, configs.NETWORK_ROLE, configs.DECBAC_ROLE, configs.TEACHER_ROLE)]
+    roles = [
+        role
+        for role in member.roles
+        if role.id not in (configs.PROG_ROLE, configs.NETWORK_ROLE, configs.DECBAC_ROLE, configs.TEACHER_ROLE)
+    ]
     if role is not None:
         roles.append(role)
 
     try:
         await member.edit(nick=result.name, roles=roles, reason="Inital setup")
     except discord.Forbidden:
-        await member.send("Vous avez des permissions plus élevées que moi. Veuillez contacter un administrateur.\n\n" +
-                          "Si vous êtes un administrateur, veuillez changer vos informations.")
+        await member.send(
+            "Vous avez des permissions plus élevées que moi. Veuillez contacter un administrateur.\n\n"
+            + "Si vous êtes un administrateur, veuillez changer vos informations."
+        )
 
     embed = await create_welcome_embed(member, result)
 

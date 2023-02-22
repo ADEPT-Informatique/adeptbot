@@ -76,6 +76,7 @@ def __parse_week(value: int):
 
 class CustomTime(commands.Converter):
     """This class represents a custom time converter."""
+
     async def convert(self, _, value: str) -> ParsedTime:
         matches = __parse_values(value)
 
@@ -86,11 +87,11 @@ class CustomTime(commands.Converter):
         time_parse = matches[1]
 
         parsed_time = {
-            's': __parse_secs(int_value),
-            'm': __parse_mins(int_value),
-            'h': __parse_hours(int_value),
-            'd': __parse_days(int_value),
-            'w': __parse_week(int_value)
+            "s": __parse_secs(int_value),
+            "m": __parse_mins(int_value),
+            "h": __parse_hours(int_value),
+            "d": __parse_days(int_value),
+            "w": __parse_week(int_value),
         }.get(time_parse, None)
 
         return parsed_time
@@ -115,8 +116,14 @@ class ModerationEmbedRequest:
     """
 
     def __init__(
-            self, strike: Strike, target: discord.User | discord.Member, author: discord.Member, reason: str,
-            parsed_time: ParsedTime = None, /):
+        self,
+        strike: Strike,
+        target: discord.User | discord.Member,
+        author: discord.Member,
+        reason: str,
+        parsed_time: ParsedTime = None,
+        /,
+    ):
         self.strike = strike
         self.target = target
         self.author = author
@@ -170,8 +177,14 @@ class ModerationCog(commands.Cog):
 
     @commands.command()
     @has_at_least_role(configs.TRUST_ROLE)
-    async def mute(self, ctx: Context, member: discord.Member,
-                   length: typing.Optional[CustomTime] = None, *, reason: str = NO_REASON):
+    async def mute(
+        self,
+        ctx: Context,
+        member: discord.Member,
+        length: typing.Optional[CustomTime] = None,
+        *,
+        reason: str = NO_REASON,
+    ):
         """
         Rend muet un utilisateur.
 
@@ -195,7 +208,7 @@ class ModerationCog(commands.Cog):
         if not permissions.has_permission(ctx.author, target_perm):
             raise permissions.InsufficientPermissionsError(
                 ctx.channel,
-                f"Vous ne pouvez pas rendre muet {member.mention} puisqu'il dispose de permissions plus élevées!"
+                f"Vous ne pouvez pas rendre muet {member.mention} puisqu'il dispose de permissions plus élevées!",
             )
 
         if await util.has_role(member, ctx.guild.get_role(configs.MUTED_ROLE)):
@@ -252,7 +265,7 @@ class ModerationCog(commands.Cog):
         if not permissions.has_permission(ctx.author, target_perm):
             raise permissions.InsufficientPermissionsError(
                 ctx.channel,
-                f"Vous ne pouvez pas retiré {member.mention} du serveur puisqu'il dispose de permissions plus élevées!"
+                f"Vous ne pouvez pas retiré {member.mention} du serveur puisqu'il dispose de permissions plus élevées!",
             )
 
         try:
@@ -286,7 +299,7 @@ class ModerationCog(commands.Cog):
         if not permissions.has_permission(ctx.author, target_perm):
             raise permissions.InsufficientPermissionsError(
                 ctx.channel,
-                f"Vous ne pouvez pas bannir {member.mention} puisqu'il dispose de permissions plus élevées!"
+                f"Vous ne pouvez pas bannir {member.mention} puisqu'il dispose de permissions plus élevées!",
             )
 
         if user in [entry.user for entry in await guild.bans()]:

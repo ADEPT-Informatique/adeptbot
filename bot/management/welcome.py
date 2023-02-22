@@ -9,6 +9,7 @@ from bot import util, welcome
 
 class WelcomeCog(commands.Cog):
     """This class contains the events related to welcome."""
+
     @commands.command()
     @commands.guild_only()
     async def setup(self, ctx: commands.Context):
