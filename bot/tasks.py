@@ -102,10 +102,10 @@ def load_tasks():
 
     for task in to_process:
         # Just to make the code more readable
-        member = util.get_member(task['guild'], task['member'])
-        end_date = datetime.datetime.strptime(task['end_date'], "%Y-%m-%d %H:%M:%S.%f")
+        member = util.get_member(task["guild"], task["member"])
+        end_date = datetime.datetime.strptime(task["end_date"], "%Y-%m-%d %H:%M:%S.%f")
 
-        TASK_LIST.append(Task(member, end_date, task['type']))
+        TASK_LIST.append(Task(member, end_date, task["type"]))
 
     if len(TASK_LIST) > 0:
         process_mutes.start()

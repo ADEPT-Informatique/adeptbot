@@ -13,6 +13,7 @@ def has_at_least_role(role_id: int | str):
     `role_id` : int | str
         The role ID to check for.
     """
+
     def predicate(ctx: commands.Context):
         if ctx.guild is None or isinstance(ctx.author, discord.User):
             raise commands.NoPrivateMessage()

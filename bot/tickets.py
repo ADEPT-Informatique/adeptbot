@@ -24,6 +24,7 @@ class TicketType(Enum):
 
 class TicketConverter(commands.Converter):
     """Converter for ticket types."""
+
     async def convert(self, _, value) -> TicketType:
         match value:
             case TicketType.COMPLAINT:

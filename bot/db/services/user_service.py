@@ -5,6 +5,7 @@ from .base_service import BaseService
 
 class UserService(BaseService):
     """User service."""
+
     __COLLECTION_NAME = "users"
 
     def find_by_id(self, discord_id: int):

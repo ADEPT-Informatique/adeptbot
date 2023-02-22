@@ -41,8 +41,8 @@ class BotConfigsCog(commands.Cog):
 
         if key not in spam_config.__slots__:
             raise AdeptBotException(
-                f"Le paramêtre {key} n'est pas valide. " +
-                f"Veuillez choisir parmis les suivantes: {', '.join(spam_config.__slots__)}"
+                f"Le paramêtre {key} n'est pas valide. "
+                + f"Veuillez choisir parmis les suivantes: {', '.join(spam_config.__slots__)}"
             )
 
         setattr(spam_config, key, value)

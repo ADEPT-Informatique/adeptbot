@@ -5,10 +5,15 @@ import traceback
 
 import discord
 from discord.ext import commands
-from discord.ext.commands.errors import (BadArgument, CommandInvokeError,
-                                         CommandNotFound, MissingAnyRole,
-                                         MissingRequiredArgument,
-                                         NoPrivateMessage, UserNotFound)
+from discord.ext.commands.errors import (
+    BadArgument,
+    CommandInvokeError,
+    CommandNotFound,
+    MissingAnyRole,
+    MissingRequiredArgument,
+    NoPrivateMessage,
+    UserNotFound,
+)
 
 import configs
 from bot import tasks, util
@@ -27,9 +32,7 @@ class AdeptClient(commands.Bot):
     async def on_ready(self):
         """Called when the bot is ready."""
         util.logger.info(
-            "\nLogged in with account @%s ID:%s \n------------------------------------\n",
-            self.user.name,
-            self.user.id
+            "\nLogged in with account @%s ID:%s \n------------------------------------\n", self.user.name, self.user.id
         )
 
         await self.change_presence(activity=discord.Activity(name="for bad boys!", type=discord.ActivityType.watching))
@@ -55,8 +58,7 @@ class AdeptClient(commands.Bot):
         if message.author.bot:
             return
 
-        if message.content.startswith(f"<@!{self.user.id}>") or \
-                message.content.startswith(f"<@{self.user.id}>"):
+        if message.content.startswith(f"<@!{self.user.id}>") or message.content.startswith(f"<@{self.user.id}>"):
             message.content = message.content.replace(f"<@!{self.user.id}>", configs.PREFIX, 1)
             message.content = message.content.replace(f"<@{self.user.id}>", configs.PREFIX, 1)
 

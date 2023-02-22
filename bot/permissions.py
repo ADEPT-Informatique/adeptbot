@@ -20,8 +20,11 @@ class InsufficientPermissionsError(PermissionError):
         The message that will be sent to the user.
     """
 
-    def __init__(self, channel: discord.abc.Messageable,
-                 message: str = "Vous n'avez pas les permissions nécessaire pour effectuer cette action!") -> None:
+    def __init__(
+        self,
+        channel: discord.abc.Messageable,
+        message: str = "Vous n'avez pas les permissions nécessaire pour effectuer cette action!",
+    ) -> None:
         self.channel = channel
         self.message = message
 

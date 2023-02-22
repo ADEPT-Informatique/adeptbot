@@ -78,7 +78,7 @@ class MemberCog(commands.Cog):
             is_teacher=result["is_teacher"],
             is_it_student=result["is_it_student"],
             student_id=result["student_id"],
-            program=result["program"]
+            program=result["program"],
         )
 
         embed = await welcome.create_welcome_embed(user, adept_member)
@@ -114,9 +114,11 @@ class MemberCog(commands.Cog):
 
         comp_sci_students_number = sum((prog_students_count, network_students_count, decbac_students_count))
 
-        await ctx.send(f"Présentement, ``{comp_sci_students_number}`` étudiants sont dans le programme.\n" +
-                       "Plus précisément:\n" +
-                       f"  - ``{prog_students_count}`` en **Programmation**\n" +
-                       f"  - ``{network_students_count}`` en **Réseau**\n" +
-                       f"  - ``{decbac_students_count}`` en **DEC-BAC**\n\n" +
-                       f"  - ``{former_student_count}`` anciens étudiants")
+        await ctx.send(
+            f"Présentement, ``{comp_sci_students_number}`` étudiants sont dans le programme.\n"
+            + "Plus précisément:\n"
+            + f"  - ``{prog_students_count}`` en **Programmation**\n"
+            + f"  - ``{network_students_count}`` en **Réseau**\n"
+            + f"  - ``{decbac_students_count}`` en **DEC-BAC**\n\n"
+            + f"  - ``{former_student_count}`` anciens étudiants"
+        )

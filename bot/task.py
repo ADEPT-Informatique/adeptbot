@@ -30,8 +30,12 @@ class Task(Pickler):
         super().__init__()
 
     def __getstate__(self):
-        return {'member': self.member.id, 'guild': self.member.guild.id,
-                'end_date': str(self.end_date), 'type': str(self.type)}
+        return {
+            "member": self.member.id,
+            "guild": self.member.guild.id,
+            "end_date": str(self.end_date),
+            "type": str(self.type),
+        }
 
     member: discord.Member
     end_date: str

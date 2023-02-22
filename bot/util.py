@@ -12,11 +12,9 @@ from bot.strikes import Strike
 CLIENT: discord.Client = None
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
 )
-logger = logging.getLogger('ADEPT-BOT')
+logger = logging.getLogger("ADEPT-BOT")
 
 
 class AdeptBotException(Exception):
@@ -91,6 +89,7 @@ async def wait_for_message(author: discord.User, timeout: int = None) -> Optiona
     `timeout` : int
         The timeout in seconds.
     """
+
     def check(message: discord.Message):
         return message.author.id == author.id and isinstance(message.channel, discord.DMChannel)
 
@@ -183,11 +182,12 @@ async def archive_ticket(member: discord.Member, channel: discord.TextChannel):
     guild = channel.guild
     category = guild.get_channel(configs.TICKET_ARCHIVE_CATEGORY)
 
-    overwrites = discord.PermissionOverwrite(view_channel=True, read_messages=True, send_messages=False,
-                                             read_message_history=True)
+    overwrites = discord.PermissionOverwrite(
+        view_channel=True, read_messages=True, send_messages=False, read_message_history=True
+    )
 
     await channel.set_permissions(member, overwrite=overwrites)
-    await channel.send(f'Ticket fermé par {member.mention}.')
+    await channel.send(f"Ticket fermé par {member.mention}.")
     await channel.edit(category=category)
 
 
@@ -200,9 +200,9 @@ def get_welcome_instruction(instruction: str):
     `instruction` : str
         The instruction to display.
     """
-    welcome_embed = discord.Embed(title=configs.WELCOME_TITLE,
-                                  description=configs.WELCOME_MESSAGE.format(content=instruction),
-                                  color=0x1de203)
+    welcome_embed = discord.Embed(
+        title=configs.WELCOME_TITLE, description=configs.WELCOME_MESSAGE.format(content=instruction), color=0x1DE203
+    )
     welcome_embed.set_thumbnail(url="https://www.adeptinfo.ca/img/badge.png")
     welcome_embed.set_footer(text=configs.WELCOME_FOOTER)
 
@@ -231,11 +231,11 @@ def get_plural(value: int, word: str):
 
 # Simple time formatter based on "Mr. B" - https://stackoverflow.com/a/24542445
 INTERVALS = (
-    ('semaines', 604800),  # 60 * 60 * 24 * 7
-    ('jours', 86400),  # 60 * 60 * 24
-    ('heures', 3600),  # 60 * 60
-    ('minutes', 60),
-    ('secondes', 1),
+    ("semaines", 604800),  # 60 * 60 * 24 * 7
+    ("jours", 86400),  # 60 * 60 * 24
+    ("heures", 3600),  # 60 * 60
+    ("minutes", 60),
+    ("secondes", 1),
 )
 
 
@@ -257,9 +257,9 @@ def display_time(seconds: int, granularity: int = 2):
         if value:
             seconds -= value * count
             if value == 1:
-                name = name.rstrip('s')
+                name = name.rstrip("s")
             result.append(f"{int(value)} {name}")
-    return ', '.join(result[:granularity])
+    return ", ".join(result[:granularity])
 
 
 def load(loaded_client):

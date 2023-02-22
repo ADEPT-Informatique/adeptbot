@@ -45,7 +45,7 @@ class BaseService:
                 host=configs.DB_HOST,
                 username=configs.DB_USER,
                 password=configs.DB_PASSWORD,
-                authMechanism="SCRAM-SHA-256"
+                authMechanism="SCRAM-SHA-256",
             ).get_database(configs.DB_NAME)
 
         return self.__conn
