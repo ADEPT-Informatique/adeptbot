@@ -42,10 +42,10 @@ class BaseService:
         """Return a connection to the database."""
         if self.__conn is None:
             self.__conn = MongoClient(
-                host=configs.DB_HOST,
-                username=configs.DB_USER,
-                password=configs.DB_PASSWORD,
-                authMechanism="SCRAM-SHA-256",
+                "mongodb+srv://" +
+                f"{configs.DB_USER}:{configs.DB_PASSWORD}" +
+                f"@{configs.DB_HOST}/" +
+                "?retryWrites=true&w=majority&ssl=true",
             ).get_database(configs.DB_NAME)
 
         return self.__conn

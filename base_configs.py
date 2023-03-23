@@ -8,7 +8,6 @@ PREFIX = "!"
 
 # Database Configs
 DB_HOST = "localhost"
-DB_PORT = 27017
 DB_NAME = "database_name"
 DB_USER = "Cool Name"
 DB_PASSWORD = "Secure Password"
