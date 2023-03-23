@@ -1,6 +1,6 @@
 discord.py[speed]
 jsonpickle
-pymongo
+pymongo[srv]
 
 # Linter
 pylint
