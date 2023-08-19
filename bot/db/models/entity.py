@@ -43,7 +43,7 @@ class Entity:
         else:
             self.updated_at = datetime.utcnow()
 
-        return self.service.update_one({"_id": self._id}, {"$set": self.__dict__}, upsert=upsert)
+        return self.service.update_one({"_id": self._id}, self.__dict__, upsert=upsert)
 
     def delete(self):
         """Delete the entity from the database."""

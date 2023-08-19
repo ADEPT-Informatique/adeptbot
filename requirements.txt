@@ -1,6 +1,6 @@
-discord.py[speed]
+discord.py[speed]<3.0.0
 jsonpickle
-pymongo[srv]
+pymongo[srv]<5.0.0
 
 # Linter
 pylint
