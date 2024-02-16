@@ -12,7 +12,6 @@ class GlobalConfig:
     """
 
     __slots__ = ("_id",)
-    _id: str
 
     def __init__(self, _id: str) -> None:
         """
@@ -27,6 +26,15 @@ class GlobalConfig:
     def config_id(self):
         """The id of the config."""
         return self._id
+
+    def __getstate__(self):
+        state = {}
+        for cls in self.__class__.__mro__:
+            if hasattr(cls, "__slots__"):
+                for slot in cls.__slots__:
+                    if hasattr(self, slot):
+                        state[slot] = getattr(self, slot)
+        return state
 
 
 class SpamConfigs(GlobalConfig):

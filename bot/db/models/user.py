@@ -26,13 +26,15 @@ class AdeptMember(Entity):
         The program of the member.
     """
 
-    name: str
-    email: str
-    is_student: bool
-    is_teacher: bool
-    is_it_student: bool
-    student_id: int
-    program: str
+    __slots__ = (
+        "name",
+        "email",
+        "is_student",
+        "is_teacher",
+        "is_it_student",
+        "student_id",
+        "program",
+    )
 
     def __init__(
         self,

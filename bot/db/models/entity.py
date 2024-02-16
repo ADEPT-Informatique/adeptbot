@@ -20,6 +20,8 @@ class Entity:
         The time the entity was last updated.
     """
 
+    __slots__ = ("_id", "created_at", "updated_at")
+
     def __init__(self, _id: int, created_at: datetime = None, updated_at: datetime = None):
         self._id = _id
         self.created_at = created_at
@@ -43,7 +45,7 @@ class Entity:
         else:
             self.updated_at = datetime.utcnow()
 
-        return self.service.update_one({"_id": self._id}, self.__dict__, upsert=upsert)
+        return self.service.update_one({"_id": self._id}, self.__getstate__(), upsert=upsert)
 
     def delete(self):
         """Delete the entity from the database."""
@@ -56,6 +58,15 @@ class Entity:
         if entity is not None:
             self.created_at = entity.get("created_at")
             self.updated_at = entity.get("updated_at")
+
+    def __getstate__(self):
+        state = {}
+        for cls in self.__class__.__mro__:
+            if hasattr(cls, "__slots__"):
+                for slot in cls.__slots__:
+                    if hasattr(self, slot):
+                        state[slot] = getattr(self, slot)
+        return state
 
     @property
     @abstractmethod

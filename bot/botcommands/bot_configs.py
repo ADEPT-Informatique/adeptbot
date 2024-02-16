@@ -21,7 +21,7 @@ class BotConfigsCog(commands.Cog):
         """Affiche la configuration du spam."""
         spam_config = self.configs_service.find_or_create_spam_configs()
 
-        await ctx.send(spam_config.__dict__)
+        await ctx.send(spam_config.__getstate__())
 
     @commands.command(name="editspamconfig", aliases=["esc"])
     @commands.guild_only()
