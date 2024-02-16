@@ -5,10 +5,14 @@ from discord.ext import commands
 
 import configs
 from bot import util, welcome
+from bot.db.services import UserService
 
 
 class WelcomeCog(commands.Cog):
     """This class contains the events related to welcome."""
+
+    def __init__(self) -> None:
+        self.user_service = UserService()
 
     @commands.command()
     @commands.guild_only()
@@ -26,6 +30,10 @@ class WelcomeCog(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         """This event is called when a member joins the server."""
+        adept_member = await self.user_service.find_by_id(member.id)
+        if adept_member:
+            return await welcome.process_welcome_result(member, adept_member)
+
         await util.say(configs.WELCOME_CHANNEL, configs.WELCOME_SERVER.format(name=member.mention))
         result = await welcome.walk_through_welcome(member)
         await welcome.process_welcome_result(member, result)

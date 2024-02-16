@@ -1,12 +1,15 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /usr/src/app
 
 # Copy project files to the container
-COPY . .
+COPY requirements.txt .
 
 # Install the dependencies
 RUN python3 -m pip install -r ./requirements.txt
 
+# Copy project files to the container
+COPY . .
+
 # Start the application
-CMD ["python3", "run.py"]
+CMD ["python3", "-O", "run.py"]
