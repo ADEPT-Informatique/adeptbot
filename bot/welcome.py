@@ -7,7 +7,6 @@ from bot import util
 from bot.db.models import AdeptMember
 from bot.interactions import StudentInteraction, YesNoInteraction
 from bot.interactions.errors import NoReplyException
-from bot.db.services import UserService
 
 
 class StudentProcessOutput:

@@ -6,8 +6,7 @@ min-public-methods=0
 [MESSAGES CONTROL]
 # Disable the message "C0114: Missing module docstring"
 # Disabled the message "W0511: fixme"
-# Disabled the message "R0201: Method could be a function"
-disable=C0114, W0511, R0201
+disable=C0114, W0511
 
 [FORMAT]
 # Disabled the message "W0603: Using the global statement"
