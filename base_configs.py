@@ -7,6 +7,7 @@ TOKEN = ""
 PREFIX = "!"
 
 # Database Configs
+DB_PROTOCOL = "mongodb"
 DB_HOST = "localhost"
 DB_NAME = "database_name"
 DB_USER = "Cool Name"

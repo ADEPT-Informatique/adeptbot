@@ -1,7 +1,8 @@
 {
-    "recommendations": [
-        "ms-python.python",
-        "ms-python.pylint",
-        "sonarsource.sonarlint-vscode"
-    ]
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.pylint",
+    "ms-python.black",
+    "sonarsource.sonarlint-vscode"
+  ]
 }

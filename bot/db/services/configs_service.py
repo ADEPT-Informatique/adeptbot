@@ -16,7 +16,7 @@ class ConfigsService(BaseService):
 
         spam_config = SpamConfigs()
         if data is None:
-            self.insert_one(spam_config.__dict__)
+            self.insert_one(spam_config.__getstate__())
 
             return spam_config
 
@@ -34,7 +34,7 @@ class ConfigsService(BaseService):
         `config` : GlobalConfig
             The config to update.
         """
-        return self.update_one({"_id": config.config_id}, config.__dict__, upsert=True)
+        return self.update_one({"_id": config.config_id}, config.__getstate__(), upsert=True)
 
     @property
     def collection_name(self):

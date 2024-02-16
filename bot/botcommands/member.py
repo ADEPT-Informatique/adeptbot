@@ -55,7 +55,7 @@ class MemberCog(commands.Cog):
         """
         await ctx.channel.send(configs.TICKET_VIEW_MESSAGE, view=TicketOpeningInteraction())
 
-    @commands.command()
+    @commands.command(aliases=["stalk"])
     @has_at_least_role(configs.ADMIN_ROLE)
     async def search(self, ctx: Context, user: discord.User):
         """

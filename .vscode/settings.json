@@ -1,12 +1,6 @@
 {
-    "python.analysis.importFormat": "absolute",
-    "python.formatting.provider": "black",
-    "python.formatting.blackArgs": [
-        "--line-length",
-        "120",
-        "--target-version",
-        "py11",
-    ],
-    "python.linting.pylintEnabled": true,
-    "editor.formatOnSave": true,
+  "python.analysis.importFormat": "absolute",
+  "editor.defaultFormatter": "ms-python.black-formatter",
+  "editor.formatOnSave": true,
+  "black-formatter.args": ["--line-length", "120", "--target-version", "py311"]
 }

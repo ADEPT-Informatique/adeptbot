@@ -27,6 +27,7 @@ class InsufficientPermissionsError(PermissionError):
     ) -> None:
         self.channel = channel
         self.message = message
+        super().__init__(self.message)
 
 
 @total_ordering

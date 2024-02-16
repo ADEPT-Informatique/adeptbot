@@ -68,7 +68,8 @@ async def walk_through_welcome(member: discord.Member):
     """
     is_student_view = YesNoInteraction()
     original_message: discord.Message = await member.send(
-        embed=util.get_welcome_instruction("Êtes-vous un étudiant?"), view=is_student_view
+        embed=util.get_welcome_instruction("Êtes-vous un étudiant?"),
+        view=is_student_view,
     )
     is_student = await is_student_view.start()
 
@@ -93,7 +94,11 @@ async def walk_through_welcome(member: discord.Member):
         welcome_user.program = process_student_result.program
         welcome_user.is_it_student = process_student_result.is_it_student
 
-        confirmation_embed.add_field(name="Numéro étudiant:", value=process_student_result.student_number, inline=False)
+        confirmation_embed.add_field(
+            name="Numéro étudiant:",
+            value=process_student_result.student_number,
+            inline=False,
+        )
         if process_student_result.program is not None:
             confirmation_embed.add_field(name="Programme:", value=process_student_result.program, inline=False)
     else:
@@ -170,7 +175,10 @@ async def __process_email(member: discord.Member, original_message: discord.Mess
 
 async def __process_teacher(member: discord.Member, original_message: discord.Message):
     current_view = YesNoInteraction()
-    await original_message.edit(embed=util.get_welcome_instruction("Êtes-vous un professeur?"), view=current_view)
+    await original_message.edit(
+        embed=util.get_welcome_instruction("Êtes-vous un professeur?"),
+        view=current_view,
+    )
     is_teacher = await current_view.start()
 
     if is_teacher is None:
@@ -198,7 +206,8 @@ async def __process_student(member: discord.Member, original_message: discord.Me
 
     is_info_view = YesNoInteraction()
     await original_message.edit(
-        embed=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"), view=is_info_view
+        embed=util.get_welcome_instruction("Êtes-vous un étudiant en informatique?"),
+        view=is_info_view,
     )
     is_it_student = await is_info_view.start()
 
@@ -209,7 +218,10 @@ async def __process_student(member: discord.Member, original_message: discord.Me
 
     if is_it_student:
         student_view = StudentInteraction()
-        await original_message.edit(embed=util.get_welcome_instruction("Quel est votre programme?"), view=student_view)
+        await original_message.edit(
+            embed=util.get_welcome_instruction("Quel est votre programme?"),
+            view=student_view,
+        )
         program = await student_view.start()
 
         await original_message.edit(view=None)
@@ -233,16 +245,26 @@ async def create_welcome_embed(member: discord.User, adept_member: AdeptMember):
         The new member's information.
     """
     embed = discord.Embed(
-        title="Nouveau membre dans ADEPT-Informatique", color=0xF9E18B, timestamp=discord.utils.utcnow()
+        title="Nouveau membre dans ADEPT-Informatique",
+        color=0xF9E18B,
+        timestamp=discord.utils.utcnow(),
     )
     embed.add_field(name="Nom:", value=adept_member.name, inline=False)
     embed.add_field(name="Email:", value=adept_member.email, inline=False)
     embed.add_field(name="Numéro étudiant:", value=adept_member.student_id, inline=False)
-    embed.add_field(name="Étudiant:", value="Oui" if adept_member.is_student else "Non", inline=False)
-    embed.add_field(name="Professeur:", value="Oui" if adept_member.is_teacher else "Non", inline=False)
+    embed.add_field(
+        name="Étudiant:",
+        value="Oui" if adept_member.is_student else "Non",
+        inline=False,
+    )
+    embed.add_field(
+        name="Professeur:",
+        value="Oui" if adept_member.is_teacher else "Non",
+        inline=False,
+    )
     embed.add_field(
         name="Programme:",
-        value=adept_member.program if adept_member.is_it_student else "N'est pas en informatique",
+        value=(adept_member.program if adept_member.is_it_student else "N'est pas en informatique"),
         inline=False,
     )
     embed.set_footer(text=f"ID: {member.id}")
@@ -279,7 +301,13 @@ async def process_welcome_result(member: discord.Member, result: AdeptMember):
     roles = [
         role
         for role in member.roles
-        if role.id not in (configs.PROG_ROLE, configs.NETWORK_ROLE, configs.DECBAC_ROLE, configs.TEACHER_ROLE)
+        if role.id
+        not in (
+            configs.PROG_ROLE,
+            configs.NETWORK_ROLE,
+            configs.DECBAC_ROLE,
+            configs.TEACHER_ROLE,
+        )
     ]
     if role is not None:
         roles.append(role)

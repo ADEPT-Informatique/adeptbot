@@ -12,7 +12,9 @@ from bot.strikes import Strike
 CLIENT: discord.Client = None
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger("ADEPT-BOT")
 
@@ -29,6 +31,7 @@ class AdeptBotException(Exception):
 
     def __init__(self, message: str) -> None:
         self.message = f":bangbang: **{message}**"
+        super().__init__(self.message)
 
 
 def get_member(guild_id: int, member_id: int):
@@ -183,7 +186,10 @@ async def archive_ticket(member: discord.Member, channel: discord.TextChannel):
     category = guild.get_channel(configs.TICKET_ARCHIVE_CATEGORY)
 
     overwrites = discord.PermissionOverwrite(
-        view_channel=True, read_messages=True, send_messages=False, read_message_history=True
+        view_channel=True,
+        read_messages=True,
+        send_messages=False,
+        read_message_history=True,
     )
 
     await channel.set_permissions(member, overwrite=overwrites)
@@ -201,7 +207,9 @@ def get_welcome_instruction(instruction: str):
         The instruction to display.
     """
     welcome_embed = discord.Embed(
-        title=configs.WELCOME_TITLE, description=configs.WELCOME_MESSAGE.format(content=instruction), color=0x1DE203
+        title=configs.WELCOME_TITLE,
+        description=configs.WELCOME_MESSAGE.format(content=instruction),
+        color=0x1DE203,
     )
     welcome_embed.set_thumbnail(url="https://www.adeptinfo.ca/img/badge.png")
     welcome_embed.set_footer(text=configs.WELCOME_FOOTER)
