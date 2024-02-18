@@ -59,7 +59,3 @@ class AdeptMember(Entity):
         self.program = program
 
         super().__init__(discord_id, **kwargs)
-
-    @property
-    def service(self) -> UserService:
-        return UserService()

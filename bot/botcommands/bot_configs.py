@@ -21,7 +21,13 @@ class BotConfigsCog(commands.Cog):
         """Affiche la configuration du spam."""
         spam_config = self.configs_service.find_or_create_spam_configs()
 
-        await ctx.send(spam_config.__getstate__())
+        data = spam_config.__getstate__()
+        message = "```json\n"
+        for key in spam_config.__slots__:
+            message += f"{key}: {data[key]}\n"
+        message += "```"
+
+        await ctx.send(message)
 
     @commands.command(name="editspamconfig", aliases=["esc"])
     @commands.guild_only()
@@ -29,6 +35,10 @@ class BotConfigsCog(commands.Cog):
     async def edit_spam_config(self, ctx: commands.Context, key: str, value: int):
         """
         Modifie la configuration du spam.
+
+        Paramètres:
+        Repetition: Le nombre de messages qui peuvent être envoyés avant d'être mute.
+        Mute_time: Le temps en secondes que l'utilisateur sera mute.
 
         Utilisation:
         !editspamconfig repetition 10

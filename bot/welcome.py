@@ -57,7 +57,7 @@ async def __handle_on_timeout(member: discord.Member, message: discord.Message) 
     raise NoReplyException(member)
 
 
-async def walk_through_welcome(member: discord.Member):
+async def walk_through_welcome(member: discord.Member) -> AdeptMember | None:
     """
     Walks through the welcome process with the given member
 
@@ -82,47 +82,45 @@ async def walk_through_welcome(member: discord.Member):
 
     welcome_user = AdeptMember(member.id, full_name, email, is_student)
 
-    confirmation_embed = discord.Embed(title="Est-ce que ces informations sont tous exactes?", color=0xF9E18B)
-    confirmation_embed.add_field(name="Nom:", value=full_name, inline=False)
-    confirmation_embed.add_field(name="Email:", value=email, inline=False)
-    confirmation_embed.add_field(name="Étudiant:", value="Oui" if is_student else "Non", inline=False)
-
     if is_student:
         process_student_result = await __process_student(member, original_message)
 
         welcome_user.student_id = process_student_result.student_number
         welcome_user.program = process_student_result.program
         welcome_user.is_it_student = process_student_result.is_it_student
-
-        confirmation_embed.add_field(
-            name="Numéro étudiant:",
-            value=process_student_result.student_number,
-            inline=False,
-        )
-        if process_student_result.program is not None:
-            confirmation_embed.add_field(name="Programme:", value=process_student_result.program, inline=False)
     else:
         is_teacher = await __process_teacher(member, original_message)
         welcome_user.is_teacher = is_teacher
 
-        confirmation_embed.add_field(name="Professeur:", value="Oui" if is_teacher else "Non", inline=False)
-
-    confirmed = await __process_confirmation(member, confirmation_embed)
+    confirmed = await __process_confirmation(member, welcome_user)
 
     if confirmed is None:
-        welcome_user.save()
-
         return welcome_user
 
     if confirmed:
         return await walk_through_welcome(member)
 
-    return await member.send("Parfait, on ne recommence pas!")
+    await member.send("Parfait, on ne recommence pas!")
 
 
-async def __process_confirmation(member: discord.Member, embed: discord.Embed):
+async def __process_confirmation(member: discord.Member, result: AdeptMember):
+    confirmation_embed = discord.Embed(title="Est-ce que ces informations sont tous exactes?", color=0xF9E18B)
+    confirmation_embed.add_field(name="Nom:", value=result.name, inline=False)
+    confirmation_embed.add_field(name="Email:", value=result.email, inline=False)
+
+    if result.is_student:
+        confirmation_embed.add_field(
+            name="Numéro étudiant:",
+            value=result.student_id,
+            inline=False,
+        )
+        if result.program is not None:
+            confirmation_embed.add_field(name="Programme:", value=result.program, inline=False)
+    elif result.is_teacher:
+        confirmation_embed.add_field(name="Professeur:", value="Oui" if result.is_teacher else "Non", inline=False)
+
     confirmation_view = YesNoInteraction()
-    confirmation_message: discord.Message = await member.send(embed=embed, view=confirmation_view)
+    confirmation_message: discord.Message = await member.send(embed=confirmation_embed, view=confirmation_view)
     confirmed = await confirmation_view.start()
 
     if confirmed is None:
@@ -136,7 +134,7 @@ async def __process_confirmation(member: discord.Member, embed: discord.Embed):
         restart_message = await member.send("D'accord, voulez-vous recommencer?", view=confirmation_view)
         restart = await confirmation_view.start()
 
-        await restart_message.edit(view=confirmation_view)
+        await restart_message.edit(view=None)
         if restart is None:
             await __handle_on_timeout(member, restart_message)
 
@@ -233,7 +231,7 @@ async def __process_student(member: discord.Member, original_message: discord.Me
     return result
 
 
-async def create_welcome_embed(member: discord.User, adept_member: AdeptMember):
+async def create_welcome_embed(member: discord.User, result: AdeptMember):
     """
     Creates the welcome embed for the new member.
 
@@ -249,22 +247,22 @@ async def create_welcome_embed(member: discord.User, adept_member: AdeptMember):
         color=0xF9E18B,
         timestamp=discord.utils.utcnow(),
     )
-    embed.add_field(name="Nom:", value=adept_member.name, inline=False)
-    embed.add_field(name="Email:", value=adept_member.email, inline=False)
-    embed.add_field(name="Numéro étudiant:", value=adept_member.student_id, inline=False)
+    embed.add_field(name="Nom:", value=result.name, inline=False)
+    embed.add_field(name="Email:", value=result.email, inline=False)
+    embed.add_field(name="Numéro étudiant:", value=result.student_id if result.is_student else "N/A", inline=False)
     embed.add_field(
         name="Étudiant:",
-        value="Oui" if adept_member.is_student else "Non",
+        value="Oui" if result.is_student else "Non",
         inline=False,
     )
     embed.add_field(
         name="Professeur:",
-        value="Oui" if adept_member.is_teacher else "Non",
+        value="Oui" if result.is_teacher else "Non",
         inline=False,
     )
     embed.add_field(
         name="Programme:",
-        value=(adept_member.program if adept_member.is_it_student else "N'est pas en informatique"),
+        value=(result.program if result.is_it_student else "N'est pas en informatique"),
         inline=False,
     )
     embed.set_footer(text=f"ID: {member.id}")

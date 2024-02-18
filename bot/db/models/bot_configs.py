@@ -1,7 +1,9 @@
 """Models for dynamic bot configs."""
 
+from bot.db.models.entity import Entity
 
-class GlobalConfig:
+
+class GlobalConfig(Entity):
     """
     Model for global configs.
 
@@ -20,21 +22,12 @@ class GlobalConfig:
         `_id` : str
             The name of the config.
         """
-        self._id = _id
+        super().__init__(_id)
 
     @property
     def config_id(self):
         """The id of the config."""
         return self._id
-
-    def __getstate__(self):
-        state = {}
-        for cls in self.__class__.__mro__:
-            if hasattr(cls, "__slots__"):
-                for slot in cls.__slots__:
-                    if hasattr(self, slot):
-                        state[slot] = getattr(self, slot)
-        return state
 
 
 class SpamConfigs(GlobalConfig):
@@ -50,9 +43,6 @@ class SpamConfigs(GlobalConfig):
     """
 
     __slots__ = ("repetition", "mute_time")
-
-    repetition: int
-    mute_time: int
 
     def __init__(self) -> None:
         super().__init__("spam")
