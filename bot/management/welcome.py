@@ -6,7 +6,6 @@ from discord.ext import commands
 import configs
 from bot import util, welcome
 from bot.db.services import UserService
-from bot.db.models import AdeptMember
 
 
 class WelcomeCog(commands.Cog):

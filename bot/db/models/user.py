@@ -1,7 +1,6 @@
 """ADEPT User model."""
 
 from bot.db.models.entity import Entity
-from bot.db.services.user_service import UserService
 
 
 class AdeptMember(Entity):

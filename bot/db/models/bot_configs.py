@@ -13,7 +13,7 @@ class GlobalConfig(Entity):
         The name of the config.
     """
 
-    __slots__ = ("_id",)
+    __slots__ = ()
 
     def __init__(self, _id: str) -> None:
         """

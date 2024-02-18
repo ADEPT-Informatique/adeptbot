@@ -1,9 +1,6 @@
 """Base entity class for all models"""
 
-from abc import abstractmethod
 from datetime import datetime
-
-from bot.db.services import BaseService
 
 
 class Entity:
