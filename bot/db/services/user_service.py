@@ -1,6 +1,6 @@
 """User service."""
 
-from .base_service import BaseService
+from bot.db.services.base_service import BaseService
 
 
 class UserService(BaseService):

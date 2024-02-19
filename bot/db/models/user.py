@@ -1,7 +1,6 @@
 """ADEPT User model."""
 
 from bot.db.models.entity import Entity
-from bot.db.services.user_service import UserService
 
 
 class AdeptMember(Entity):
@@ -59,7 +58,3 @@ class AdeptMember(Entity):
         self.program = program
 
         super().__init__(discord_id, **kwargs)
-
-    @property
-    def service(self) -> UserService:
-        return UserService()
