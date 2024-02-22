@@ -34,7 +34,7 @@ class WelcomeCog(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         """This event is called when a member joins the server."""
-        adept_member = await self.user_service.find_by_id(member.id)
+        adept_member = self.user_service.find_by_id(member.id)
         if adept_member:
             return await welcome.process_welcome_result(member, adept_member)
 
