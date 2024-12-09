@@ -5,10 +5,14 @@ from discord.ext import commands
 
 import configs
 from bot import util
+from bot.db.services.reaction_role_service import ReactionRoleService
 
 
 class LoggingCog(commands.Cog):
     """This class contains the events related to logging."""
+
+    def __init__(self):
+        self.reaction_role_service = ReactionRoleService()
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
@@ -135,3 +139,28 @@ class LoggingCog(commands.Cog):
             embed.description = f"**``#{before}`` a été renommé pour {after.mention}**"
 
             await util.say(configs.LOGS_CHANNEL, embed=embed)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        """This event is called when a reaction is added to a message."""
+        if payload.member.bot:
+            return
+
+        reaction_role = await self.reaction_role_service.get_reaction_role(payload.message_id, str(payload.emoji))
+        if reaction_role:
+            guild = self.bot.get_guild(payload.guild_id)
+            role = guild.get_role(reaction_role.role_id)
+            await payload.member.add_roles(role)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
+        """This event is called when a reaction is removed from a message."""
+        guild = self.bot.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
+        if member.bot:
+            return
+
+        reaction_role = await self.reaction_role_service.get_reaction_role(payload.message_id, str(payload.emoji))
+        if reaction_role:
+            role = guild.get_role(reaction_role.role_id)
+            await member.remove_roles(role)

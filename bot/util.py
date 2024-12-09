@@ -281,3 +281,35 @@ def load(loaded_client):
     """
     global CLIENT
     CLIENT = loaded_client
+
+
+async def add_reaction_role(message_id: int, emoji: str, role_id: int):
+    """
+    Add a reaction role.
+
+    Parameters
+    ----------
+    `message_id` : int
+        The id of the message to add the reaction to.
+    `emoji` : str
+        The emoji to add as a reaction.
+    `role_id` : int
+        The id of the role to assign when the reaction is added.
+    """
+    reaction_role_service = ReactionRoleService()
+    await reaction_role_service.add_reaction_role(message_id, emoji, role_id)
+
+
+async def remove_reaction_role(message_id: int, emoji: str):
+    """
+    Remove a reaction role.
+
+    Parameters
+    ----------
+    `message_id` : int
+        The id of the message to remove the reaction from.
+    `emoji` : str
+        The emoji to remove as a reaction.
+    """
+    reaction_role_service = ReactionRoleService()
+    await reaction_role_service.remove_reaction_role(message_id, emoji)
