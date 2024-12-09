@@ -122,7 +122,6 @@ class ModerationEmbedRequest:
         author: discord.Member,
         reason: str,
         parsed_time: ParsedTime = None,
-        /,
     ):
         self.strike = strike
         self.target = target

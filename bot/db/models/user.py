@@ -41,7 +41,7 @@ class AdeptMember(Entity):
         name: str,
         email: str,
         is_student: bool,
-        /,
+        *,
         is_teacher: bool = False,
         is_it_student: bool = False,
         student_id: int = None,
