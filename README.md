@@ -6,8 +6,8 @@ A discord bot for managing your server
 
 ### Requirements
 
-- Python 3.10+
-- MongoDB 5.0+
+- Python 3.13+
+- MongoDB 8.0+
 - Dependencies (`pip3 install -r requirements.txt`)
 
 ### Setting up the bot
@@ -46,4 +46,4 @@ mongo> db.createUser({user: "DB_USER", pwd: "DB_PWD", roles: [{role: "root", db:
 
 ### Using python
 
-> `python3.10 run.py`
+> `python3 run.py`

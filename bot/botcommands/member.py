@@ -8,8 +8,7 @@ import configs
 from bot import tickets, util, welcome
 from bot.botcommands.utils.validators import has_at_least_role
 from bot.db.models.user import AdeptMember
-from bot.db.services.user_service import UserService
-from bot.db.services.reaction_role_service import ReactionRoleService
+from bot.db.services import ReactionRoleService, UserService
 from bot.interactions import TicketOpeningInteraction
 from bot.interactions import ticket as ticket_interactions
 from bot.util import AdeptBotException
@@ -124,40 +123,3 @@ class MemberCog(commands.Cog):
             + f"  - ``{decbac_students_count}`` en **DEC-BAC**\n\n"
             + f"  - ``{former_student_count}`` anciens étudiants"
         )
-
-    @commands.command()
-    @has_at_least_role(configs.ADMIN_ROLE)
-    async def addreactionrole(self, ctx: Context, message_id: int, emoji: str, role_id: int):
-        """
-        Cette commande permet d'ajouter une réaction à un message et de la lier à un rôle.
-
-        Utilisation:
-        !addreactionrole <message_id> <emoji> <role_id>
-        """
-        message = await ctx.fetch_message(message_id)
-        role = ctx.guild.get_role(role_id)
-
-        if not message or not role:
-            raise AdeptBotException("Message ou rôle invalide!")
-
-        await message.add_reaction(emoji)
-        await self.reaction_role_service.add_reaction_role(message_id, emoji, role_id)
-        await ctx.send(f"Réaction {emoji} ajoutée au message {message_id} et liée au rôle {role.name}.")
-
-    @commands.command()
-    @has_at_least_role(configs.ADMIN_ROLE)
-    async def removereactionrole(self, ctx: Context, message_id: int, emoji: str):
-        """
-        Cette commande permet de retirer une réaction d'un message et de supprimer le lien avec un rôle.
-
-        Utilisation:
-        !removereactionrole <message_id> <emoji>
-        """
-        message = await ctx.fetch_message(message_id)
-
-        if not message:
-            raise AdeptBotException("Message invalide!")
-
-        await message.clear_reaction(emoji)
-        await self.reaction_role_service.remove_reaction_role(message_id, emoji)
-        await ctx.send(f"Réaction {emoji} retirée du message {message_id}.")

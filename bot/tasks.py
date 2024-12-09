@@ -91,7 +91,7 @@ async def process_mutes():
         process_mutes.stop()
 
 
-def load_tasks():
+async def load_tasks(bot: discord.Client):
     """
     Loads all tasks from the database.
 
@@ -102,7 +102,7 @@ def load_tasks():
 
     for task in to_process:
         # Just to make the code more readable
-        member = util.get_member(task["guild"], task["member"])
+        member = bot.get_guild(task["guild"]).get_member(task["member"])
         end_date = datetime.datetime.strptime(task["end_date"], "%Y-%m-%d %H:%M:%S.%f")
 
         TASK_LIST.append(Task(member, end_date, task["type"]))

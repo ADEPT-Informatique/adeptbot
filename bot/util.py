@@ -8,6 +8,7 @@ import discord
 
 import configs
 from bot.strikes import Strike
+from bot.db.services import ReactionRoleService
 
 CLIENT: discord.Client = None
 
@@ -32,32 +33,6 @@ class AdeptBotException(Exception):
     def __init__(self, message: str) -> None:
         self.message = f":bangbang: **{message}**"
         super().__init__(self.message)
-
-
-def get_member(guild_id: int, member_id: int):
-    """
-    Get a member from a guild.
-
-    Parameters
-    ----------
-    `guild_id` : int
-        The id of the guild.
-    `member_id` : int
-        The id of the member.
-    """
-    return CLIENT.get_guild(guild_id).get_member(member_id)
-
-
-def get_guild(guild_id: int):
-    """
-    Get a guild.
-
-    Parameters
-    ----------
-    `guild_id` : int
-        The id of the guild.
-    """
-    return CLIENT.get_guild(guild_id)
 
 
 def get_case_number():

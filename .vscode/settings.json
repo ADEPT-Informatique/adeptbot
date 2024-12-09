@@ -1,6 +1,12 @@
 {
-  "python.analysis.importFormat": "absolute",
   "editor.defaultFormatter": "ms-python.black-formatter",
+  "files.trimTrailingWhitespace": true,
   "editor.formatOnSave": true,
-  "black-formatter.args": ["--line-length", "120", "--target-version", "py311"]
+
+  "isort.args": ["--profile", "black"],
+  "python.analysis.importFormat": "absolute",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always",
+    "source.fixAll": "always"
+  }
 }

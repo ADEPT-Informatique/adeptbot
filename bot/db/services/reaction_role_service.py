@@ -1,7 +1,7 @@
 """Service class for ReactionRole model."""
 
-from bot.db.services.base_service import BaseService
 from bot.db.models.reaction_role import ReactionRole
+from bot.db.services.base_service import BaseService
 
 
 class ReactionRoleService(BaseService):
@@ -36,7 +36,7 @@ class ReactionRoleService(BaseService):
             The ID of the role to assign.
         """
         reaction_role = ReactionRole(None, message_id, emoji, role_id)
-        await self.insert_one(reaction_role.__getstate__())
+        self.insert_one(reaction_role.__getstate__())
 
     async def remove_reaction_role(self, message_id: int, emoji: str):
         """
@@ -49,9 +49,9 @@ class ReactionRoleService(BaseService):
         `emoji` : str
             The emoji used for the reaction.
         """
-        await self.delete_one({"message_id": message_id, "emoji": emoji})
+        self.delete_one({"message_id": message_id, "emoji": emoji})
 
-    async def get_reaction_role(self, message_id: int, emoji: str) -> ReactionRole:
+    async def get_reaction_role(self, message_id: int, emoji: str) -> ReactionRole | None:
         """
         Get a reaction role from the database.
 
@@ -67,7 +67,7 @@ class ReactionRoleService(BaseService):
         ReactionRole
             The reaction role.
         """
-        result = await self.find_one({"message_id": message_id, "emoji": emoji})
+        result = self.find_one({"message_id": message_id, "emoji": emoji})
         if result:
             return ReactionRole(result["_id"], result["message_id"], result["emoji"], result["role_id"])
         return None

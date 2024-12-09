@@ -4,15 +4,16 @@ import discord
 from discord.ext import commands
 
 import configs
-from bot import util, welcome
+from bot import welcome
 from bot.db.services import UserService
 
 
 class WelcomeCog(commands.Cog):
     """This class contains the events related to welcome."""
 
-    def __init__(self) -> None:
+    def __init__(self, bot: discord.Client) -> None:
         self.user_service = UserService()
+        self.bot = bot
 
     @commands.command()
     @commands.guild_only()
@@ -38,7 +39,7 @@ class WelcomeCog(commands.Cog):
         if adept_member:
             return await welcome.process_welcome_result(member, adept_member)
 
-        await util.say(configs.WELCOME_CHANNEL, configs.WELCOME_SERVER.format(name=member.mention))
+        await self.bot.say(configs.WELCOME_CHANNEL, configs.WELCOME_SERVER.format(name=member.mention))
         result = await welcome.walk_through_welcome(member)
         if not result:
             return

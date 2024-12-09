@@ -17,7 +17,7 @@ from discord.ext.commands.errors import (
 
 import configs
 from bot import tasks, util
-from bot.botcommands import BotConfigsCog, MemberCog, ModerationCog
+from bot.botcommands import BotConfigsCog, MemberCog, ModerationCog, ReactionRoleCog
 from bot.interactions import TicketCloseInteraction, TicketOpeningInteraction
 from bot.interactions.errors import NoReplyException
 from bot.management import LoggingCog, StrikesCog, WelcomeCog
@@ -32,20 +32,21 @@ class AdeptClient(commands.Bot):
     async def on_ready(self):
         """Called when the bot is ready."""
         util.logger.info(
-            "\nLogged in with account @%s ID:%s \n------------------------------------\n", self.user.name, self.user.id
+            "\nLogged in with account @%s ID:%s \n------------------------------------", self.user.name, self.user.id
         )
 
         await self.change_presence(activity=discord.Activity(name="for bad boys!", type=discord.ActivityType.watching))
-        tasks.load_tasks()
+        await tasks.load_tasks(self)
 
     async def setup_hook(self) -> None:
         # Register cogs
         await self.add_cog(BotConfigsCog())
-        await self.add_cog(LoggingCog())
+        await self.add_cog(LoggingCog(self))
         await self.add_cog(MemberCog())
         await self.add_cog(ModerationCog())
         await self.add_cog(StrikesCog())
-        await self.add_cog(WelcomeCog())
+        await self.add_cog(WelcomeCog(self))
+        await self.add_cog(ReactionRoleCog(self))
 
         # Register persistent views
         self.add_view(TicketOpeningInteraction())
@@ -105,9 +106,9 @@ class AdeptClient(commands.Bot):
 
         if isinstance(ctx, CommandNotFound):
             # We don't care
-            pass
+            return
 
-        elif isinstance(exception, NoPrivateMessage):
+        if isinstance(exception, NoPrivateMessage):
             await ctx.send("Cette commande ne peut pas être utilisée en message privé.")
 
         elif isinstance(exception, UserNotFound):
@@ -122,7 +123,7 @@ class AdeptClient(commands.Bot):
         elif isinstance(exception, BadArgument):
             await ctx.send(f"Argument invalide: {exception.param.name}")
 
-        elif isinstance(exception, NoReplyException):
+        elif isinstance(exception, (NoReplyException)):  # , InsufficientPermissionsError)):
             await exception.channel.send(exception.message)
 
         elif isinstance(exception, discord.Forbidden):
