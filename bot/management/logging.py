@@ -5,10 +5,15 @@ from discord.ext import commands
 
 import configs
 from bot import util
+from bot.db.services.reaction_role_service import ReactionRoleService
 
 
 class LoggingCog(commands.Cog):
     """This class contains the events related to logging."""
+
+    def __init__(self, bot: discord.Client):
+        self.reaction_role_service = ReactionRoleService()
+        self.bot = bot
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):

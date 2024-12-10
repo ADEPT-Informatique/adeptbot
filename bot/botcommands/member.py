@@ -8,7 +8,7 @@ import configs
 from bot import tickets, util, welcome
 from bot.botcommands.utils.validators import has_at_least_role
 from bot.db.models.user import AdeptMember
-from bot.db.services.user_service import UserService
+from bot.db.services import ReactionRoleService, UserService
 from bot.interactions import TicketOpeningInteraction
 from bot.interactions import ticket as ticket_interactions
 from bot.util import AdeptBotException
@@ -19,6 +19,7 @@ class MemberCog(commands.Cog):
 
     def __init__(self) -> None:
         self.user_service = UserService()
+        self.reaction_role_service = ReactionRoleService()
 
     @commands.command()
     async def ticket(self, ctx: Context, ticket: tickets.TicketConverter):

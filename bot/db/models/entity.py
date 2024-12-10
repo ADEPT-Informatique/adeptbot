@@ -1,6 +1,6 @@
 """Base entity class for all models"""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class Entity:
@@ -19,7 +19,12 @@ class Entity:
 
     __slots__ = ("_id", "created_at", "updated_at")
 
-    def __init__(self, _id: int, created_at: datetime = datetime.utcnow(), updated_at: datetime = datetime.utcnow()):
+    def __init__(
+        self,
+        _id: int,
+        created_at: datetime = datetime.now(timezone.utc),
+        updated_at: datetime = datetime.now(timezone.utc),
+    ):
         self._id = _id
         self.created_at = created_at
         self.updated_at = updated_at
