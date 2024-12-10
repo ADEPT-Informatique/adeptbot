@@ -121,6 +121,7 @@ class ModerationEmbedRequest:
         target: discord.User | discord.Member,
         author: discord.Member,
         reason: str,
+        *,
         parsed_time: ParsedTime = None,
     ):
         self.strike = strike
@@ -218,7 +219,9 @@ class ModerationCog(commands.Cog):
         except (discord.errors.HTTPException, discord.errors.Forbidden):
             util.logger.warning("Failed to notify mute")
 
-        mute_embed = await ModerationEmbedRequest(Strike.MUTE, member, ctx.author, reason, length).moderation_embed
+        mute_embed = await ModerationEmbedRequest(
+            Strike.MUTE, member, ctx.author, reason, parsed_time=length
+        ).moderation_embed
         await util.mute(member, reason)
         await util.say(configs.LOGS_CHANNEL, embed=mute_embed)
         await ctx.message.add_reaction("\u2705")
